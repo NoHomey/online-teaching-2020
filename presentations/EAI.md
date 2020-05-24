@@ -10,3 +10,4 @@
 10. [Лема за покачването за безконтекстни езици](https://slides.com/ivo_stratev/cf-pump/fullscreen)
 11. [Нормална форма на Чомски и CYK алгоритъм](https://slides.com/ivo_stratev/chomsky/fullscreen)
 12. [Детерминирани стекови автомати](https://slides.com/ivo_stratev/chomsky/fullscreen)
+13. [Недетерминирани стекови автомати](https://slides.com/ivo_stratev/pda/fullscreen)
