@@ -5,7 +5,7 @@
 5. [Строене на регулярен израз по тотален КДА](https://slides.com/ivo_stratev/mini/fullscreen#/3)
 6. [Лема за покачването за рег. езици](https://slides.com/ivo_stratev/reg-pump/fullscreens)
 7. [Доказване на нерегулярност](https://slides.com/ivo_stratev/reg-pump-next/fullscreen)
-8. [Оператори над рег. езици](https://slides.com/ivo_stratev/reg-pros/fullscreen)
+8. [Оператори над регулярни езици](https://slides.com/ivo_stratev/reg-pros/fullscreen)
 9. [Безконтекстни граматики](https://slides.com/ivo_stratev/grammars/fullscreen)
 10. [Безконтекстни граматики 2](https://slides.com/ivo_stratev/grammars2/fullscreen)
 11. [Лема за покачването за безконтекстни езици](https://slides.com/ivo_stratev/cf-pump/fullscreen)
