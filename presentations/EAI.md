@@ -3,7 +3,7 @@
 3. [Детерминизация](https://slides.com/ivo_stratev/determinator/fullscreen)
 4. [Минимизация](https://slides.com/ivo_stratev/mini/fullscreen)
 5. [Строене на регулярен израз по тотален КДА](https://slides.com/ivo_stratev/mini/fullscreen#/3)
-6. [Лема за покачването за рег. езици](https://slides.com/ivo_stratev/reg-pump/fullscreens)
+6. [Лема за покачването за рег. езици](https://slides.com/ivo_stratev/reg-pump/fullscreen)
 7. [Доказване на нерегулярност](https://slides.com/ivo_stratev/reg-pump-next/fullscreen)
 8. [Оператори над регулярни езици](https://slides.com/ivo_stratev/reg-pros/fullscreen)
 9. [Безконтекстни граматики](https://slides.com/ivo_stratev/grammars/fullscreen)
