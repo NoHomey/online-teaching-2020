@@ -10,5 +10,5 @@
 10. [Безконтекстни граматики 2](https://slides.com/ivo_stratev/grammars2/fullscreen)
 11. [Лема за покачването за безконтекстни езици](https://slides.com/ivo_stratev/cf-pump/fullscreen)
 12. [Нормална форма на Чомски и CYK алгоритъм](https://slides.com/ivo_stratev/chomsky/fullscreen)
-13. [Детерминирани стекови автомати](https://slides.com/ivo_stratev/chomsky/fullscreen)
+13. [Детерминирани стекови автомати](https://slides.com/ivo_stratev/dsa/fullscreen)
 14. [Недетерминирани стекови автомати](https://slides.com/ivo_stratev/pda/fullscreen)
