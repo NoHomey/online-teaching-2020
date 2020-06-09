@@ -1,0 +1,407 @@
+\documentclass[12pt]{article}
+\usepackage{tikz}
+\usetikzlibrary{automata, positioning, arrows}
+\tikzset{
+->, >=stealth, node distance=2.5cm,
+every state/.style={thick},
+initial text=$ $
+}
+\usepackage[utf8]{inputenc}
+\usepackage[T2A]{fontenc}
+\usepackage[english,bulgarian]{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{relsize}
+\usepackage{color}
+\usepackage{upquote}
+\usepackage{listings}
+
+\definecolor{mediumgray}{rgb}{0.3, 0.4, 0.4}
+\definecolor{mediumblue}{rgb}{0.0, 0.0, 0.8}
+\definecolor{forestgreen}{rgb}{0.13, 0.55, 0.13}
+\definecolor{darkviolet}{rgb}{0.58, 0.0, 0.83}
+\definecolor{royalblue}{rgb}{0.25, 0.41, 0.88}
+\definecolor{crimson}{rgb}{0.86, 0.8, 0.24}
+
+\lstdefinelanguage{JavaScript}{
+  morekeywords=[1]{break, continue, delete, else, for, function, if, in,
+    new, return, this, typeof, var, void, while, with},
+  morekeywords=[2]{false, null, true, boolean, number, undefined,
+    Array, Boolean, Date, Math, Number, String, Object},
+  morekeywords=[3]{eval, parseInt, parseFloat, escape, unescape},
+  sensitive,
+  morecomment=[s]{/*}{*/},
+  morecomment=[l]//,
+  morecomment=[s]{/**}{*/},
+  morestring=[b]',
+  morestring=[b]"
+}[keywords, comments, strings]
+
+\lstalias[]{ES6}[ECMAScript2015]{JavaScript}
+
+\lstdefinelanguage[ECMAScript2015]{JavaScript}[]{JavaScript}{
+  morekeywords=[1]{await, async, case, catch, class, const, default, do,
+    enum, export, extends, finally, from, implements, import, instanceof,
+    let, static, super, switch, throw, try},
+  morestring=[b]`
+}
+
+\lstdefinestyle{JSES6Base}{
+  backgroundcolor=\color{white},
+  basicstyle=\ttfamily,
+  breakatwhitespace=false,
+  breaklines=false,
+  captionpos=b,
+  columns=fullflexible,
+  commentstyle=\color{mediumgray}\upshape,
+  emph={},
+  emphstyle=\color{crimson},
+  extendedchars=true,
+  fontadjust=true,
+  frame=single,
+  identifierstyle=\color{black},
+  keepspaces=true,
+  keywordstyle=\color{mediumblue},
+  keywordstyle={[2]\color{darkviolet}},
+  keywordstyle={[3]\color{royalblue}},
+  numbers=left,
+  numbersep=5pt,
+  numberstyle=\tiny\color{black},
+  rulecolor=\color{black},
+  showlines=true,
+  showspaces=false,
+  showstringspaces=false,
+  showtabs=false,
+  stringstyle=\color{forestgreen},
+  tabsize=2,
+  title=\lstname
+}
+
+\lstdefinestyle{JavaScript}{
+  language=JavaScript,
+  style=JSES6Base
+}
+\lstdefinestyle{ES6}{
+  language=ES6,
+  style=JSES6Base
+}
+
+\title{Алгоритъм на Божозовски за строене на хубав* автомат}
+\author{Иво Стратев}
+
+\begin{document}
+\maketitle
+
+\section{Да си припомним някои неща}
+
+Със \(\Large\Sigma\) означавахме крайната азбука, над която работим. Това беше просто крайно и непразно множество.
+Множеството на всички думи над азбуката \(\Large\Sigma\) бележихме със \(\Large\Sigma^*\).
+Език над азбуката \(\Large\Sigma\)  за нас беше всяко подмножество на \(\Large\Sigma^*\).
+Значи множеството на всички езици над азбуката \(\Large\Sigma\) е степенното множество на \(\Large\Sigma^*\),  тоест \(\Large{\mathcal{P}(\Sigma^*)}\).
+Празният език е \(\emptyset\), независимо от азбуката.
+Езикът на празната дума е \(\{\varepsilon\}\), независимо от азбуката.
+Ако \(u\ \in \Sigma\), то \(\{u\}\) е езикът на думата с единствена буква \(u\) и \(\{u\}\) е език над \(\Sigma\).
+Ако \(A\) и \(B\) са езици над \(\Sigma\), то конкатенацията на \(A\) и \(B\) беше \(A \cdot B = \{\alpha.\beta \; \mid \; \alpha \in A \; \& \; \beta \in B\} \) и също е език над същата азбука \(\Sigma\).
+Ако \(A\) и \(B\) са езици над \(\Sigma\), то \(A \cup B\) също е език над \(\Sigma\). \\
+
+\vspace{3mm}
+
+Нека \(L\) е език над \(\Large\Sigma\). Тогава
+\(L^0 = \{\varepsilon\}\) и ако \(n \in \mathbb{N}\), то \(L^{n + 1} = L \cdot L^n\) и \(L^* = \displaystyle{\bigcup_{k \in \mathbb{N}}} L^k\)
+и \(L^+ = L \cdot L^* = \displaystyle{\bigcup_{k \in \mathbb{N}}} L^{k + 1}\).
+Очевидно \(L^*\) и \(L^+\) са езици над \(\Sigma\).
+
+\subsection{Примери (Сметки)}
+
+Имаме \(\{a\}^* = \displaystyle{\bigcup_{n \in \mathbb{N}}} \{a\}^n
+= \displaystyle{\bigcup_{n \in \mathbb{N}}} \{a^n\}
+= \{a^n \; \mid \; n \in \mathbb{N}\}\) и \(\{a\}^+ = \{a\} \cdot \{a\}^* \). \\
+Значи \(\{a\}^*
+= \{a^0\} \cup \{a^n \; \mid \; n \in \mathbb{N}_+\}
+= \{\varepsilon\} \cup \{a\}^+ 
+= \{\varepsilon\} \cup \{a\} \cdot \{a\}^*\).
+
+Да направим една по-голяма сметка:
+\begin{align*}
+L \\
+= \{a, b\}^* \cdot \{c\}^*
+= (\{\varepsilon\} \cup \{a, b\}^+) \cdot \{c\}^* \\
+= (\{\varepsilon\} \cup (\{a, b\} \cdot \{a, b\}^* ) \cdot \{c\}^*  \\
+= (\{\varepsilon\} \cup (\{a\} \cup \{b\}) \cdot \{a, b\}^* ) \cdot \{c\}^* \\
+= (\{\varepsilon\} \cup \{a\} \cdot \{a, b\}^* \cup \{b\} \cdot \{a, b\}^* ) \cdot \{c\}^* \\
+= \{\varepsilon\} \cdot \{c\}^* \cup \{a\} \cdot \{a, b\}^* \cdot \{c\}^* \cup \{b\} \cdot \{a, b\}^* \cdot \{c\}^* \\
+= \{c\}^* \cup \{a\} \cdot L \cup \{b\} \cdot L \\
+= \{\varepsilon\} \cup \{c\} \cdot \{c\}^* \cup \{a\} \cdot L \cup \{b\} \cdot L
+\end{align*}
+Следователно \(L\) може да бъде представен като обединение на езици започващи с конкретна буква
+или на празната дума. Нещо, което ще ни бъде полезно за алгоритъма, който ще разгледаме.
+
+\section{Операцията, която ще ни трябва}
+Нека \(\Sigma\) е крайна азбука. \\
+Дефинириме операция
+\(remove_\Sigma \; : \; \Sigma \times \mathcal{P}(\Sigma^*)  \to \mathcal{P}(\Sigma^*)\) по следния начин\\
+\(remove_\Sigma(x, L) = \{\alpha \in \Sigma^* \; \mid \; x.\alpha \in L\}\).
+Очевидно тя е коректно дефинирана операция, тоест пресмятайки я върху конкретна буква \(x\) от \(\Sigma\) и конкретен език \(L\) над \(\Sigma\) получаваме 
+друг език над \(\Sigma\) \(\{\alpha \in \Sigma^* \; \mid \; x.\alpha \in L\}\),
+защото отделяме от \(\Sigma^*\).
+Идеята зад дефинираната операция е все едно да махнем буквата \(x\) от думите започващи с \(x\) от \(L\)
+и като резултат да получаваме остатъците от думите след махането.
+Като под махан разбираме прочитане на буквата.
+
+\subsection{Примерни сметки:}
+Очевидно \(remove_\Sigma(x, \emptyset) = \emptyset\) понеже в празният език няма думи. \\
+Също \(remove_\Sigma(x, \{\varepsilon\}) = \{\alpha \in \Sigma^* \; \mid \; x.\alpha \in \{\varepsilon\}\} = \emptyset\)
+понеже \(\{\varepsilon\}\) има единствена дума, която няма букви, тоест няма какво да махнем от нея.\\
+Ако \(x \in \Sigma\), то \(remove_\Sigma(x, \{x\}) = \{\alpha \in \Sigma^* \; \mid \; x.\alpha \in \{x.\varepsilon\}\} = \{\varepsilon\}\),
+понеже \(\{x\} = \{x.\varepsilon\}\). \\
+Ако \(x\) и \(y\) са различни букви от \(\Sigma\), то \\
+\(remove_\Sigma(x, \{y\}) = \{\alpha \in \Sigma^* \; \mid \; x.\alpha \in \{y\}\} = \emptyset\). \\
+
+\vspace{3mm}
+
+За момента фиксираме азбуката \(\Sigma = \{a, b, c\}\) и за това вместо \(remove_{\{a, b, c\}}\) ще пишем просто \(rem\).
+Нека направим няколко сметки:
+\begin{align*}
+    rem(a, \{aa\}) = \{a\} \quad rem(a, \{ba\}) = \emptyset \\
+    rem(a, \{aa, ba\}) = rem(a, \{aa\} \cup \{ba\}) = rem(a, \{aa\}) \cup rem(a, \{ba\}) = \{a\} \cup \emptyset = \{a\} \\
+    rem(a, \{a\}^+) = rem(a, \{a\} \cdot \{a\}^*) = \{a\}^* \\
+    rem(a, \{a\}^*) = rem(a, \{ \varepsilon \} \cup \{a\} \cdot \{a\}^*) = \{a\}^* \\
+    rem(a, \{aa\}^+) = rem(a, \{aa\} \cdot \{aa\}^*) = \{a\} \cdot \{aa\}^*
+\end{align*}
+
+Нека \(L = \{a\}^* \cdot \{b\}^+ = (\{\varepsilon\} \cup \{a\} \cdot \{a\}^*) \cdot \{b\}^+ = \{b\}^+ \cup  \{a\} \cdot \{a\}^* \cdot \{b\}^+ = \{b\} \cdot \{b\}^* \cup \{a\} \cdot L \). Тогава
+
+\begin{align*}
+    rem(a, L ) = rem(a, \{b\} \cdot \{b\}^* \cup \{a\} \cdot L) = L \\
+    rem(b, L ) = rem(b, \{b\} \cdot \{b\}^* \cup \{a\} \cdot L) = \{b\}^* \\
+    rem(c, L ) = rem(c, \{b\} \cdot \{b\}^* \cup \{a\} \cdot L) = \emptyset \\
+    rem(a, \{b\}^*) = \emptyset \\
+    rem(b, \{b\}^*) = \{b\}^* \\
+    rem(a, \{b\}^*) = \emptyset \\
+    rem(a, \emptyset) = rem(b, \emptyset) = rem(c, \emptyset) = \emptyset 
+\end{align*}
+
+Значи
+\begin{align*}
+    rem(a, L) = L \\
+    rem(b, L) = \{b\}^* \\
+    rem(c, L) = \emptyset \\
+    rem(a, \{b\}^*) = \emptyset \\
+    rem(b, \{b\}^*) = \{b\}^* \\
+    rem(c, \{b\}^*) = \emptyset \\
+    rem(a, \emptyset) = \emptyset \\
+    rem(b, \emptyset) = \emptyset \\
+    rem(c, \emptyset) = \emptyset
+\end{align*}
+
+Ако "навържем" сметките от преди малко получаваме следния автомат:
+
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial] (q1) {$L$};
+    \node[state, right of=q1] (q2) {$\{b\}^*$};
+    \node[state, below of=q1] (q3) {$\emptyset$};
+    
+    \draw   (q1) edge[loop above] node{a} (q1)
+            (q1) edge[bend left, above] node{b} (q2)
+            (q2) edge[loop right] node{b} (q2)
+            (q2) edge[bend left, below right] node{$a, c$} (q3)
+            (q3) edge[loop below, below] node{$a, b, c$} (q3)
+            (q1) edge[bend right, left] node{c} (q3);
+\end{tikzpicture}
+\end{center}
+
+Така констуирания автомат няма нито едно финално състояние, тоест той разпознава празният език.
+На нас ни се иска, той да разпознава езикът \(L = \{a\}^* \cdot \{b\}^+\).
+За целта финални са всички състояния, които съдържат празната дума \(\varepsilon\).
+Имаме:
+
+\begin{align*}
+    L = \{b\} \cdot \{b\}^* \cup \{a\} \cdot L \quad \text{не съдържа празната дума} \\
+    \{b\}^* = \{\varepsilon\} \cup \{b\}^+ \quad \text{съдържа празната дума} \\
+    \emptyset \quad \text{не съдържа празната дума}
+\end{align*}
+
+Така само \(\{b\}^*\) става финално състояние и получаваме следния автомат
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial] (q1) {$L$};
+    \node[state, accepting, right of=q1] (q2) {$\{b\}^*$};
+    \node[state, below of=q1] (q3) {$\emptyset$};
+    
+    \draw   (q1) edge[loop above] node{a} (q1)
+            (q1) edge[bend left, above] node{b} (q2)
+            (q2) edge[loop right] node{b} (q2)
+            (q2) edge[bend left, below right] node{$a, c$} (q3)
+            (q3) edge[loop below, below] node{$a, b, c$} (q3)
+            (q1) edge[bend right, left] node{c} (q3);
+\end{tikzpicture}
+\end{center}
+Лесно се съобразява, че този автомат разпознава \(L = \{a\}^* \cdot \{b\}^+\).
+
+\section{Алгоритъм на Божозовски}
+
+Това, което може да забележим е, че постройхме автомат пресмятайки операцията \(rem\) върху различни езици,
+започвайки от езика, за който искаме да конструираме автомат, докато получаваме нови езици с всяка буква на азбуката.
+Състоянията бяха различните езици, началното, езика за който конструираме автомат, а 
+финални са състоянията, които съдържат празната дума. Така готови сме да представим чрез псевдо код алгоритъма на Божозовкси. \\
+
+\vspace{2mm}
+
+\begin{lstlisting}[style=ES6]
+function bojoAlgorithm(language) {
+    const Sigma = alphabet(language);
+    let languages = [language];
+    let notVisited = [language];
+    let transitions = [];
+    let finals = [];
+    while(!notVisited.isEmpty()) {
+        const current = notVisited.pop();
+        for(let letter in Sigma) {
+            const result = rem(letter, current);
+            transitions.insert([current, letter, result]);
+            if(!languages.isMember(result)) {
+                notVisited.push(result);
+                languages.push(result);
+            }
+        }
+        if(includesEmptyWord(current)) {
+            finals.insert(current);
+        }
+    }
+    return [Sigma, languages, transitions, language, finals];
+}
+\end{lstlisting}
+
+\subsection{Няколко практически съвета}
+
+\begin{itemize}
+    \item Преди да тръгнем да смятаме най-добре е да представим езика, от който махаме букви като \textbf{обединие} на празния език или езици \textbf{започващи с конкретна буква}.
+    \item След като се сметне \(rem(x, M)\) трябва \textbf{много внимателно} да се провери, дали е \textbf{нов език}.
+    \item Резултата от сметката \(rem(x, M)\) е добре да \textbf{подчертаем} ако е \textbf{нов език} (такъв какъвто не сме срещали досега) и е добре да \textbf{заградим}, ако видим, че \textbf{съдържа празната дума}.
+    \item Добре е поватрарящи се езици, участващи като изрази ако не са крайни и не са кратки за писане да означаваме по някакъв начин с цел съкращаване.
+\end{itemize}
+
+\section{Пример 1}
+Нека постройм по разгледания алгоритъм автомат за езикът \(L = \{a, b\}^* \cdot \{c\}^*\).
+В началото видяхме, че \(L = \{\varepsilon\} \cup \{c\} \cdot \{c\}^* \cup \{a\} \cdot L \cup \{b\} \cdot L\). (направихме една по-голяма сметка)
+Понеже \(L\) съдържа празната дума и за нас е нов език, то следвайки съветите \(\boxed{\underline{L}}\). \\
+Започваме да смятаме:
+
+\begin{align*}
+    rem(a, \; L) = rem(a, \; \{\varepsilon\} \cup \{c\} \cdot \{c\}^* \cup \{a\} \cdot L \cup \{b\} \cdot L) = L \\
+    rem(b, \; L) = rem(b, \; \{\varepsilon\} \cup \{c\} \cdot \{c\}^* \cup \{a\} \cdot L \cup \{b\} \cdot L) = L \\
+    rem(c, \; L) = rem(c, \; \{\varepsilon\} \cup \{c\} \cdot \{c\}^* \cup \{a\} \cdot L \cup \{b\} \cdot L) = \boxed{\underline{\{c\}^*}} \\
+    rem(a, \; \{c\}^*) = \underline{\emptyset} \\
+    rem(b, \; \{c\}^*) = \emptyset \\
+    rem(c, \; \{c\}^*) = \{c\}^* \\
+    rem(a, \; \emptyset) = \emptyset \\
+    rem(b, \; \emptyset) = \emptyset \\
+    rem(c, \; \emptyset) = \emptyset
+\end{align*}
+Така получаваме следния автомат
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial, accepting] (q1) {$L$};
+    \node[state, accepting, right of=q1] (q2) {$\{c\}^*$};
+    \node[state, right of=q2] (q3) {$\emptyset$};
+    
+    \draw   (q1) edge[loop above] node{$a, b$} (q1)
+            (q1) edge[above] node{c} (q2)
+            (q2) edge[loop above, above] node{c} (q2)
+            (q2) edge[above] node{$a, b$} (q3)
+            (q3) edge[loop above, above] node{$a, b, c$} (q3);
+\end{tikzpicture}
+\end{center}
+
+\section{Пример 2}
+Нека постройм по разгледания алгоритъм автомат за един познат за нас език.
+\[L = \{\omega \in \{a, b\}^* \; \mid \; \mathcal{N}_{a}(\omega) \equiv 0 \pmod{3}\}\]
+Очевидно сменяме и азбуката вече \(\Sigma = \{a, b\}\), но продължаваме да пишем просто \(rem\).
+Нека изразим \(L\) в \textbf{удобен за смятане вид}, тоест като \textbf{обединие на езици започващи с фиксирана буква} или празната дума.
+\begin{align*}
+    L = \{\varepsilon\} \cup \{\omega \in \{a, b\}^* \; \mid \; \mathcal{N}_{a}(\omega) \equiv 0 \pmod{3} \; \& \; |\omega| > 0\} \\
+    = \{\varepsilon\}
+\cup
+\{a\} \cdot \{\omega \in \{a, b\}^* \; \mid \; \mathcal{N}_{a}(\omega) \equiv 2 \pmod{3}\}
+\cup
+\{b\} \cdot \{\omega \in \{a, b\}^* \; \mid \; \mathcal{N}_{a}(\omega) \equiv 0 \pmod{3}\}
+\end{align*}
+Да означим \(\{\omega \in \{a, b\}^* \; \mid \; \mathcal{N}_{a}(\omega) \equiv 2 \pmod{3}\}\) с \(L_2\).
+Тогава \(L = \{\varepsilon\} \cup \{a\} \cdot L_2 \cup \{b\} \cdot L\).
+Следвайки съветите \(\boxed{\underline{L}}\). \\
+
+\vspace{2mm}
+Пресмятаме
+\begin{align*}
+    rem(a, \; L) = rem(a, \; \{\varepsilon\} \cup \{a\} \cdot L_2 \cup \{b\} \cdot L) = \underline{L_2} = \{\omega \in \{a, b\}^* \; \mid \; \mathcal{N}_{a}(\omega) \equiv 2 \pmod{3}\} \\
+    rem(b, \; L) = rem(b, \; \{\varepsilon\} \cup \{a\} \cdot L_2 \cup \{b\} \cdot L) = L
+\end{align*}
+
+Изразяваме \(L_2\) като обединение:
+
+\begin{align*}
+    L_2 = \{\omega \in \{a, b\}^* \; \mid \; \mathcal{N}_{a}(\omega) \equiv 2 \pmod{3}\} \\
+= \{a\} \cdot \{\omega \in \{a, b\}^* \; \mid \; \mathcal{N}_{a}(\omega) \equiv 1 \pmod{3}\} 
+\cup \{b\} \cdot \{\omega \in \{a, b\}^* \; \mid \; \mathcal{N}_{a}(\omega) \equiv 2 \pmod{3}\}
+\end{align*}
+
+Да означим \(\{\omega \in \{a, b\}^* \; \mid \; \mathcal{N}_{a}(\omega) \equiv 1 \pmod{3}\}\) с \(L_1\). Тогава \(L_2 = \{a\} \cdot L_1 \cup \{b\} \cdot L_2\).  \\
+
+\vspace{2mm}
+Правим още пресмятания
+\begin{align*}
+    rem(a, \; L_2) = rem(a, \; \{a\} \cdot L_1 \cup \{b\} \cdot L_2) = \underline{L_1} = \{\omega \in \{a, b\}^* \; \mid \; \mathcal{N}_{a}(\omega) \equiv 1 \pmod{3}\} \\
+    rem(b, \; L_2) = rem(b, \; \{a\} \cdot L_1 \cup \{b\} \cdot L_2) = L_2
+\end{align*}
+Изразяваме \(L_1\) като обединение:
+\begin{align*}
+    L_1 = \{\omega \in \{a, b\}^* \; \mid \; \mathcal{N}_{a}(\omega) \equiv 1 \pmod{3}\} \\
+= \{a\} \cdot \{\omega \in \{a, b\}^* \; \mid \; \mathcal{N}_{a}(\omega) \equiv 0 \pmod{3}\} 
+\cup \{b\} \cdot \{\omega \in \{a, b\}^* \; \mid \; \mathcal{N}_{a}(\omega) \equiv 1 \pmod{3}\} \\
+= \{a\} \cdot L \cup \{b\} \cdot L_1
+\end{align*}
+Правим още две пресмятания:
+\begin{align*}
+    rem(a, \; L_1) = rem(a, \; \{a\} \cdot L \cup \{b\} \cdot L_1) = L \\
+    rem(b, \; L_1) = rem(a, \; \{a\} \cdot L \cup \{b\} \cdot L_1) = L_1
+\end{align*}
+Така всички сметки са:
+\begin{align*}
+    rem(a, L) = L_2 \\
+    rem(b, L) = L \\
+    rem(a, L_2) = L_1 \\
+    rem(b, L_2) = L_2 \\
+    rem(a, L_1) = L \\
+    rem(b, L_1) = L_1
+\end{align*}
+В хода на пресмятанията единствено сме подчертали \(L_2\) и \(L_1\) и в началото оградихме \(L\).
+С други думи само \(L\) съдържа празната дума, значи то ще единственото финално състояние.
+Така автомата разпонзаващ \\
+\(L = \{\omega \in \{a, b\}^* \; \mid \; \mathcal{N}_{a}(\omega) \equiv 0 \pmod{3}\}\) е
+
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial, accepting] (q1) {$L$};
+    \node[state, right of=q1] (q2) {$L_2$};
+    \node[state, below of=q2] (q3) {$L_1$};
+    
+    \draw   (q1) edge[loop above] node{b} (q1)
+            (q1) edge[above] node{a} (q2)
+            (q2) edge[loop above] node{b} (q2)
+            (q2) edge[above, right] node{a} (q3)
+            (q3) edge[loop right] node{b} (q3)
+            (q3) edge[below, left] node{a} (q1);
+\end{tikzpicture}
+\end{center}
+
+\section{Задачи за упражнение}
+Постройте автомат по алгоритъма на Божозовски за езиците:
+\begin{enumerate}
+    \item \(\{a\} \cdot \{a, b\}^* \cdot \{b\} \)
+    \item \((\{a, b\}^+ \cdot \{a\})^*\)
+    \item \(\{\omega \in \{a, b\}^* \; \mid \; \mathcal{N}_a(\omega) \equiv 0 \pmod{2} \; \& \; \mathcal{N}_b(\omega) \equiv 1 \pmod{2} \}\)
+\end{enumerate}
+
+\end{document}

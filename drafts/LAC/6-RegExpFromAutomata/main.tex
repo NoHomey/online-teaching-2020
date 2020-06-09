@@ -1,0 +1,176 @@
+\documentclass[12pt]{article}
+\usepackage{tikz}
+\usetikzlibrary{automata, positioning, arrows}
+\tikzset{
+->, >=stealth, node distance=2.5cm,
+every state/.style={thick},
+initial text=$ $
+}
+\usepackage[utf8]{inputenc}
+\usepackage[T2A]{fontenc}
+\usepackage[english,bulgarian]{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{relsize}
+\usepackage{euler}
+
+\title{Строене на регулярен израз по тотален КДА}
+\author{Иво Стратев}
+
+\begin{document}
+
+\maketitle
+
+\section{Конгругентност}
+
+Нека \(\Sigma\) е крайна азбука. Въвеждаме релация между регулярните изрази над \(\Sigma\).
+\[r \approx_\Sigma s \iff \mathcal{RL}_\Sigma(r) = \mathcal{RL}_\Sigma(s)\]
+
+В сила са 
+
+\begin{align*}
+    (\forall r, s \in RegExp(\Sigma))(r \approx_\Sigma s \implies r^* \approx_\Sigma s^*) \\\\
+    (\forall r, s, t, p \in RegExp(\Sigma))(r \approx_\Sigma s \;\&\; t \approx_\Sigma p \implies r . t \approx_\Sigma s . p) \\\\
+    (\forall r, s, t, p \in RegExp(\Sigma))(r \approx_\Sigma s \;\&\; t \approx_\Sigma p \implies r + t \approx_\Sigma s + p)
+\end{align*}
+\begin{align*}
+    (\forall r, s \in RegExp(\Sigma))(r \approx_\Sigma s \implies r + s \approx_\Sigma s + r) \\\\
+    (\forall r, s, t \in RegExp(\Sigma))((r + s).t \approx_\Sigma (r.t) + (s.t)) \\\\
+    (\forall r, s, t \in RegExp(\Sigma))(t.(r + s) \approx_\Sigma (t.r) + (t.s))
+\end{align*}
+\begin{align*}
+    (\forall r \in RegExp(\Sigma))(\emptyset + r \approx_\Sigma r) \\\\
+    (\forall r \in RegExp(\Sigma))(\emptyset . r \approx_\Sigma \emptyset) \\\\
+    (\forall r \in RegExp(\Sigma))(r . \emptyset \approx_\Sigma \emptyset) \\\\
+    (\forall r \in RegExp(\Sigma))(\varepsilon . r \approx_\Sigma r) \\\\
+    (\forall r \in RegExp(\Sigma))(r . \varepsilon \approx_\Sigma r) \\\\
+    (\forall r \in RegExp(\Sigma))((r^*)^*\approx_\Sigma r) \\\\
+    (\forall r \in RegExp(\Sigma))((\varepsilon + r)^* \approx_\Sigma r) \\\\
+    (\forall r \in RegExp(\Sigma))(r^* . (\varepsilon + r) \approx_\Sigma r^*) \\\\
+    (\forall r \in RegExp(\Sigma))((\varepsilon + r) . r^* \approx_\Sigma r^*)
+\end{align*}
+
+\section{Теорема на Клини}
+Теоремата на Клини гласи, че за всеки автоматен език същесвува регулярен израз, който описва езика.
+Тоест класът на автоматните езици се включва в класът на регулярните езици.
+
+Доказателството на теоремата дава алгоритъм за намиране на регулярен израз описващ език на даден креан тотален детерминиран автомат.
+
+Нека \(n \in \mathbb{N}_+\) и нека \(Q = \{0, 1, \dots, n - 1\}\).
+Нека \(\mathcal{A} = \langle \Sigma, Q, s, \delta, F \rangle\) е КТДА.
+Тогава можем да намерим регулярен ираз \(r_{ij}^k\) съотвестващ на езика \(R_{ij}^k\), където \(i, j \in Q\) и \(k \in \{0, 1, \dots n\}\),
+който описва думите, за които изичислението по автомата започнато от състояние \(i\) завършва в състояние \(j\) и преминава през междинни състояния само от множеството \(\{0, 1, \dots, k - 1\}\).
+
+Като
+\[R_{ii}^0 = \{\varepsilon\} \cup \{u \in \Sigma \;\mid\; i = \delta(i, u) \}\]
+\[i \neq j \implies R_{ij}^0 = \{u \in \Sigma \;\mid\; j = \delta(i, u) \}\]
+\[R_{ij}^{k + 1} = R_{ij}^k \cup R_{ik}^k \cdot (R_{kk}^k)^* \cdot R_{kj}^k\]
+
+Така \(\mathcal{L}(\mathcal{A}) = \displaystyle\bigcup_{j \in F} R_{0j}^n\).
+
+
+\section{Пример}
+
+Нека намерим регулярен израз описващ езика на автомата.
+
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial] (q0) {$0$};
+    \node[state, accepting, right of=q0] (q1) {$1$};
+    \node[state, right of=q1] (q2) {$2$};
+    \draw (q0) edge[loop above] node{a} (q0);
+    \draw (q0) edge[above] node{b} (q1);
+    \draw (q1) edge[loop above] node{b} (q1);
+    \draw (q1) edge[above] node{a} (q2);
+    \draw (q2) edge[loop above] node{$a, b$} (q2);
+\end{tikzpicture}
+\end{center}
+
+Правим следната таблица, съотвестваща на базовите случаи.
+\[\begin{array}{c|ccc}
+k = 0 & 0 & 1   & 2     \\ \hline
+0   & \varepsilon + a & b & \emptyset \\
+1   & \emptyset & \varepsilon + b & a \\
+2   & \emptyset & \emptyset & \varepsilon + a + b 
+\end{array}\]
+
+След като използваме рекуретната връзка \[R_{ij}^{k + 1} = R_{ij}^k \cup R_{ik}^k \cdot (R_{kk}^k)^* \cdot R_{kj}^k\]
+
+Получаваме следната връзка \(r_{ij}^{1} \approx r_{ij}^0 + r_{i0}^0 \cdot (r_{00}^0)^* \cdot r_{0j}^0\), където \((r_{00}^0)^* \approx (\varepsilon + a)^* \approx a^*\). Или така получаваме връзката \(r_{ij}^{1} \approx r_{ij}^0 + r_{i0}^0 \cdot a^* \cdot r_{0j}^0\). Пресмятаме за \(k = 1\).
+
+\[r_{00}^{1} \approx r_{00}^0 + r_{00}^0 \cdot a^* \cdot r_{00}^0 \approx (\varepsilon + a) + (\varepsilon + a) \cdot a^* \cdot (\varepsilon + a) \approx \varepsilon + a + (\varepsilon + a) \cdot a^* \approx \varepsilon + a + a^* \approx a^* \]
+\[r_{01}^{1} \approx r_{01}^0 + r_{00}^0 \cdot a^* \cdot r_{01}^0 \approx b + (\varepsilon + a) \cdot a^* \cdot b \approx b + a^* \cdot b \approx
+\varepsilon.b + a^* \cdot b \approx (\varepsilon + a^*) \cdot b \approx a^* \cdot b\]
+\[r_{02}^{1} \approx r_{02}^0 + r_{00}^0 \cdot a^* \cdot r_{02}^0 \approx \emptyset + (\varepsilon + a) \cdot a^* \cdot \emptyset \approx \emptyset + \emptyset \approx \emptyset\]
+\[r_{10}^{1} \approx r_{10}^0 + r_{10}^0 \cdot a^* \cdot r_{00}^0 \approx \emptyset + \emptyset \cdot a^* \cdot (\varepsilon + a) \approx \emptyset + \emptyset \approx \emptyset\]
+\[r_{11}^{1} \approx r_{11}^0 + r_{10}^0 \cdot a^* \cdot r_{01}^0 \approx
+\varepsilon + b + \emptyset \cdot a^* \cdot b \approx \varepsilon + b + \emptyset \approx \varepsilon + b\]
+\[r_{12}^{1} \approx r_{12}^0 + r_{10}^0 \cdot a^* \cdot r_{02}^0 \approx
+a + \emptyset \cdot a^* \cdot \emptyset \approx a + \emptyset \approx a\]
+\[r_{20}^{1} \approx r_{20}^0 + r_{20}^0 \cdot a^* \cdot r_{00}^0 \approx
+\emptyset + \emptyset \cdot a^* \cdot (\varepsilon + a) \approx \emptyset + \emptyset \approx \emptyset\]
+\[r_{21}^{1} \approx r_{21}^0 + r_{20}^0 \cdot a^* \cdot r_{01}^0 \approx
+\emptyset + \emptyset \cdot  a^* \cdot b \approx \emptyset + \emptyset \approx \emptyset\]
+\[r_{22}^{1} \approx r_{22}^0 + r_{20}^0 \cdot a^* \cdot r_{02}^0 \approx
+\varepsilon + a + b  + \emptyset \cdot  a^* \cdot \emptyset \approx \varepsilon + a + b\]
+
+Така получаваме таблицата
+\[\begin{array}{c|ccc}
+k = 1 & 0 & 1   & 2     \\ \hline
+0   & a^* & a^*.b & \emptyset \\
+1   & \emptyset & \varepsilon + b & a \\
+2   & \emptyset & \emptyset & \varepsilon + a + b 
+\end{array}\]
+
+От рекуретната връзка получаваме връзката \[r_{ij}^{2} \approx r_{ij}^{1 + 1} \approx r_{ij}^1 + r_{i1}^1 \cdot (r_{11}^1)^* \cdot r_{1j}^1 \approx_{ij}^1 + r_{i1}^1 \cdot b^* \cdot r_{1j}^1\]
+
+Пресмятаме за \(k = 2\).
+
+\[r_{00}^{2} \approx r_{00}^1 + r_{01}^1 \cdot b^* \cdot r_{10}^1 \approx
+a^* + a^* \cdot b \cdot b^* \cdot \emptyset \approx a^*\]
+\[r_{01}^{2} \approx r_{01}^1 + r_{01}^1 \cdot b^* \cdot r_{11}^1 \approx
+a^*\cdot b^* + a^* \cdot b \cdot b^* \cdot (\varepsilon + b) \approx a^*\cdot b + a^* \cdot b \cdot b^* \approx a^* \cdot b \cdot (\varepsilon + b^*) \approx a^* \cdot b \cdot b^*\]
+\[r_{02}^{2} \approx r_{02}^1 + r_{01}^1 \cdot b^* \cdot r_{12}^1 \approx
+\emptyset + a^* \cdot b \cdot b^* \cdot a \approx a^* \cdot b \cdot b^* \cdot a\]
+\[r_{10}^{2} \approx r_{10}^1 + r_{11}^1 \cdot b^* \cdot r_{10}^1 \approx
+\emptyset + (\varepsilon + b) \cdot b^* \cdot \emptyset \approx \emptyset\]
+\[r_{11}^{2} \approx r_{11}^1 + r_{11}^1 \cdot b^* \cdot r_{11}^1 \approx (\varepsilon + b) + (\varepsilon + b) \cdot b^* + (\varepsilon + b) \approx (\varepsilon + b) + (\varepsilon + b) \cdot b^* \approx (\varepsilon + b) + b^* \approx b^*\]
+\[r_{12}^{2} \approx r_{12}^1 + r_{11}^1 \cdot b^* \cdot r_{12}^1 \approx
+a + (\varepsilon + b) \cdot b^* \cdot a
+\approx a + b^* \cdot a \approx (\varepsilon + b^*) \cdot a \approx b^* \cdot a\]
+\[r_{20}^{2} \approx r_{20}^1 + r_{21}^1 \cdot b^* \cdot r_{10}^1 \approx
+\emptyset + \emptyset \cdot b^* \cdot \emptyset \approx \emptyset\]
+\[r_{21}^{2} \approx r_{21}^1 + r_{21}^1 \cdot b^* \cdot r_{11}^1 \approx
+\emptyset + \emptyset \cdot b^* \cdot (\varepsilon + b) \approx \emptyset\]
+\[r_{22}^{2} \approx r_{22}^1 + r_{21}^1 \cdot b^* \cdot r_{12}^1 \approx
+(\varepsilon + a + b) + \emptyset \cdot b^* \cdot a \approx \varepsilon + a + b\]
+
+Така получаваме таблицата
+\[\begin{array}{c|ccc}
+k = 2 & 0 & 1   & 2     \\ \hline
+0   & a^* & a^* \cdot b \cdot b^* & a^* \cdot b \cdot b^* \cdot a \\
+1   & \emptyset & b^* & b^* \cdot a \\
+2   & \emptyset & \emptyset & \varepsilon + a + b 
+\end{array}\]
+
+Понеже автоматът е 
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial] (q0) {$0$};
+    \node[state, accepting, right of=q0] (q1) {$1$};
+    \node[state, right of=q1] (q2) {$2$};
+    \draw (q0) edge[loop above] node{a} (q0);
+    \draw (q0) edge[above] node{b} (q1);
+    \draw (q1) edge[loop above] node{b} (q1);
+    \draw (q1) edge[above] node{a} (q2);
+    \draw (q2) edge[loop above] node{$a, b$} (q2);
+\end{tikzpicture}
+\end{center}
+Той има едно финално състояние и значи \(\mathcal{L}(\mathcal{A}) = R_{01}^3 = \mathcal{RL}_{\{a, b\}}(r_{01}^3)\). Следователно трябва да пресметнем само \(r_{01}^3\).
+
+\[r_{01}^{3} \approx r_{01}^2 + r_{02}^1 \cdot (r_{22}^2)^* \cdot r_{21}^2 \approx a^* \cdot b \cdot b^* + r_{02}^1 \cdot (r_{22}^2)^* \cdot \emptyset \approx a^* \cdot b \cdot b^* + \emptyset \approx  a^* \cdot b \cdot b^*\]
+
+Следователно \(\mathcal{L}(\mathcal{A}) =  \{a\}^* \cdot \{b\}^+\) и търсеният регулярен израз е \(a^* \cdot b \cdot b^*\).
+
+\end{document}

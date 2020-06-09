@@ -1,0 +1,879 @@
+\documentclass[12pt]{article}
+\usepackage{tikz}
+\usepackage{tikz-qtree}
+\usepackage{float}
+\usepackage[utf8]{inputenc}
+\usepackage[T2A]{fontenc}
+\usepackage[english,bulgarian]{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{relsize}
+\usepackage{euler}
+
+\title{Безконтекстни граматики}
+\author{Иво Стратев}
+
+\begin{document}
+
+\maketitle
+
+\section*{Въведение}
+Нека \(\Sigma\) и \(\Gamma\) са крайни азбуки, такива че \(\Sigma \cap \Gamma = \emptyset\).
+Нека \(S \in \Gamma\) и нека \(R \in \mathcal{P}(\Gamma \times (\Sigma \cup \Gamma)^* )\).
+Тогава \(\langle \Gamma,  \Sigma, S, R\rangle\) е безконтекстна граматика.
+\(\Sigma\) ще наричаме множество на терминалите или символна азбука,
+а \(\Gamma\) множество на нетерминалите или множество на променливите.
+\(R\) ще наричаме множеството от правилата на граматиката.
+\(S\) начален нетерминал или начална променлива.
+
+
+\subsection*{Съкращения}
+Ако \(\langle V, \alpha \rangle \in \Gamma \times (\Sigma \cup \Gamma)^*\), то ще пишем \(V \to \alpha\)
+и ще казваме, че \(V\) може да се замени с \(\alpha\). Ако \(V \in \Gamma\), \(\alpha, \beta, \omega \in (\Sigma \cup \Gamma)^*\) и \(\langle V, \alpha \rangle, \langle V, \beta \rangle, \langle V, \omega \rangle \in R\), то ще пишем \(V \to \alpha \mid \beta \mid \omega \),
+което ще ни казва, че \(V\) може да бъде заменена с коя да е от думите \(\alpha\), \(\beta\) и \(\gamma\).
+
+\subsection*{Език на безконтекстна граматика}
+
+\par Нека \(M\) е непразно множество и \(t \in \mathbb{N}\) тогава със \(\mathrm{seq}(t, M)\) ще означаме множеството на функциите от \(\{1, 2, \dots, t\}\) в \(M\) (крайните редиците от \(t\) на брой елемента от M).
+
+\vspace*{5mm}
+\par Нека \(G = \langle \Gamma,  \Sigma, S, R\rangle\). 
+С рекурсия по естествените числа дефинираме релации \(\underset{G}{\overset{n}{\leadsto}}\)  между \(\Gamma\) и \((\Sigma \cup \Gamma)^*\).
+Като идеята ни е следната искаме \\
+\(V \underset{G}{\overset{n}{\leadsto}} \alpha\) ТСТК има извод на думата \(\alpha\) от променливата \(V\) с височина \(n\) по граматиката \(G\).
+Дефинираме
+\[\underset{G}{\overset{0}{\leadsto}} \;:=\; Id_\Gamma = \{\langle V, V \rangle \;\mid\; V \in \Gamma\}\]
+Следвайки идеята ни с височина \(0\) от една промнелива можем да изведем самата променлива, защото няма как да приложим правило.
+\vspace*{5mm}
+\par Ако \(V \in \Gamma\), \(k \in \mathbb{N}\), \(\alpha \in \mathrm{seq}(k + 1, \Sigma^*)\), \(\beta \in \mathrm{seq}(k, (\Sigma \cup \Gamma)^*)\), \(E \in \mathrm{seq}(k, \Gamma)\), \(V \to \left(\displaystyle\prod_{i = 1}^k \alpha(i).E(i) \right).\alpha(k + 1) \in R\), \(l \in \mathrm{seq}(k, \mathbb{N})\),
+
+\(n = \max\{ l(i) \mid i \in \{1, 2, \dots, k\} \}\) и \((\forall i \in \{1, 2, \dots, k\})(E(i) \underset{G}{\overset{l(i)}{\leadsto}} \beta(i) )\),
+
+то \(V \underset{G}{\overset{n + 1}{\leadsto}} \left( \displaystyle\prod_{i = 1}^k \alpha(i).\beta(i) \right ).\alpha(k + 1)\).
+
+\vspace*{5mm}
+\par Тоест всеки път когато имаме променлива \(V\), редица от \(k\) променливи: \(E(1), E(2), \dots, E(k)\),
+редица от \(k + 1\) думи над \(\Sigma \cup \Gamma\): \(\alpha(1), \alpha(2), \dots, \alpha(k + 1)\),
+редица от \(k\) думи над \(\Sigma \cup \Gamma\): \(\beta(1), \beta(2), \dots, \beta(k)\), \\
+правило \(V \to \alpha(1).E(1).\alpha(2).E(2).\alpha(3) \dots \alpha(k).E(K).\alpha(k + 1)\) в граматиката,
+редица от \(k\) естесвени числа \(l(1), l(2), \dots l(k)\) и \(n\) е максималното число в крайната редица \(l\)
+и имаме, че от променливата \(E(i)\) се извежда думата \(\beta(i)\) с височина \(l(i)\) за \(i\) от \(1\) до \(k\),
+то от променливата \(V\) се извежда думата \(\alpha(1).\beta(1).\alpha(2).\beta(2).\alpha(3) \dots \alpha(k).\beta(K).\alpha(k + 1)\) с височина на извода \(n + 1\).
+Тоест позволяваме при прилагане на едно правило да направим едновременна замяна на всяка участваща променлива в дясната част на правилото, като можем да изберем и тривиалната замяна, а именно да не правим замяна на дадена променлива. Така реално си даваме пълна свобода на действие.
+
+\vspace*{5mm}
+\par Накрая дефинираме \(\underset{G}{\overset{\star}{\leadsto}}\) като \(\displaystyle\bigcup_{s \in \mathbb{N}} \underset{G}{\overset{s}{\leadsto}}\).
+Така \(V \underset{G}{\overset{\star}{\leadsto}} \alpha\) ТСТК от променливата \(V\) е изводима думата \(\alpha\) по граматиката \(G\).
+Помислите защо \(\underset{G}{\overset{\star}{\leadsto}}\) реално играе ролята на \textbf{рефлексивното} и \textbf{транзитивно} затваряне на релацията определена от множеството \(R\).
+
+\subsubsection*{Пример}
+Нека \(\Gamma = \{S, D, B\}\), \(\Sigma = \{d, b\}\) и
+
+\(R = \{ S \to BDS \mid B, D \to dDb \mid d, B \to bdB \mid b \}\).
+
+Разглеждаме граматиката \(\langle \Gamma, \Sigma, S, R \rangle\).
+
+Имаме \(B \overset{1}{\leadsto} b\)  и \(D \overset{1}{\leadsto} d\). Значи \(B \overset{1}{\leadsto} b\) и \(D \overset{1 + 1}{\leadsto} ddb\).
+
+На диаграма:
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\Tree
+[.$D$
+    $d$
+    [.$D$ $d$ ]
+    $b$
+]
+\end{tikzpicture}
+\caption{Дърво на извод за думата $ddb$}
+\end{figure}
+
+Вижда се, че в дясната част на правилото \(D \to dDb\) сме заменили \(D\) с \(d\).
+Тоест за извода на думата \(ddb\) от промеливата \(D\) сме приложили последователно правилата \(D \to dDb\) и \(D \to d\).
+
+\vspace*{5mm}
+\par Имаме правило \(S \to B\) и \(B \overset{1}{\leadsto} b\) следователно \(S \overset{2}{\leadsto} b\). \\
+Така имаме \(B \overset{1}{\leadsto} b\), \(D \overset{2}{\leadsto} ddb\), \(S \overset{2}{\leadsto} b\) и правило \(S \to BDS\),
+получаваме \(S \overset{1 + max(1, 2, 2)}{\leadsto} b(ddb)b\).
+
+\vspace*{5mm}
+\par До тук имаме \(B \overset{1}{\leadsto} b\),  \(D \overset{2}{\leadsto} ddb\), \(S \overset{3}{\leadsto} bddbb\) и правило \(S \to BDS\),
+получаваме \(S \overset{1 + max(1, 2, 3)}{\leadsto} b(ddb)(bddbb)\). Тоест \(S \overset{4}{\leadsto} bddbbddbb\).
+Получихме, че от \(S\) с височина на извода \(4\) се извежда думата \(bddbbddbb\).
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\Tree
+[.$S$
+    [.$B$ $b$ ]
+    [.$D$
+        $d$
+        [.$D$ $d$ ]
+        $b$
+    ]
+    [.$S$
+        [.$B$ $b$ ]
+        [.$D$
+            $d$
+            [.$D$ $d$ ]
+            $b$
+        ]
+        [.$S$ [.$B$ $b$ ] ]
+    ]
+]
+\end{tikzpicture}
+\caption{Дърво на извод за думата $bddbbddbb$}
+\end{figure}
+
+\subsubsection*{Дефиниция (език на променлива)}
+Нека \(G = \langle \Gamma,  \Sigma, S, R\rangle\) е безконтекстна граматика.
+Нека \(V \in \Gamma\). Тогава езикът на \(V\) спрямо \(G\) е \(\{\omega \in \Sigma^* \mid V \underset{G}{\overset{\star}{\leadsto}} \omega\}\).
+Ще го белжим с \(\mathcal{CFL}_G(V)\). Така \(\mathcal{CFL}_G(V)\) е множеството на думите над символната азбука, които са изводими по граматиката \(G\) от променливата \(V\).
+
+\subsubsection*{Дефиниция (език на безконтекстна граматика)}
+Тогава езикът на \(G\) е точно \(\mathcal{CFL}_G(S)\) и ще го бележим с \(\mathcal{CFL}(G)\).
+Тоест езикът на граматиката \(G\) е езикът на началната променлива на граматиката.
+
+\subsubsection*{Дефиниция (крайна апроксимация на език на променлива)}
+Нека \(G = \langle \Gamma,  \Sigma, S, R\rangle\) е безконтекстна граматика.
+Нека \(V \in \Gamma\). Нека \(l \in \mathbb{N}\) и нека \(\mathcal{CFL}_G^l(V) := \{\omega \in \Sigma^* \mid (\exists s \in \mathbb{N})(s \leq l \;\&\; V \underset{G}{\overset{s}{\leadsto}} \; \omega)\}\). Множеството \(\mathcal{CFL}_G^l(V)\) е \(l\)-тата крайна апроксимация на езика \(\mathcal{CFL}_G(V)\).
+Това са думите над символната азбука, изводими от \(V\) с височина на извода не по-голяма от \(l\).
+Понеже с височина на извода \(0\) от \(V\) се извежда само \(V\) и \(V \notin \Sigma\), то \(\mathcal{CFL}_G^l(V) = \emptyset\).
+
+\subsubsection*{Основна задача :)}
+Нека \(G = \langle \Gamma,  \Sigma, S, R\rangle\) е безконтекстна граматика.
+Нека \(V \in \Gamma\). Тогава
+\[\mathcal{CFL}_G(V) = \displaystyle\bigcup_{n \in \mathbb{N}} \mathcal{CFL}_G^n(V)\]
+
+\textbf{Доказателство:}
+\begin{align*}
+    \mathcal{CFL}_G(V) \\
+    = \{\omega \in \Sigma^* \mid V \; \underset{G}{\overset{\star}{\leadsto}} \; \omega\} \\
+    = \left\{\omega \in \Sigma^* \mid V \; \displaystyle\bigcup_{k \in \mathbb{N}} \underset{G}{\overset{k}{\leadsto}} \; \omega \right\} \\
+    = \{\omega \in \Sigma^* \mid (\exists k \in \mathbb{N})(V \; \underset{G}{\overset{k}{\leadsto}} \; \omega)\} \\
+    = \displaystyle\bigcup_{k \in \mathbb{N}} \{\omega \in \Sigma^* \mid V \; \underset{G}{\overset{k}{\leadsto}} \; \omega\} \\
+    = \displaystyle\bigcup_{k \in \mathbb{N}} \{\omega \in \Sigma^* \mid (\exists l \in \mathbb{N})(l \leq k \;\&\; V \; \underset{G}{\overset{l}{\leadsto}} \; \omega)\} \\
+    = \displaystyle\bigcup_{k \in \mathbb{N}} \{\omega \in \Sigma^* \mid \omega \in \mathcal{CFL}_G^k(V)\} \\
+    = \displaystyle\bigcup_{k \in \mathbb{N}} \mathcal{CFL}_G^k(V) 
+\end{align*}
+
+\subsubsection*{Индуктивен принцип}
+Нека \(G = \langle \Gamma,  \Sigma, S, R\rangle\) е безконтекстна граматика.
+Нека \(P\) е свойство на думите над \(\Sigma\). Тоест \(P\) е предикат над \(\Sigma^*\).
+Тогава е в сила следната импликация (индуктивен принцип)
+\[((\forall k \in \mathbb N)(\forall \omega \in \mathcal{CFL}_G^k(V)) \; P(\omega)) \implies ((\forall \omega \in \mathcal{CFL}_G(V)) \; P(\omega))\]
+
+\textbf{Доказателство:}
+Нека е в сила предпоставката на импликацията.
+Тоест нека \((\forall k \in \mathbb N)(\forall \omega \in \mathcal{CFL}_G^k(V)) \; P(\omega)\) е истина.
+Ще докажем, че е истина и \((\forall \omega \in \mathcal{CFL}_G(V)) \; P(\omega)\).
+Нека \(\omega \in \mathcal{CFL}_G(V)\). Тогава по основната задача \(\omega \in \displaystyle\bigcup_{n \in \mathbb{N}} \mathcal{CFL}_G^n(V)\).
+Нека тогава \(n \in \mathbb N\) е такова, че \(\omega \in \mathcal{CFL}_G^n(V)\). Тогава \(P(\omega)\) от предпостаката.
+Обобщаваме и получаваме \((\forall \omega \in \mathcal{CFL}_G(V)) \; P(\omega)\).
+
+\subsubsection*{Следствие:}
+Искаме да докажем, че \(\mathcal{CFL}_G(V) \subseteq L\).
+Тогава вземаме свойство \\
+\(P(\omega) \overset{def}{\iff} \omega \in L\).
+Доказваме по индукция
+\[(\forall k \in \mathbb N)(\forall \omega \in \mathcal{CFL}_G^k(V))(\omega \in L) \]
+От където от индуктивният принцип получаваме \\
+\((\forall \omega \in \mathcal{CFL}_G(V))(\omega \in L)\).
+Тоест \(\mathcal{CFL}_G(V) \subseteq L\).
+
+\section*{Два основни примера за безкрайни безконтекстни езици}
+
+\subsection*{Пример 1. Всевъзжмони конкатенации (итерации) на дума / звезда на Клини на език от една дума}
+
+Нека \(\Sigma\) е азбука. Нека \(\alpha \in \Sigma^*\). Нека \(S \notin \Sigma\).
+
+Нека \(G = \langle \{S\}, \Sigma,  S, \{S \to \alpha.S,\; S \to \varepsilon\} \rangle\).
+
+Твърдим, че \(\mathcal{CFL}(G) = \{\alpha\}^*\).
+
+\vspace*{5mm}
+
+\par С индукция ще докажем, че \((\forall k \in \mathbb N)(\mathcal{CFL}_G^k(S) \subseteq \{\alpha\}^*  )\), \\
+доказвайки \((\forall k \in \mathbb N)(\forall \omega \in \mathcal{CFL}_G^k(S))(\omega \in \{\alpha\}^*  )\).
+
+\vspace*{5mm}
+
+\par Имаме следната рекуретна връзка
+\begin{align*}
+    \mathcal{CFL}_G^0(S) = \emptyset \\
+    (\forall n \in \mathbb N)(\mathcal{CFL}_G^{n + 1}(S) = \{\alpha\} \cdot \mathcal{CFL}_G^n(S) \cup \{\varepsilon\})
+\end{align*}
+
+\subsubsection*{База:}
+\(\mathcal{CFL}_G^0(S) = \emptyset \subseteq \{\alpha\}^*\).
+
+\subsubsection*{И.Х.}
+Нека \(k \in \mathbb N\) и нека \((\forall \omega \in \mathcal{CFL}_G^k(S))(\omega \in \{\alpha\}^*  )\). \\
+Тоест нека \(\mathcal{CFL}_G^k(S) \subseteq \{\alpha\}^*\).
+
+\subsubsection*{И.С.}
+Нека \(\omega \in \mathcal{CFL}_G^{k + 1}(S)\). Тогава от връзката следва, че \\
+\(\omega \in \{\alpha\} \cdot \mathcal{CFL}_G^k(S) \cup \{\varepsilon\}\).
+Възможи са два случая. \\
+Ако \(\omega \in \{\varepsilon\}\), то \(\omega = \alpha^0 \in \{\alpha\}^*\). \\
+Ако \(\omega \in \{\alpha\} \cdot \mathcal{CFL}_G^k(S)\), то \(\omega \in \{\alpha\} \cdot \{\alpha\}^* = \{\alpha\}^+ \subseteq \{\alpha\}^*\).
+Така получихме, че \(\omega \in \{\alpha\}^*\).
+Обобщаваме и получаваме \((\forall \omega \in \mathcal{CFL}_G^{k + 1}(S))(\omega \in \{\alpha\}^*)\).
+
+\subsubsection*{Заключение:}
+\((\forall k \in \mathbb N)(\forall \omega \in \mathcal{CFL}_G^k(S))(\omega \in \{\alpha\}^*  )\).
+Така от следствивето на индукционни принцип получаваме \(\mathcal{CFL}_G(S) \subseteq \{\alpha\}^*\).
+
+\vspace*{5mm}
+
+\par Сега ще докажем обратното включване. Тоест \((\forall \omega \in \{\alpha\}^*)(\omega \in \mathcal{CFL}_G(S))\).
+Понеже \(\{\alpha\}^* = \{\alpha^n \mid n \in \mathbb N\}\) ще докажем 
+\((\forall n \in \mathbb N)(\alpha^n \in \mathcal{CFL}_G(S))\).
+Като вземем предвид, че \(\mathcal{CFL}_G(S) = \{\omega \in \Sigma^* \mid S \overset{*}{\leadsto} \omega \}\),
+което е еквивалетно с \((\forall n \in \mathbb N)(\exists k \in \mathbb N)(S \overset{k}{\leadsto} \alpha^n)\).
+
+\subsubsection*{База:}
+Имаме правило \(S \to \varepsilon\) следователно \(S \overset{1}{\leadsto} \alpha^0\).
+Следователно \(\alpha^0 \in \mathcal{CFL}_G(S)\).
+
+\subsubsection*{И.Х.}
+Нека \(n \in \mathbb N\) и нека \(\alpha^n \in \mathcal{CFL}_G(S)\) т.е. \(S \overset{*}{\leadsto} \alpha^n \).
+
+\subsubsection*{И.С.}
+Щом \(S \overset{*}{\leadsto} \alpha^n \), то нека \(l \in \mathbb N\) е такова, че \(S \overset{l}{\leadsto} \alpha^n\).
+Имаме правило \(S \to \alpha S\). Следователно \(S \overset{1 + l}{\leadsto} \alpha.\alpha^n\).
+Така \(S \overset{1 + l}{\leadsto} \alpha^{n + 1}\). Следователно \(S \overset{*}{\leadsto} \alpha^{n + 1}\).
+Следователно \(\alpha^{n + 1} \in \mathcal{CFL}_G(S)\).
+
+\subsubsection*{Заключение:}
+\((\forall n \in \mathbb N)(\alpha^n \in \mathcal{CFL}_G(S))\).
+Следователно \(\{\alpha\}^* \subseteq \mathcal{CFL}_G(S)\).
+
+Така \(\mathcal{CFL}(G) = \mathcal{CFL}_G(S) = \{\alpha\}^*\).
+
+\subsection*{Пример 2. Основен безконтекстен}
+
+Нека \(\Sigma\) е азбука. Нека \(\alpha, \beta \in \Sigma^*\). Нека \(S \notin \Sigma\).
+
+Нека \(G = \langle \{S\}, \Sigma,  S, \{S \to \alpha.S.\beta,\; S \to \varepsilon\} \rangle\).
+
+Твърдим, че \(\mathcal{CFL}(G) = \{\alpha^n \beta^n \mid n \in \mathbb N\}\).
+
+Нека \(L = \{\alpha^n \beta^n \mid n \in \mathbb N\}\).
+Трябва да покажем
+
+\(\mathcal{CFL}_G(S) \subseteq L\) и \(L \subseteq \mathcal{CFL}_G(S)\).
+
+\vspace*{5mm}
+
+\par С индукция ще докажем, че \((\forall k \in \mathbb N)(\mathcal{CFL}_G^k(S) \subseteq L  )\), \\
+доказвайки \((\forall k \in \mathbb N)(\forall \omega \in \mathcal{CFL}_G^k(S))(\omega \in L )\).
+
+\vspace*{5mm}
+
+\par Имаме следната рекуретна връзка
+\begin{align*}
+    \mathcal{CFL}_G^0(S) = \emptyset \\
+    (\forall n \in \mathbb N)(\mathcal{CFL}_G^{n + 1}(S) = (\{\alpha\} \cdot \mathcal{CFL}_G^n(S) \cdot \{\beta\}) \cup \{\varepsilon\})
+\end{align*}
+
+\subsubsection*{База:}
+\(\mathcal{CFL}_G^0(S) = \emptyset \subseteq L\).
+
+\subsubsection*{И.Х.}
+Нека \(k \in \mathbb N\) и нека \((\forall \omega \in \mathcal{CFL}_G^k(S))(\omega \in L  )\). \\
+Тоест нека \(\mathcal{CFL}_G^k(S) \subseteq L\).
+
+\subsubsection*{И.С.}
+Нека \(\omega \in \mathcal{CFL}_G^{k + 1}(S)\). Тогава от връзката следва, че \\
+\(\omega \in (\{\alpha\} \cdot \mathcal{CFL}_G^k(S) \cdot \{\beta\}) \cup \{\varepsilon\}\).
+Възможи са два случая. \\
+Ако \(\omega \in \{\varepsilon\}\), то \(\omega = \alpha^0\beta^0 \in L\). \\
+Ако \(\omega \in \{\alpha\} \cdot \mathcal{CFL}_G^k(S) \cdot \{\beta\}\), то \(\omega \in \{\alpha\} \cdot L \cdot \{\beta\} = \{\alpha^{n + 1} \beta^{n + 1} \mid n \in \mathbb N\} \subseteq L\).
+Така получихме, че \(\omega \in L\).
+Обобщаваме и получаваме
+
+\((\forall \omega \in \mathcal{CFL}_G^{k + 1}(S))(\omega \in L)\).
+
+\subsubsection*{Заключение:}
+\((\forall k \in \mathbb N)(\forall \omega \in \mathcal{CFL}_G^k(S))(\omega \in L )\).
+Така от следствивето на индукционни принцип получаваме \(\mathcal{CFL}_G(S) \subseteq L\).
+
+\vspace*{5mm}
+
+\par Сега ще докажем обратното включване. Тоест \((\forall \omega \in L)(\omega \in \mathcal{CFL}_G(S))\).
+Понеже \(L= \{\alpha^n \beta^n \mid n \in \mathbb N\}\) ще докажем 
+\((\forall n \in \mathbb N)(\alpha^n \beta^n \in \mathcal{CFL}_G(S))\).
+Като вземем предвид, че \(\mathcal{CFL}_G(S) = \{\omega \in \Sigma \mid S \overset{*}{\leadsto} \omega \}\),
+което е еквивалетно с \((\forall n \in \mathbb N)(\exists k \in \mathbb N)(S \overset{k}{\leadsto} \alpha^n \beta^k)\).
+
+\subsubsection*{База:}
+Имаме правило \(S \to \varepsilon\) следователно \(S \overset{1}{\leadsto} \alpha^0 \beta^0\).
+
+Следователно \(\alpha^0 \beta^0 \in \mathcal{CFL}_G(S)\).
+
+\subsubsection*{И.Х.}
+Нека \(n \in \mathbb N\) и нека \(\alpha^n \beta^n \in \mathcal{CFL}_G(S)\) т.е. \(S \overset{*}{\leadsto} \alpha^n \beta^n \).
+
+\subsubsection*{И.С.}
+Щом \(S \overset{*}{\leadsto} \alpha^n \beta^n \), то нека \(l \in \mathbb N\) е такова, че \(S \overset{l}{\leadsto} \alpha^n \beta^n\).
+
+Имаме правило \(S \to \alpha S \beta\). Следователно \(S \overset{1 + l}{\leadsto} \alpha(\alpha^n \beta^n) \beta\).
+
+Така \(S \overset{1 + l}{\leadsto} \alpha^{n + 1} \beta^{n + 1}\). Следователно \(S \overset{*}{\leadsto} \alpha^{n + 1} \beta^{n + 1}\).
+
+Следователно \(\alpha^{n + 1} \beta^{n + 1} \in \mathcal{CFL}_G(S)\).
+
+\subsubsection*{Заключение:}
+\((\forall n \in \mathbb N)(\alpha^n \beta^n \in \mathcal{CFL}_G(S))\).
+Следователно \(L \subseteq \mathcal{CFL}_G(S)\).
+
+Така \(\mathcal{CFL}(G) = \mathcal{CFL}_G(S) = L = \{\alpha^n \beta^n \mid n \in \mathbb N\}\).
+
+\section*{Операции с граматики}
+
+\subsection*{Сума на граматики}
+Нека \(G_1 = \langle \Gamma_1, \Sigma_1, S_1, R_1 \rangle\) и \(G_2 = \langle \Gamma_2, \Sigma_2, S_2, R_2 \rangle\) са КСГ и \(\Gamma_1 \cap \Gamma_2 = \emptyset\).
+
+Нека \(S = \langle \Gamma_1, \Gamma_2 \rangle\) очевидно \(S \notin \Gamma_1 \cup \Gamma_2\) и
+
+\(G_1 \oplus G_2 := \langle \Gamma_1 \cup \Gamma_2 \cup \{S\},\; \Sigma_1 \cup \Sigma_2,\; S,\; R_1 \cup R_2 \cup \{S \to S_1, S \to S_2\} \rangle\).
+
+Тогава \(\mathcal{CFL}(G_1 \oplus G_2) = \mathcal{CFL}(G_1) \cup \mathcal{CFL}(G_2)\).
+
+\(G_1 \oplus G_2\) е сумата на граматиките \(G_1\) и \(G_2\).
+
+Очевидно \(G_2 \oplus G_1 \neq G_1 \oplus G_2\), защото 
+\(\langle \Gamma_1, \Gamma_2 \rangle \neq \langle \Gamma_2, \Gamma_1 \rangle\),
+
+но \(\mathcal{CFL}(G_2 \oplus G_1) = \mathcal{CFL}(G_1 \oplus G_2)\)!
+
+\subsection*{Произведение на граматики}
+Нека \(G_1 = \langle \Gamma_1, \Sigma_1, S_1, R_1 \rangle\) и \(G_2 = \langle \Gamma_2, \Sigma_2, S_2, R_2 \rangle\) са КСГ и \(\Gamma_1 \cap \Gamma_2 = \emptyset\).
+
+
+Нека \(S = \langle \Gamma_1, \Gamma_2 \rangle\) очевидно \(S \notin \Gamma_1 \cup \Gamma_2\) и
+
+
+\(G_1 \odot G_2 := \langle \Gamma_1 \cup \Gamma_2 \cup \{S\},\; \Sigma_1 \cup \Sigma_2,\; S,\; R_1 \cup R_2 \cup \{S \to S_1S_2\} \rangle\).
+
+Тогава \(\mathcal{CFL}(G_1 \odot G_2) = \mathcal{CFL}(G_1) \cdot \mathcal{CFL}(G_2)\).
+
+\(G_1 \odot G_2\) е произведението на граматиките \(G_1\) и \(G_2\).
+
+\subsection*{Звезда (итерация) на безконтекстна граматика}
+
+Нега \(G =  \langle \Gamma, \Sigma, S, R \rangle\).
+
+Нека \(P = \Gamma\), очевидно \(P \notin \Gamma\).
+
+Нека \(G^\circledast := \langle \Gamma \cup \{P\},\; \Sigma,\; P,\; R \cup \{P \to S.P,\; P \to \varepsilon\} \rangle\).
+
+Тогава \(\mathcal{CFL}(G^\circledast) = \mathcal{CFL}(G)^*\).
+
+\section*{Пример 1}
+Нека \(L = \{a^n.b^k.c^s \mid n \in \mathbb{N} \;\&\; k \in \mathbb{N} \;\&\; s \in \mathbb{N} \;\&\; n + k \leq s\}\).
+Искаме да покажем, че \(L\) е безконтекстен език. За да си цел трябва да построим безконтекстна граматика, която го генерира.
+
+Преди да строим граматика ще изразим \(L\) в удобен за генериране вид.
+Възползваме се от практическото правило, че лесно се правят правила за генерира от вън на вътре!
+
+\begin{align*}
+    L = \{a^n.b^k.c^{n + k + t} \mid n \in \mathbb{N} \;\&\; k \in \mathbb{N} \;\&\; t \in \mathbb{N}\} \\
+    L = \{a^n.b^k.c^k.c^n.c^t \mid n \in \mathbb{N} \;\&\; k \in \mathbb{N} \;\&\; t \in \mathbb{N}\} \\
+    L = \{a^n.b^k.c^k.c^n.\omega \mid n \in \mathbb{N} \;\&\; k \in \mathbb{N} \;\&\; \omega \in \{c\}^*\} \\
+    L = \{a^n.(b^k.c^k).c^n \mid n \in \mathbb{N} \;\&\; k \in \mathbb{N} \} \cdot \{c\}^*
+\end{align*}
+
+Нека \(T = \{a^n.b^k.c^k.c^n \mid n \in \mathbb{N} \;\&\; k \in \mathbb{N} \}\). Тогава \(L = T \cdot \{c\}^*\).
+
+Нека \(G_1 = \langle \{A, B\}, \{a, b\},  A, \{A \to aAc,\; A \to B,\; B \to bBc,\; B \to \varepsilon\} \rangle\).
+
+Тогава \(\mathcal{CFL}_{G_1}(B) = \mathcal{CFL}_{\langle \{B\}, \{b, c\}, B, \{B \to bBc,\; B \to \varepsilon\} \rangle}(B)
+= \{b^k.c^k \mid k \in \mathbb{N}\}\).
+
+Така получаваме
+
+\((\forall n \in \mathbb{N})(\mathcal{CFL}_{G_1}^n(B) = \{b^s.c^s \mid s \in \mathbb{N} \;\&\; s < n\} \subseteq \{b^k.c^k \mid k \in \mathbb{N}\} \subseteq T)\).
+
+\vspace*{5mm}
+
+\par В сила е следната рекуретна връзка между крайните апроксимации на \(\mathcal{CFL}_{G_1}(A)\).
+
+\begin{align*}
+    \mathcal{CFL}_{G_1}^0(A) = \emptyset\ \\
+    (\forall n \in \mathbb N)(\mathcal{CFL}_{G_1}^{n + 1}(A) = (\{a\} \cdot \mathcal{CFL}_{G_1}^n(A) \cdot \{c\}) \cup \mathcal{CFL}_{G_1}^n(B))
+\end{align*}
+
+С индукция ще докажем, че
+
+\((\forall h \in \mathbb{N})(\mathcal{CFL}_{G_1}^h(A) \subseteq T = \{a^n.b^k.c^k.c^n \mid n \in \mathbb{N} \;\&\; k \in \mathbb{N}\})\).
+
+\subsection*{База:}
+Имаме \(\mathcal{CFL}_{G_1}^0(A) = \emptyset \subseteq T\).
+
+\subsection*{И.Х.}
+Нека \(h \in \mathbb{N}\) и \(\mathcal{CFL}_{G_1}^h(A) \subseteq T = \{a^n.b^k.c^k.c^n \mid n \in \mathbb{N} \;\&\; k \in \mathbb{N}\}\).
+
+\subsection*{И.С.}
+Нека \(\omega \in \mathcal{CFL}_{G_1}^{h + 1}(A)\). Възможни са два случая.
+
+\subsubsection*{Случай 1. \(\omega \in \{a\} \cdot \mathcal{CFL}_{G_1}^h(A) \cdot \{c\}\)}
+Тогава нека \(\beta \in \mathcal{CFL}_{G_1}^h(A)\) и \(\omega = a.\beta.c\).
+От хипотезата получаваме \((\exists n \in \mathbb{N})(\exists k \in \mathbb{N})(\beta = a^n.b^k.c^k.c^n)\).
+Нека тогава \(n, k \in \mathbb{N}\) и са такива, че \(\beta = a^n.b^k.c^k.c^n\).
+Така \(\omega = a.\beta.c = a^{n + 1}.b^k.c^k.c^{n + 1} \in T\).
+
+
+\subsubsection*{Случай 2. \(\omega \in \mathcal{CFL}_{G_1}^h(B)\)}
+Тогава \(\omega \in \{b^k.c^k \mid k \in \mathbb{N}\} \subseteq T\).
+
+\vspace*{5mm}
+
+\par Следователно \(\omega \in T\) и значи \(\mathcal{CFL}_{G_1}^{h + 1}(A) \subseteq T\).
+
+\subsection*{Заключение:}
+\((\forall k \in \mathbb N)(\forall \omega \in \mathcal{CFL}_{G_1}^k(A))(\omega \in T )\).
+Така от следствивето на индукционни принцип получаваме \(\mathcal{CFL}_{G_1}(A) \subseteq T\).
+
+\vspace*{5mm}
+
+\par Сега ще покажем обратното включване чрез индукция по дължината на думата (брой букви \(a\)).
+Твърдението, което ще докажем е 
+
+\((\forall n \in \mathbb{N})(\forall k \in \mathbb{N})(a^n.b^k.c^k.c^n \in \mathcal{CFL}(G_1))\).
+
+\subsection*{База:}
+Нека \(k \in \mathbb{N}\). Имаме \(B \overset{k + 1}{\leadsto} b^k.c^k\).
+Имаме правило \(A \to B\). Следователно \(A \overset{1 + k + 1}{\leadsto} b^k.c^k\).
+Следователно \(a^0.b^k.c^k.c^0 \in \mathcal{CFL}_{G_1}(A)\).
+
+Следователно \((\forall k \in \mathbb{N})(a^0.b^k.c^k.c^0 \in \mathcal{CFL}_{G_1}(A))\).
+
+\subsection*{И.Х.}
+Нека \(n \in \mathbb{N}\) и нека \((\forall k \in \mathbb{N})(a^n.b^k.c^k.a^n \in \mathcal{CFL}(G_1))\).
+
+\subsection*{И.С.}
+Стъпка. Нека \(k \in \mathbb{N}\). От хипотезата \(a^n.b^k.c^k.c^n \in \mathcal{CFL}(G_1)\).
+
+Нека тогава \(l \in \mathbb{N}\) е такова, че \(A \overset{l}{\leadsto} a^n.b^k.c^k.c^n\).
+
+Имаме правило \(A \to aAc\), следователно \(A \overset{1 + l}{\leadsto} a^{n + 1}.b^k.c^k.c^{n + 1}\).
+
+Следователно \((\forall k \in \mathbb{N})(a^{n + 1}.b^k.c^k.c^{n + 1} \in \mathcal{CFL}(G_1))\).
+
+\subsection*{Заключение:}
+\((\forall n \in \mathbb{N})(\forall k \in \mathbb{N})(a^n.b^k.c^k.c^n \in \mathcal{CFL}(G_1))\).
+
+Следователно \(T \subseteq \mathcal{CFL}(G_1)\). Следователно \(\mathcal{CFL}(G_1) = T\).
+
+\subsection*{Конструиране на граматика}
+Нека \(G_2 = \langle \{C\}, \{c\},  C, \{C \to cC,\; C \to \varepsilon\} \rangle\).
+Тогава \(\mathcal{CFL}(G_2) = \{c\}^*\).
+
+Нека \(G = G_1 \odot G_2\).
+Тогава
+
+\(\mathcal{CFL}(G) = \mathcal{CFL}(G_1 \odot G_2) = \mathcal{CFL}(G_1) \cdot \mathcal{CFL}(G_2) = T \cdot \{c\}^* = L\).
+
+Следователно \(L\) е безконтекстен.
+
+\section*{Пример 2}
+Нека \(L = \{a^n.b^k.c^s \mid n \in \mathbb{N} \;\&\; k \in \mathbb{N} \;\&\; s \in \mathbb{N} \;\&\; n + k \geq s\}\).
+Ще докажем, че \(L\) е безконтекстен.
+Първо ще изразим \(L\) в удобен за генериране вид като отново следваме правилото: Лесно се генерира от вън на вътре.
+
+\begin{align*}
+    L = \{a^n.b^k.c^s \mid n \in \mathbb{N} \;\&\; k \in \mathbb{N} \;\&\; s \in \mathbb{N} \;\&\; (\exists t \in \mathbb{N})(n + k = s + t )\} \\
+    L = \{a^n.b^k.c^{s_a + s_b} \mid n, k, s_a, s_b \in \mathbb{N} \;\&\; (\exists t \in \mathbb{N})(n + k = s_a + s_b + t )\} \\
+    L = \{a^n.b^k.c^{s_a + s_b} \mid n, k, s_a, s_b \in \mathbb{N} \;\&\; (\exists t_a, t_b \in \mathbb{N})(n + k = s_a + s_b + t_a + t_b )\} \\
+    L = \{a^{s_a + t_a}.b^{s_b + t_b}.c^{s_a + s_b} \mid t_a, t_b, s_a, s_b \in \mathbb{N}\} \\
+    L = \{a^{s_a}.(a^{t_a}.b^{t_b}).(b^{s_b}.c^{s_b}).c^{s_a} \mid t_a, t_b, s_a, s_b \in \mathbb N\} \\
+     L = \{a^t.(a^n b^k).(b^l.c^l).c^t \mid n, k, t, l \in \mathbb N\}
+\end{align*}
+
+Нека \(M = \{a\}^* \cdot \{b\}^* \cdot \{b^k.c^k \mid k \in \mathbb{N}\}\).
+
+Тогава \(L = \{a^n.\omega.c^n \mid n \in \mathbb{N} \;\&\; \omega \in M\}\).
+
+Нека \(G_1 = \langle \{A\}, \{a\},  A, \{A \to aA,\; A \to \varepsilon\} \rangle\).
+
+Нека \(G_2 = \langle \{B\}, \{b\},  B, \{B \to bB,\; B \to \varepsilon\} \rangle\).
+
+Нека \(G_3 = \langle \{F\}, \{b, c\},  F, \{F \to bFc,\; F \to \varepsilon\} \rangle\).
+
+Нека \(G_4 = (G_1 \odot G_2) \odot G_3\). Тогава 
+
+\(\mathcal{CFL}(G_4) = \mathcal{CFL}((G_1 \odot G_2) \odot G_3) = (\mathcal{CFL}(G_1) \cdot \mathcal{CFL}(G_2)) \cdot \mathcal{CFL}(G_3) = \{a\}^* \cdot \{b\}^* \cdot \{b^k.c^k \mid k \in \mathbb{N}\} = M\).
+
+Ще хакнем граматиката за \(G_4\), която е за \(M\) за да направим граматика за \(L\).
+Нека \(\langle \Gamma,\; \{a, b, c\},\; I,\; R \rangle = G_4\) (декомпозираме \(G_4\)).
+
+Нека \(G = \langle \Gamma \cup \{S\},\; \{a, b, c\},\; S,\; R \cup \{S \to aSc,\; S \to I\} \rangle\).
+
+В сила е \(\mathcal{CFL}_G(I) = \mathcal{CFL}_{G_4}(I) = \mathcal{CFL}(G_4) = \\ \{a\}^* \cdot \{b\}^* \cdot \{b^k.c^k \mid k \in \mathbb{N}\} = M \subseteq L\)
+
+В сила е и следната рекуретна връзка
+
+\begin{align*}
+    \mathcal{CFL}_{G}^0(S) = \emptyset \\
+    (\forall n \in \mathbb N)(\mathcal{CFL}_{G}^{n + 1}(S) = \{a\} \cdot \mathcal{CFL}_{G}^n(S) \cdot \{c\} \cup \mathcal{CFL}_{G}^n(I))
+\end{align*}
+
+С индукция ще докажем, че \((\forall h \in \mathbb{N})(\mathcal{CFL}_{G}^h(S) \subseteq L)\).
+
+\subsection*{База:}
+Имаме \(\mathcal{CFL}_G^0(S) = \emptyset \subseteq L\).
+
+\subsection*{И.Х.}
+Нека \(h \in \mathbb{N}\) и \(\mathcal{CFL}_{G}^h(S) \subseteq L\).
+
+\subsection*{И.С.}
+Нека \(\omega \in \mathcal{CFL}_{G}^{h + 1}(S)\). Възможни са два случая.
+
+\subsubsection*{Случай 1. \(\omega \in \{a\} \cdot \mathcal{CFL}_{G}^h(S) \cdot \{c\} \subseteq \{a\} \cdot L \cdot \{c\}\)}
+
+Нo \(L = \{a^n.b^k.c^s \mid n \in \mathbb{N} \;\&\; k \in \mathbb{N} \;\&\; s \in \mathbb{N} \;\&\; n + k \geq s\}\)
+и \(\{a\} \cdot L \cdot \{c\} = \{a^{n + 1}.b^k.c^{s + 1} \mid n \in \mathbb{N} \;\&\; k \in \mathbb{N} \;\&\; s \in \mathbb{N} \;\&\; n + 1 + k \geq s + 1\} \subset L\).
+
+\subsubsection*{Случай 2. \(\omega \in \mathcal{CFL}_{G}^h(I)\)}
+Тогава \(\omega \in M \subseteq L\).
+
+\vspace*{5mm}
+
+\par Следователно \(\omega \in L\) и значи \(\mathcal{CFL}_{G}^{h + 1}(S) \subseteq L\).
+
+\subsection*{Заключение:}
+\((\forall k \in \mathbb N)(\forall \omega \in \mathcal{CFL}_G^k(S))(\omega \in L )\).
+Така от следствивето на индукционни принцип получаваме \(\mathcal{CFL}_G(S) \subseteq L\).
+
+\vspace*{5mm}
+
+\par Имаме \(L = \{a^n.\omega.c^n \mid n \in \mathbb{N} \;\&\; \omega \in M\}\).
+Сега ще покажем 
+
+\(L \subseteq \mathcal{CFL}_G(S))\) като по индукция докажем
+
+
+\((\forall n \in \mathbb{N})(\forall \omega \in M)(a^n.\omega.c^n \in \mathcal{CFL}_G(S))\).
+
+\subsection*{База.}
+Нека \(\omega \in M\). Тогава \(\omega \in \mathcal{CFL}(G_4)\).
+Нека тогава \(k \in \mathbb{N}\) е такова, че \(I \;\underset{G_4}{\overset{k}{\leadsto}}\; \omega\). Тогава \(I \;\underset{G}{\overset{k}{\leadsto}}\; \omega\).
+Имаме правило \(S \to I\). Следователно \(S \;\underset{G}{\overset{1 + k}{\leadsto}}\; \omega\).
+
+\vspace*{4mm}
+
+\par Следователно \(a^0.\omega.c^0 \in \mathcal{CFL}(G)\).
+
+Следователно \((\forall \omega \in M)(a^0.\omega.c^0 \in \mathcal{CFL}(G))\).
+
+\subsection*{И.Х.}
+Нека \(n \in \mathbb{N}\) и нека \((\forall \omega \in M)(a^n.\omega.c^n \in \mathcal{CFL}(G))\).
+
+\subsection*{И.С.}
+Нека \(\omega \in M\). От хипотезата \(a^n.\omega.c^n \in \mathcal{CFL}(G)\).
+
+Нека тогава \(j \in \mathbb{N}\) е такова, че \(S \;\underset{G}{\overset{j}{\leadsto}}\; a^n.\omega.c^n\).
+
+Имаме правило \(S \to aSc\), следователно \(S \;\underset{G}{\overset{1 + j}{\leadsto}}\; a^{n + 1}.\omega.c^{n + 1}\).
+
+Следователно \((\forall \omega \in M)(a^{n + 1}.\omega.c^{n + 1} \in \mathcal{CFL}(G))\).
+
+\subsection*{Заключение.}
+\((\forall n \in \mathbb{N})(\forall \omega \in M)(a^n.\omega.c^n \in \mathcal{CFL}_G(S))\).
+
+Следователно \(L \subseteq \mathcal{CFL}(G)\). Значи \(\mathcal{CFL}(G) = L\).
+
+Следователно \(L\) е безконтекстен.
+
+\section*{Пример 3}
+Нека \(L = \{\alpha\#\beta \mid \alpha, \beta \in \{a, b\}^+ \;\&\; (\exists i \in \mathbb N)(\alpha_i \neq \beta_i)\}\).
+
+Ще покажем, че \(L\) е безконтекстен. Започваме с анализ на езика.
+
+\vspace*{5mm}
+
+\par Нека \(flip : \{a, b\} \to \{a, b\} \) е такава, че \(flip(a) = b\) и \(flip(b) = a\).
+
+\vspace*{5mm}
+
+\par Ако \(\alpha, \beta \in \{a, b\}^+\) и \((\exists i \in \mathbb N)(\alpha_i \neq \beta_i)\), то съществуват \(\rho \in \{a, b\}^*\) и \(u \in \{a, b\}\) такива, че \(\rho.u\) е префикс на \(\alpha\) и \(\rho . flip(u)\) е префикс на \(\beta\), тоест има позиция, на която буквите са различни. Но също така е вярно и, че aко \(\alpha, \beta \in \{a, b\}^+\) и \((\exists i \in \mathbb N)(\alpha_i \neq \beta_i)\), то съществуват \(\gamma, \omega \in \{a, b\}^*\) и \(u \in \{a, b\}\) такива,
+че \(|\gamma| = |\omega|\) и  \(\gamma.u\) е префикс на \(\alpha\) и \(\omega . flip(u)\) е префикс на \(\beta\).
+Тоест ако \(\alpha\) и \(\beta\) са различни думи, то трябва да се различават поне на някоя позиция. Ще го докажем формално.
+Тоест ще докажем, че
+\(L = \{\alpha\#\beta \mid \alpha, \beta \in \{a, b\}^+ \;\&\; \{a, b\}^+ \;\&\; (\exists i \in \mathbb N)(\alpha_i \neq \beta_i)\} = \\ \{(\alpha.u.\gamma\#\beta).flip(u).\omega \mid \alpha, \beta, \gamma, \omega \in \{a, b\}^* \;\&\; u \in \{a, b\} \;\&\; |\alpha| = |\beta|\}\).
+
+\subsection*{Първо включването \(\subseteq\)}
+Нека \(\alpha, \beta \in \{a, b\}^+\) и нека \((\exists i \in \mathbb N)(\alpha_i \neq \beta_i)\).
+Нека тогава
+
+\(i = min \{k \in \{1, 2, \dots min(|\alpha|, |\beta|)\} \mid \alpha_i \neq \beta_i \}\).
+
+Тогава \((\forall j \in \{1, 2, \dots, i - 1\})(\alpha_j = \beta_j)\).
+Нека тогава \(\gamma\) е префикса на \(\alpha\) с дължина \(i - 1\).
+Нека означим с \(x\) буквата \(\alpha_i\). Тогава нека \(\rho\) и \(\omega\)
+са суфиксите на \(\alpha\) и \(\beta\) с дължини \(|\alpha| - i\) и \(|\beta| - i\) съответно.
+Тогава понеже \(x = \alpha_i \neq \beta_i\) и \(\beta_i \in \{a, b\}\), то \(\beta_i = flip(x)\).
+Така \(\alpha\#\beta = \gamma.x.\rho \# \gamma.flip(x).\omega\). Понеже \(|\gamma| = |\gamma|\), то
+\(\alpha\#\beta\) е във втория език.
+
+\subsection*{Включването \(\supseteq\)}
+Нека \(\alpha, \beta, \gamma, \omega \in \{a, b\}^*\), нека \(u \in \{a, b\}\) и нека \(|\alpha| = |\beta|\),
+
+тогава \(|\alpha.u.\gamma| \geq |u| = 1\) и \(|\beta.flip(u).\omega| \geq 1\).
+
+Следователно \(\alpha.u.\gamma, \beta.flip(u).\omega \in \{a, b\}^+\). Нека \(n = |\alpha| + 1\).
+
+Но тогава \((\alpha.u.\gamma)_n = u \neq flip(u) = (\beta.flip(u).\omega)_n\) и \(n \in \mathbb N\).
+
+Следователно \(\alpha.u.\gamma\#\beta.flip(u).\omega \in L\).
+
+Схематично са възможни две ситуации за думите от \(L\) представен по втория начин. 
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\Tree
+[.$S$
+    [.$A$
+        $\alpha$
+        [.$A$
+            $a$
+            [.$F$ $\gamma$ ]
+            $\#$
+        ]
+        $\beta$
+    ]
+    $flip(a)$
+    [.$F$ $\omega$ ]
+]
+\end{tikzpicture}
+\caption{Случай $u = a$}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\Tree
+[.$S$
+    [.$B$
+        $\alpha$
+        [.$B$
+            $b$
+            [.$F$ $\gamma$ ]
+            $\#$
+        ]
+        $\beta$
+    ]
+    $flip(b)$
+    [.$F$ $\omega$ ]
+]
+\end{tikzpicture}
+\caption{Случай $u = b$}
+\end{figure}
+
+Променливата \(S\) ще е начална, \(A\) и \(B\) ще служат за генериране на лявата част на думата, тази в която има някаква връзка и да помним, която буква сме избрали за позицията, в която се различават думите разделени от \(\#\). Променливата \(F\) ще служи за генериране на дума от \(\{a, b\}^*\). Нека \(G = \langle \{S, A, B, F, X\},\; \{a, b\},\; S,\; R \rangle\), където \(R\) е множеството от правила
+
+\begin{align*}
+    S \to AbF \mid BaF \\
+    A \to XAX \mid aF\# \\
+    B \to XBX \mid bF\# \\
+    X \to a \mid b \\
+    F \to XF \mid \varepsilon
+\end{align*}
+
+Ясно е, че \(\mathcal{CFL}_G(X) = \{a, b\}\) и \(\mathcal{CFL}_G(F) = \{a, b\}^*\)
+също така
+
+\(\mathcal{CFL}_G^0(X) = \emptyset\) и \((\forall n \in \mathbb{N})(\mathcal{CFL}_G^{n + 1}(X) = \{a, b\})\).
+
+Нека \(var : \{a, b\} \to \{A, B\} \) е такава, че \(var(a) = A\) и \(var(b) = B\).
+
+Нека \(u \in \{a, b\}\) и нека \(V = var(u)\). Ще докажем, че
+
+\(\mathcal{CFL}_G(V) = \displaystyle\bigcup_{k \in \mathbb{N}} \{a, b\}^k \cdot \{u\} \cdot \{a, b\}^* \cdot \{\#\} \cdot \{a, b\}^k\).
+
+Нека \(L_V^k = \{a, b\}^k \cdot \{u\} \cdot \{a, b\}^* \cdot \{\#\} \cdot \{a, b\}^k\) и \(L_V = \bigcup \{L_V^k  \mid k \in \mathbb{N}\} \).
+
+По индукция доказваме, че \((\forall n \in \mathbb{N})(\mathcal{CFL}_G^n(V) \subseteq L_V)\).
+
+Като ползваме, че \((\forall k \in \mathbb{N})(L_V^k \subseteq L_V)\).
+
+В сила е следната рекуретна връзка
+\begin{align*}
+    \mathcal{CFL}_G^0(V) = \emptyset \\
+    (\forall n \in \mathbb N)(\mathcal{CFL}_G^{n + 1}(V) = (\mathcal{CFL}_G^n(X) \cdot \mathcal{CFL}_G^n(V) \cdot \mathcal{CFL}_G^n(X)) \cup (\{u\} \cdot \mathcal{CFL}_G(F) \cdot \{\#\}))
+\end{align*}
+
+След заместване получаваме
+
+\begin{align*}
+    \mathcal{CFL}_G^0(V) = \emptyset \\
+    \mathcal{CFL}_G^1(V) = \emptyset \\
+    (\forall n \in \mathbb N)(\mathcal{CFL}_G^{n + 2}(V) = (\{a, b\} \cdot \mathcal{CFL}_G^{n + 1}(V) \cdot \{a, b\}) \cup (\{u\} \cdot \mathcal{CFL}_G^{n + 1}(F) \cdot \{\#\}))
+\end{align*}
+
+Правим индукцията.
+
+\subsection*{База.}
+Нека \(n \in \{0, 1\}\). Тогава \(\mathcal{CFL}_G^n(V) = \emptyset \subseteq L_V\).
+
+\subsection*{И.Х.}
+Нека \(n \in \mathbb{N}\) и \(n \geq 1\). Нека \(\mathcal{CFL}_G^n(V) \subseteq L_V\).
+
+\subsection*{И.С.}
+\(\mathcal{CFL}_G^{n + 1}(V) = \{a, b\} \cdot \mathcal{CFL}_G^n(V) \cdot \{a, b\} \cup \{u\} \cdot \mathcal{CFL}_G^n(F) \cdot \{\#\} \subseteq\)
+
+\(\{a, b\} \cdot \left(\displaystyle\bigcup_{k \in \mathbb{N}} \{a, b\}^k \cdot \{u\} \cdot \{a, b\}^* \cdot \{\#\} \cdot \{a, b\}^k\right) \cdot \{a, b\} \cup \{u\} \cdot \{a, b\}^* \cdot \{\#\} \subseteq\)
+
+\(\left(\displaystyle\bigcup_{k \in \mathbb{N}} \{a, b\}^{k + 1} \cdot \{u\} \cdot \{a, b\}^* \cdot \{\#\} \cdot \{a, b\}^{k + 1}\right) \cup \{\varepsilon\} \cdot \{u\} \cdot \{a, b\}^* \cdot \{\#\} \cdot \{\varepsilon\} \subseteq\)
+\(L_V \cup L_V^0 \subseteq L_V \cup L_V = L_V\). Следователно \(\mathcal{CFL}_G^{n + 1}(V) \subseteq L_V\).
+
+\subsection*{Заключение.}
+\((\forall n \in \mathbb N)(\forall \omega \in \mathcal{CFL}_G^n(V))(\omega \in L_V )\).
+Така от следствивето на индукционни принцип получаваме \(\mathcal{CFL}_G(V) \subseteq L_V\).
+
+\vspace*{5mm}
+
+\par За да докажем \(L_V \subseteq \mathcal{CFL}_G(V)\) по индукция ще докажем, че
+
+\((\forall k \in \mathbb{N})(L_V^k \subseteq \mathcal{CFL}_G(V))\).
+
+\subsection*{База.}
+Тогава  \(L_V^0 = \{a, b\}^0 \cdot \{u\} \cdot \{a, b\}^* \cdot \{\#\} \cdot \{a, b\}^0 = \{u\} \cdot \{a, b\}^* \cdot \{\#\}\). 
+
+Нека тогава \(\omega \in \{a, b\}^*\). Искаме да покажем, че \(V \overset{\star}{\leadsto} u.\omega.\#\).
+
+Но \(\omega \in \mathcal{CFL}_G(F)\). Нека тогава \(t \in \mathbb{N}\) е такова, че \(F \overset{t}{\leadsto} \omega\).
+
+Имаме правило \(V \to uF\#\). Следователно \(V \overset{1 + k}{\leadsto} u\omega\#\).
+
+Следователно \(u\omega\# \in \mathcal{CFL}_G(V)\). Следователно \(L_V^0 \subseteq \mathcal{CFL}_G(V)\).
+
+\subsection*{И.Х.}
+Нека \(k \in \mathbb{N}\). Нека \(L_V^k \subseteq \mathcal{CFL}_G(V)\).
+
+\subsection*{И.С.}
+\(L_V^{k + 1} = \{a, b\}^{k + 1} \cdot \{u\} \cdot \{a, b\}^* \cdot \{\#\} \cdot \{a, b\}^{k + 1} = \{a, b\} \cdot L_V^k \cdot \{a, b\}\).
+
+Нека тогава \(\omega \in L_V^k\) и нека \(x, y \in \{a, b\}\). Тогава \(x.\omega.y \in L_V^{k + 1}\).
+
+Тогава от И.Х. \(\omega \in \mathcal{CFL}_G(V)\). Нека тогава \(m  \in \mathbb{N}\) е такова, че \(V \overset{m}{\leadsto} \omega\).
+
+Но \(X \overset{1}{\leadsto} x, y\) и имаме правило \(V \to XVX\).
+
+Следователно \(V \;\overset{1 + max(1, m, 1)}{\leadsto} x\omega y\). Следователно \(x \omega y \in \mathcal{CFL}_G(V)\).
+
+\subsection*{Заключение.}
+\((\forall k \in \mathbb{N})(L_V^k \subseteq \mathcal{CFL}_G(V))\).
+
+Следователно \(L_V = \displaystyle\bigcup_{s \in \mathbb{N}} L_V^s \subseteq \mathcal{CFL}_G(V)\).
+
+Следователно \(\mathcal{CFL}_G(V) = L_V\).
+
+Следователно \(\mathcal{CFL}_G(A) = \displaystyle\bigcup_{k \in \mathbb{N}} \{a, b\}^k \cdot \{a\} \cdot \{a, b\}^* \cdot \{\#\} \cdot \{a, b\}^k\)
+
+и \(\mathcal{CFL}_G(B) = \displaystyle\bigcup_{k \in \mathbb{N}} \{a, b\}^k \cdot \{b\} \cdot \{a, b\}^* \cdot \{\#\} \cdot \{a, b\}^k\).
+
+\vspace*{5mm}
+
+\par В сила е рекурентната връзка.
+
+\begin{align*}
+    \mathcal{CFL}_G^0(S) = \emptyset \\
+    (\forall n \in \mathbb N)(\mathcal{CFL}_G^{n + 1}(S) = (\mathcal{CFL}_G^n(A) \cdot \{b\} \cdot \mathcal{CFL}_G^n(F)) \cup (\mathcal{CFL}_G^n(B) \cdot \{a\} \cdot \mathcal{CFL}_G^n(F)))
+\end{align*}
+
+Диреткно ще покажем, че \(\mathcal{CFL}_G(S) \subseteq \\
+\{(\alpha.u.\gamma\#\beta).flip(u).\omega \mid \alpha, \beta, \gamma, \omega \in \{a, b\}^* \;\&\; u \in \{a, b\} \;\&\; |\alpha| = |\beta|\}= L\).
+
+\vspace*{5mm}
+
+\par Нека \(\omega \in \mathcal{CFL}_G(S)\).
+Тогава от основната задача следва, че 
+
+\((\exists n \in \mathbb N)(\omega \in \mathcal{CFL}^n_G(S))\).
+Нека тогава \(n \in \mathbb N\) е такова, че
+
+\(\omega \in \mathcal{CFL}^n_G(S)\).
+Понеже \(\mathcal{CFL}_G^0(S) = \emptyset\), то \(n > 0\).
+
+Нека тогава \(k = n - 1\). Тогава \(k \in \mathbb N\) и \(n = k + 1\).
+
+Тогава \(u \in \{a, b\}\), \(V = var(u)\) и \(\omega \in \mathcal{CFL}_G^k(V) \cdot \{flip(u)\} \cdot \mathcal{CFL}_G^k(F)\).
+
+Тогава \(\omega \in \left( \displaystyle\bigcup_{k \in \mathbb{N}} \{a, b\}^k \cdot \{u\} \cdot \{a, b\}^* \cdot \{\#\} \cdot \{a, b\}^k \right) \cdot \{flip(u)\} \cdot \{a, b\}^* \\
+= \{(\alpha.u.\gamma\#\beta).flip(u).\sigma \mid \alpha, \beta, \gamma, \sigma \in \{a, b\}^* \;\&\; |\alpha| = |\beta|\} \subseteq L\).
+
+След обобщение получаваме \((\forall \omega \in \mathcal{CFL}_G(S))(\omega \in L)\).
+
+Следователно \(\mathcal{CFL}_G(S) \subseteq L\).
+
+\vspace*{5mm}
+
+\par Сега с индукция ще докажем, че \(L \subseteq \mathcal{CFL}_G(S)\). Доказвайки
+
+\((\forall n \in \mathbb{N})(\forall u \in \{a, b\})(\forall \alpha, \beta, \gamma \in \{a, b\}^*)(|\alpha| = n \implies \\ \alpha.u.\beta\#\alpha.flip(u).\gamma \in \mathcal{CFL}_G(S))\).
+Тоест ще използваме първото наблюдение за думите от \(L\) в индукцията понеже там по-лесно се параметризира дължината на думата. 
+
+\subsection*{База.}
+Трябва да покажем, че
+
+\((\forall u \in \{a, b\})(\forall \beta, \gamma \in \{a, b\}^*)(u\beta\#flip(u)\gamma \in \mathcal{CFL}_G(S))\).
+
+Нека \(u \in \{a, b\}\). Нека \(\beta, \gamma \in \{a, b\}^* = \mathcal{CFL}_G(F)\).
+
+Нека \(m, t \in \mathbb{N}\) са такива, че \(F \overset{s}{\leadsto} \beta\) и \(F \overset{t}{\leadsto} \gamma\).
+
+Нека \(V = var(u)\). Тогава имаме правило \(V \to uF\#\).
+
+Следователно \(V \overset{1 + s}{\leadsto} u\beta\#\).
+
+Имаме правило \(S \to V.flip(u).F\).
+
+Следователно \(S \overset{1 + max(1 + s, t)}{\leadsto} (u\beta\#).flip(u).\gamma\).
+
+Имаме правило \(S \to V.flip(u).F\).
+
+Следователно \(u\beta\#.flip(u).\gamma \in \mathcal{CFL}_G(S)\).
+
+\subsection*{И.Х.}
+Нека \(n \in \mathbb{N}\) и нека
+
+\[(\forall u \in \{a, b\})(\forall \alpha, \beta, \gamma \in \{a, b\}^*)(|\alpha| = n \implies \alpha.u.\beta\#\alpha.flip(u).\gamma \in \mathcal{CFL}_G(S))\]
+
+\subsection*{И.Х.}
+Нека \(u \in \{a, b\}\). Нека \(\alpha, \beta, \gamma \in \{a, b\}^*\). Нека \(|\alpha| = n + 1\).
+
+Нека тогава \(y, z \in \mathbb{N}\) и нека \(\rho, \xi \in \Sigma^*\) са такива, че \(\rho.y = \alpha = z.\xi\).
+
+Така \(\alpha.u.\beta\#\alpha.flip(u).\gamma = (z.\xi).u.\beta\#(\rho.y).flip(u).\gamma\).
+
+Имаме \(|\xi| = |\rho|\) и значи \(\xi.u.\beta\# \in \mathcal{CFL}_G(var(u))\).
+
+Нека \(V = var(u)\) и нека \(m \in \mathbb{N}\) е такова, че \(V \overset{m}{\leadsto} \xi.u.\beta\#\rho\).
+
+Имаме правило \(V \to XVX\) и значи \(V \overset{1 + max(1, m, 1)}{\leadsto} z\xi.u.\beta\#\rho.y\).
+
+Имаме \(\gamma \in \{a, b\}^* = \mathcal{CFL}_G(F)\). Нека тогава \(t \in \mathbb{N}\) е такова, че \(F \overset{t}{\leadsto} \gamma\).
+
+Имаме правило \(S \to V . flip(u) . F\). Нека \(h = 1 + max(1 + max(1, m), t)\).
+
+Така \(S \overset{h}{\leadsto} \alpha.u.\beta\#\alpha.flip(u).\gamma = (z.\xi).u.\beta\#(\rho.y).flip(u).\gamma\).
+
+Следователно \(\alpha.u.\beta\#\alpha.flip(u).\gamma \in \mathcal{CFL}_G(S)\).
+
+\subsection*{Заключение.}
+От индукцията получаваме 
+\((\forall \omega \in L)(\omega \in \mathcal{CFL}_G(S))\).
+
+Следователно \(L \subseteq \mathcal{CFL}_G(S)\). Следователно \(\mathcal{CFL}_G(S) = L\).
+
+Следователно \(\mathcal{CFL}(G) = L\) и значи \(L\) е безконтекстен.
+
+\end{document}

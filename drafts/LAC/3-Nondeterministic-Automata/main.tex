@@ -1,0 +1,1529 @@
+\documentclass[12pt]{article}
+\usepackage{tikz}
+\usepackage{tikz-qtree}
+\usepackage{float}
+\usetikzlibrary{automata, positioning, arrows}
+\tikzset{
+->,  >=stealth, node distance=3cm,
+every state/.style={thick},
+initial text=$ $
+}
+\usepackage[utf8]{inputenc}
+\usepackage[T2A]{fontenc}
+\usepackage[english,bulgarian]{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{relsize}
+\usepackage{euler}
+
+\title{Регулярни езици.
+Регулярни ирази.
+Крайни недетерминирани автомати.
+Конструиране на краен недетерминиран автомат по регулярен израз}
+\author{Иво Стратев}
+
+\begin{document}
+
+\maketitle
+
+\section{Регулярни езици}
+
+\subsection{Алгебрична дефиниция}
+Нека \(\Sigma\) е крайна азбука.
+Дефинираме понятието регулярен език над \(\Sigma\) с рекурсия.
+
+\subsubsection{Базови случаи:}
+\begin{itemize}
+    \item \(\emptyset\) е регулярен език над \(\Sigma\);
+    \item \(\{\varepsilon\}\) е регулярен език над \(\Sigma\);
+    \item Ако \(u \in \Sigma\), то \(\{u\}\) е регулярен език над \(\Sigma\).
+\end{itemize}
+
+\subsubsection{Рекурсивни случаи:}
+\begin{itemize}
+    \item Ако \(R\) е регулярен език над \(\Sigma\), то \(R^*\) е регулярен език над \(\Sigma\);
+    \item Ако \(R\) и \(S\) са регулярни езици над \(\Sigma\), то \(R \cup S\) е регулярен език над \(\Sigma\);
+    \item Ако \(R\) и \(S\) са регулярни езици над \(\Sigma\), то \(R \cdot S\) е регулярен език над \(\Sigma\).
+\end{itemize}
+
+\textbf{Регулярен език над \(\Sigma\)} е всеки \textbf{език над \(\Sigma\)}, който може да бъде \textbf{получен след краен брой прилагания на горните правила}.
+Тоест само една част от езиците над \(\Sigma\) са регулярни.
+\\\par
+Разбира се всеки краен език може да бъде получен чрез краен брой прилагания на правилата от дефиницията. Например 
+\[\{abc, cbaa\} = (\{a\} \cdot \{b\} \cdot \{c\}) \cup (\{c\} \cdot \{b\} \cdot \{a\} \cdot \{a\})\]
+\[\{aa, aaab\} = (\{a\} \cdot \{a\}) \cdot (\{\varepsilon\} \cup (\{a\} \cdot \{b\} ))\]
+
+
+\subsubsection{Забелжки:}
+\begin{itemize}
+    \item Ако \(A\) и \(B\) са езици над \(\Sigma\), то \(A \cdot B = \{\alpha.\beta \;\mid\; \alpha \in A \;\&\; \beta \in B\}\) и \(A \cdot B\) е език над \(\Sigma\).
+    \item Ако \(L\) е език над \(\Sigma\), то \(L^* = \displaystyle\bigcup_{n \in \mathbb{N}} L^n\) и \(L^*\) е език над \(\Sigma\).
+    \item Една от причините за да наричаме тази дефиниция алгебрична е, че когато разгледаме операциите \({}^*\) (звезда на Клини), \(\cup\) (обединениe) и \(\cdot\) (конкатенация на езици) само върху езици над фиксирана азбука то можем да гледаме на тях като функции (операции с езици).
+\end{itemize}
+
+\section{Регулярни изрази}
+
+\subsection{Синтаксис}
+Нека \(\Sigma\) е крайна азбука. Нека \(\Gamma = \Sigma \cup \{\textcolor{blue}{\emptyset}, \textcolor{blue}{\varepsilon}, \textcolor{blue}{(}, \textcolor{blue}{)}, \textcolor{blue}{*}, \textcolor{blue}{+}, \textcolor{blue}{\Large{.}}\}\).
+\textbf{Регулярен израз} над \(\Sigma\) е всяка \textbf{дума} над азбуката \(\Gamma\),
+която може да бъде \textbf{получена чрез креан брой прилагания} на следните правила:
+
+\subsubsection{Базови правила:}
+\begin{itemize}
+    \item думата \(\textcolor{blue}{\emptyset}\) е регулярен израз над \(\Sigma\);
+    \item  думата \(\textcolor{blue}{\varepsilon}\) е регулярен израз над \(\Sigma\);
+    \item Ако \(\textcolor{blue}{u}\) е буква от \(\Sigma\), то думата с единствена буква \(\textcolor{blue}{u}\) е регулярен израз над \(\Sigma\).
+\end{itemize}
+
+\subsubsection{Рекурсивни правила:}
+\begin{itemize}
+    \item Ако \(r\) е регулярен израз над \(\Sigma\), то думата \(\textcolor{blue}{(}r\textcolor{blue}{)*}\) е регулярен израз над \(\Sigma\);
+    \item Ако \(r\) и \(s\) са регулярни изрази над \(\Sigma\), то думата  \(\textcolor{blue}{(}r\textcolor{blue}{+}s\textcolor{blue}{)}\) е регулярен израз над \(\Sigma\);
+    \item Ако \(r\) и \(s\) са регулярни изрази над \(\Sigma\), то думата
+    \(\textcolor{blue}{(}r\textcolor{blue}{\Large{.}}s\textcolor{blue}{)}\)  е регулярен израз над \(\Sigma\).
+\end{itemize}
+
+\subsubsection{Забележка:}
+Регулярните изрази над \(\Sigma\) са просто думи от един език над \(\Gamma\).
+
+\subsection{Език на регулярен израз (Семантика)}
+Нека \(\Sigma\) е азбука.
+Нека \(RegExp(\Sigma)\) е множеството на думите, които са регулярни изрази над \(\Sigma\). \\
+Така \(RegExp(\Sigma)\) е език над азбуката \(\Sigma \cup \{\textcolor{blue}{\emptyset}, \textcolor{blue}{\varepsilon}, \textcolor{blue}{(}, \textcolor{blue}{)}, \textcolor{blue}{*}, \textcolor{blue}{+}, \textcolor{blue}{\Large{.}}\}\). \\
+Нека \(\mathcal{RL}_\Sigma : RegExp(\Sigma) \to \mathcal{P}(\Sigma^*)\) дефинираме чрез рекурсия, така:
+
+\begin{itemize}
+    \item \(\mathcal{RL}_\Sigma(\textcolor{blue}{\emptyset}) = \emptyset\);
+    \item \(\mathcal{RL}_\Sigma(\textcolor{blue}{\varepsilon}) = \{\varepsilon\}\);
+    \item Ако \(\textcolor{blue}{u} \in \Sigma\), то \(\mathcal{RL}_\Sigma(\textcolor{blue}{u}) = \{\textcolor{blue}{u}\}\);
+    \item Ако \(r \in RegExp(\Sigma)\), то \(\mathcal{RL}_\Sigma(\textcolor{blue}{(}r\textcolor{blue}{)*}) = \mathcal{RL}_\Sigma(r)^*\);
+    \item Ако \(r, s \in RegExp(\Sigma)\), то \(\mathcal{RL}_\Sigma(\textcolor{blue}{(}r \textcolor{blue}{+} s \textcolor{blue}{)}) = \mathcal{RL}_\Sigma(r) \cup \mathcal{RL}_\Sigma(s)\);
+    \item Ако \(r, s \in RegExp(\Sigma)\), то \(\mathcal{RL}_\Sigma(\textcolor{blue}{(}r \textcolor{blue}{\Large{.}} s \textcolor{blue}{)}) = \mathcal{RL}_\Sigma(r) \cdot \mathcal{RL}_\Sigma(s)\).
+\end{itemize}
+
+Ако \(r\) е регулярен израз над \(\Sigma\), то \(\mathcal{RL}_\Sigma(r)\) е езикът на регулярния израз \(r\).
+Така \(\mathcal{RL}_\Sigma\) на всеки регулярен израз съпоставя език над \(\Sigma\), тоест \(\mathcal{RL}_\Sigma\) играе роля на семантика за нас (придава значение на всяка дума от фиксиран език).
+
+\subsection{Пимери за пресмятане на език на регулярен израз}
+
+Нека фиксираме азбука \(\Sigma = \{a, b, c\}\) и вместо \(\mathcal{RL}_{\{a, b, c\}}\) да пишем само \(\mathcal{R_L}\).
+И нека пресметнем езикът на израза \(\textcolor{blue}{(((b + c))* . (c)*)}\).
+\begin{align*}
+    \mathcal{R_L}(\textcolor{blue}{(((a + b))* . (c)*)}) \\
+    = \mathcal{R_L}(\textcolor{blue}{((a + b))*}) \cdot \mathcal{R_L}(\textcolor{blue}{(c)*}) \\
+    = \mathcal{R_L}(\textcolor{blue}{(a + b)})^* \cdot \mathcal{R_L}(\textcolor{blue}{c})^* \\
+    = (\mathcal{R_L}(\textcolor{blue}{a}) \cup \mathcal{R_L}(\textcolor{blue}{b}) )^* \cdot \{c\}^* \\
+    = (\{a\} \cup \{b\})^* \cdot \{c\}^* \\
+    = \{a, b\}^* \cdot \{c\}^*
+\end{align*}
+Нека направим още две пресмятания.
+\begin{align*}
+    \mathcal{R_L}(\textcolor{blue}{((a.c) + (b.c)}) \\
+    = \mathcal{R_L}(\textcolor{blue}{(a.c)}) \cup \mathcal{R_L}(\textcolor{blue}{(b.c)}) \\
+    = (\mathcal{R_L}(\textcolor{blue}{a}) \cdot \mathcal{R_L}(\textcolor{blue}{c}))  \cup (\mathcal{R_L}(\textcolor{blue}{b}) \cdot \mathcal{R_L}(\textcolor{blue}{c}))  \\
+    = (\{a\} \cdot \{c\}) \cup (\{b\} \cdot \{c\})  \\
+    = \{ac\} \cup \{bc\} \\
+    = \{ac, bc\}
+\end{align*}
+
+\begin{align*}
+    \mathcal{R_L}(\textcolor{blue}{((a + b) . c)}) \\
+    = \mathcal{R_L}(\textcolor{blue}{(a + b)}) \cdot \mathcal{R_L}(\textcolor{blue}{c}) \\
+    = (\mathcal{R_L}(\textcolor{blue}{a}) \cup \mathcal{R_L}(\textcolor{blue}{b})) \cdot \{c\}  \\
+    = (\{a\} \cup \{b\}) \cdot \{c\} \\
+    = \{a, b\} \cdot \{c\} \\
+    = \{ac, bc\}
+\end{align*}
+
+Видяхме, че \(\mathcal{R_L}(\textcolor{blue}{((a.c) + (b.c)}) = \{ac, bc\} = \mathcal{R_L}(\textcolor{blue}{((a + b) . c)})\).
+Следователно \(\mathcal{R_L}\) не е инекция!
+Подобен на разгледания контрапример върши работа за произволна азбука, дори когато тя е само от една буква.
+Също така предстои да видим, че не е и сюрекция. Тоест не всеки език над \(\Sigma\) може да бъде получен като образ на някой регулярен езраз над \(\Sigma\).
+Вярно е обаче, че
+\begin{align*}
+    Range(\mathcal{RL}_\Sigma) = \{L \in \mathcal{P}(\Sigma^*) \mid (\exists r \in RegExp(\Sigma))(L =  \mathcal{RL}_\Sigma(r) \} = \\
+    \{L \in \mathcal{P}(\Sigma^*) \mid \; "\text{има КТДА} \; \mathcal{A} \; \text{такъв, че} \; \mathcal{A} \; \text{разпознава} \; L "\; \} = \\
+    \{L \in \mathcal{P}(\Sigma^*) \mid
+(\exists n \in \mathbb{N})
+(\exists \delta : \Sigma \times S_n \to S_n)
+(\exists F \subseteq S_n))
+(L = \mathcal{L}(\langle \Sigma, S_n, \delta, 0, F \rangle)  ) \}
+\end{align*}
+Където
+\begin{itemize}
+    \item \(S_0 = \{0\}\);
+    \item Ако \(n \in \mathbb{N}\), то \(S_{n + 1} = S_n \cup \{n\} \).
+\end{itemize}
+Ще го видим чрез примери.
+Формулирано на човешки език, то звучи така "Автоматните и регулярните езици над фиксирана азбука съвпадат".
+
+\section{Крайни недетерминирани автомати}
+
+\subsection{Дефиниция:}
+Нека
+\begin{enumerate}
+    \item \(\Sigma\) е крайна азбука;
+    \item \(Q\) е непразно крайно множество (има поне едно начално състояние);
+    \item \(\Delta \subseteq Q \times \Sigma \times Q \) (тук нямаме тоталност, възможно е за някое състояние \(q\) да няма буква \(x\) и състояние \(p\), така че да е в сила \(\langle q, x, p \rangle \in \Delta\), но пък имаме недетерминираност понеже за някое състояние \(q\) и някоя буква \(x\) е възможно да има състояния \(t\) и \(p\), такива че \(\langle q, x, t \rangle \; \in \Delta\) и \(\langle q, x, p \rangle \; \in \Delta\));
+    \item \(S \subseteq Q\) и \(S \neq \emptyset\) (има поне едно начално състояие);
+    \item \(F \subseteq Q\).
+\end{enumerate}
+Тогава \(\langle \Sigma, Q, \Delta, S, F \rangle\) е краен недетерминиран автомат (КНА) над \(\Sigma\).
+
+\subsection{Всеки тотален КДА може да бъде разглеждан като КНА.}
+Нека \(\mathcal{A} = \; \langle \Sigma, Q, \delta, s, F \rangle\) е тотален КДА. \\
+Нека \(\Delta = \{\langle q, x, \delta(x, q) \rangle \; \mid q \in Q \; \& \; x \in \Sigma \}\). \\
+Тогава \(\langle \Sigma, Q, \Delta, \{s\}, F \rangle\) е \(\mathcal{A}\) гледан като КНА.
+
+\subsection{Език на КНА}
+
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial] (q0) {$0$};
+    \node[state, above right of=q0] (q1) {$1$};
+    \node[state, accepting, right of=q1] (q2) {$2$};
+    \node[state, right of=q0] (q3) {$3$};
+    \node[state, accepting, right of=q3] (q4) {$4$};
+    \node[state, initial, below of=q0] (q5) {$5$};
+    \node[state, right of=q5] (q6) {$6$};
+    \node[state, accepting, right of=q6] (q7) {$7$};
+    
+    \draw   (q0) edge[bend left, left] node{a} (q1)
+            (q1) edge[above] node{b} (q2)
+            (q2) edge[loop above] node{a} (q2);
+    \draw   (q0) edge[above] node{a} (q3)
+            (q3) edge[above] node{c} (q4)
+            (q4) edge[loop right] node{a} (q4);
+    \draw   (q5) edge[above] node{b} (q6)
+            (q6) edge[above] node{c} (q7);
+    \draw   (q6) edge[left] node{a} (q3);
+\end{tikzpicture}
+\end{center}
+
+Ако използваме опита ни натрупан покрай работата с тоталните крайни детерминирани автомати би следвало да кажем, че автомата с показаната диграма разпознава думите \(ab\), \(abaaa\), \(aca\), \(bc\) и \(baca\), понеже за всяка от тях има маршрут от някое начално състояние до някое финално състояние. \\\par
+Нека си припомним как формулизирахме разпознаване на дума от един тотален КДА.
+Нека \(\mathcal{A} = \;\langle \{a, b\}, \{0, 1, 2\}, \delta, 0, \{0\} \rangle\) е автомата представен на диаграмата:
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial, accepting] (q0) {$0$};
+    \node[state, right of=q0] (q1) {$1$};
+    \node[state, below of=q1] (q2) {$2$};
+    
+    \draw   (q0) edge[loop above] node{b} (q0)
+            (q0) edge[above] node{a} (q1)
+            (q1) edge[loop above] node{b} (q1)
+            (q1) edge[above, right] node{a} (q2)
+            (q2) edge[loop right] node{b} (q2)
+            (q2) edge[below, left] node{a} (q0);
+\end{tikzpicture}
+\end{center}
+Тогава \(\mathcal{A}\) разпознава една дума \(\omega \in \{a, b\}^*\) ТСТК \(\delta^*(0, \; \omega) \in \{0\}\). \\
+Където \(\delta^*\), дефинирахме така:
+\begin{itemize}
+    \item Ако \(q \in \{0, 1, 2\}\), то \(\delta^*(q, \; \varepsilon) = q\);
+    \item Ако \(q \in \{0, 1, 2\}\) и \(x \in \{a, b\}\) и \(\alpha \in \{a, b\}^*\), то \(\delta^*(q, \; x\alpha) = \delta^*(\delta(q, x), \; \alpha) \).
+\end{itemize}
+
+Чрез рекурсивните пресмятания на \(\delta^*\) по автомата \(\mathcal{A}\) реално се извършва едно напълно детерминистичо изчисление, което остава може би леко скрито. Така за един тотален КДА можем да мислим като хардуерно реализирана програма.
+Тоест едно устройство с крайна памет, на което подаваме дума и то отговаря с да или не.
+Някакъв вид подобрен \textbf{if statement}.
+Ще използваме идеята за изчисление за да дефинираме напълно формално какво значин един КНА да разпознава даден език.
+
+\subsection{Език на КНА}
+Нека \(\mathcal{N} = \langle \Sigma, Q, \Delta, S, F \rangle\) е КНА.
+Експлицитно ще кажем какво значи за нас изчисление по автомата \(\mathcal{N}\).
+Целта ни е по сътояние и дума да кажем какво значи успещно изчисление, тоест изчисление, което ни води до финално състояние.
+Не се ограничаваме до изчисление започващо от начално състояние, защото в хода на изчислението моментното състоянието вероятно ще се промения. \\\par
+
+Изчисление започващо от съсояние \(t\) с дума \(\omega\) по автомата \(\mathcal{N}\), до финално състояние \(p\) ще бележим с \( \langle t, \omega  \rangle \vdash_\mathcal{N} p\).
+Въвеждаме следните изчислителни правила:
+\[ \displaystyle{\frac{q \in F}{ \langle q, \varepsilon  \rangle \vdash_\mathcal{N} q}} \]
+\[ \displaystyle{\frac{
+    x \in \Sigma \quad
+    \alpha \in \Sigma^* \quad
+    q \in Q \quad
+    t \in Q \quad
+    f \in F \quad
+    \langle q, x, t \rangle \in \Delta \quad
+    \langle t, \alpha \rangle \vdash_\mathcal{N} f
+    }{ \langle q, x\alpha \rangle \vdash_\mathcal{N} f}} \]
+
+Тогава езикът разпознават от КНА \(\mathcal{N}\) e
+\[\mathcal{L_{ND}}(\mathcal{N}) = \left\{ \omega \in \Sigma^* \; \mid \;
+\underbrace{(\exists s \in S)(\exists f \in F) \; \langle s, \; \omega \rangle \vdash_\mathcal{N} f }_{\mathcal{N} \; \text{разпознава думата} \; \omega}  \right\}\]
+Тоест езикът разпознаван от \(\mathcal{N}\) е множеството на точно онези думи, за които има успешно изчисление започващо от някое начално състояние.
+
+\subsection{Два примера за успешни изчисления.}
+Отново разглеждаме КНА с диаграма
+
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial] (q0) {$0$};
+    \node[state, above right of=q0] (q1) {$1$};
+    \node[state, accepting, right of=q1] (q2) {$2$};
+    \node[state, right of=q0] (q3) {$3$};
+    \node[state, accepting, right of=q3] (q4) {$4$};
+    \node[state, initial, below of=q0] (q5) {$5$};
+    \node[state, right of=q5] (q6) {$6$};
+    \node[state, accepting, right of=q6] (q7) {$7$};
+    
+    \draw   (q0) edge[bend left, left] node{a} (q1)
+            (q1) edge[above] node{b} (q2)
+            (q2) edge[loop above] node{a} (q2);
+    \draw   (q0) edge[above] node{a} (q3)
+            (q3) edge[above] node{c} (q4)
+            (q4) edge[loop right] node{a} (q4);
+    \draw   (q5) edge[above] node{b} (q6)
+            (q6) edge[above] node{c} (q7);
+    \draw   (q6) edge[left] node{a} (q3);
+\end{tikzpicture}
+\end{center}
+
+Автоматът разпознава думата \(bc\), защото
+\begin{align*}
+    \langle 7, \varepsilon  \rangle \vdash_\mathcal{N} 7 \\
+    \langle 6, c\varepsilon  \rangle \vdash_\mathcal{N} 7 \\
+    \langle 5, bc\varepsilon  \rangle \vdash_\mathcal{N} 7
+\end{align*}
+Тоест \(\langle 5, bc  \rangle \vdash_\mathcal{N} 7\).
+
+Също така автоматът разпознава думата \(acaa\), защото
+\begin{align*}
+    \langle 4, \varepsilon  \rangle \vdash_\mathcal{N} 4 \\
+    \langle 4, a\varepsilon  \rangle \vdash_\mathcal{N} 4 \\
+    \langle 4, aa\varepsilon  \rangle \vdash_\mathcal{N} 4 \\
+    \langle 3, caa\varepsilon  \rangle \vdash_\mathcal{N} 4 \\
+    \langle 0, acaa\varepsilon  \rangle \vdash_\mathcal{N} 4
+\end{align*}
+и \(acaa = acaa\varepsilon\). \\\par
+
+Задачата за разпознаване на дума от един КНА реално е задача за търсене, защото може да бъде моделирана като такава.
+За целта се използват дървета на търсене и на извод. Сега ще дадем примери за няколко примера за двата вида дървета за различни думи.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+   level distance=1.25cm,sibling distance=1cm,
+   edge from parent path={(\tikzparentnode) -- (\tikzchildnode)}]
+\Tree
+[.$ac$
+\edge node[auto=right] {start};
+[.0
+    \edge node[auto=right] {a};
+    [.1 [.$\bot$ ] ]
+    \edge node[auto=left] {a};
+    [.3 
+        \edge node[midway,right] {c};
+        [.4 ]
+        ]
+]
+\edge node[auto=left] {start};
+[.5 [.$\bot$ ] ]
+]
+\end{tikzpicture}
+\caption{Дърво на търсене за думата $ac$}
+\end{figure}
+
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\Tree [.0 a [.3 c [.4 $\varepsilon$ ] ] ]
+\end{tikzpicture}
+\caption{Дърво на извод за думата $ac$}
+\end{figure}
+
+Идеята на дървото на търсене по дадена дума е да визуализира всевъзможните изчислени по дадена дума.
+Тоест започвайки от всяко начално състояние на автомата правейки всевъзможните последователни преходи от състояние в състояние по буквите на думата да видим достиганията на финални състояния. Използваме \(\bot\) за изчисления, които пропадат, тоест не е прочетена цялата дума и от текущото състояние не е възможен преход с текущата буква. \\\par
+Едно дърво на извод на една дума показва един възможен начин за получаване на думата.
+Такива дървета ще използваме при контекстно свободните граматики, за това сега само ги показваме с идеята да се навържат нещата по-късно ("to see the bigger picture later on").
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+   level distance=1.25cm,sibling distance=1cm,
+   edge from parent path={(\tikzparentnode) -- (\tikzchildnode)}]
+\Tree
+[.$aba$
+\edge node[auto=right] {start};
+[.0
+    \edge node[auto=right] {a};
+    [.1
+        \edge node[auto=right] {b};
+        [.2
+            \edge node[auto=right] {a};
+            2
+        ]
+    ]
+    \edge node[auto=left] {a};
+    [.3 [.$\bot$ ] ]
+]
+\edge node[auto=left] {start};
+[.5 [.$\bot$ ] ]
+]
+\end{tikzpicture}
+\caption{Дърво на търсене за думата $aba$}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\Tree [.0 a [.1 b [.2 a  [.2 $\varepsilon$ ] ] ] ]
+\end{tikzpicture}
+\caption{Дърво на извод за думата $baa$}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+   level distance=1.25cm,sibling distance=1cm,
+   edge from parent path={(\tikzparentnode) -- (\tikzchildnode)}]
+\Tree
+[.$bc$
+    \edge node[auto=right] {start};
+    [.0 [.$\bot$ ] ]
+    \edge node[auto=left] {start};
+    [.5
+        \edge node[midway, right] {b};
+        [.6
+            \edge node[midway, right] {c};
+            7
+        ]
+    ]
+]
+\end{tikzpicture}
+\caption{Дърво на търсене за думата $bc$}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\Tree [.5 b [.6 c [.7 $\varepsilon$ ] ] ]
+\end{tikzpicture}
+\caption{Дърво на извод за думата $bc$}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+   level distance=1.25cm,sibling distance=1cm,
+   edge from parent path={(\tikzparentnode) -- (\tikzchildnode)}]
+\Tree
+[.$aa$
+\edge node[auto=right] {start};
+[.0
+    \edge node[auto=right] {a};
+    [.1 [.$\bot$ ] ]
+    \edge node[auto=left] {a};
+    [.3 [.$\bot$ ] ]
+]
+\edge node[auto=left] {start};
+[.5 [.$\bot$ ] ]
+]
+\end{tikzpicture}
+\caption{Дърво на търсене за думата $aa$}
+\end{figure}
+
+Това, което виждаме е, че всяко изчисление с думата \(aa\) по разглежданият автомат е неуспешно / пропадащо .
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+   level distance=1.25cm,sibling distance=1cm,
+   edge from parent path={(\tikzparentnode) -- (\tikzchildnode)}]
+\Tree
+[.$cab$
+\edge node[auto=right] {start};
+[.0 [.$\bot$ ] ]
+\edge node[auto=left] {start};
+[.5 [.$\bot$ ] ]
+]
+\end{tikzpicture}
+\caption{Дърво на търсене за думата $cab$}
+\end{figure}
+
+Това, което е важно да се запомни е, че за да приеме автомата една дума е достатъчно едно успешно изчисление по дадената дума.
+Ако всяко изчисление не е успешно, то думата не е разпозната от автомата и не е от неговия език.
+
+\section{Конструиране на краен недетерминиран автомат по регулярен израз}
+Конструирането следва дефиницията за регулярен израз.
+Първо показваме базови конструкции.
+
+\subsection{Базови конструкции}
+
+\subsubsection{Празният език}
+В празният език няма думи, така че не трябва да има финално състояние в автомат, който ще го разпознава.
+От друга страна трябва да имаме поне едно начално състояние. Така, че един автомат за празният език е
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial] (q0) {$0$};
+\end{tikzpicture}
+\end{center}
+Формално \(\langle \Sigma, \{0\}, \emptyset, \{0\}, \emptyset \rangle\).
+
+\subsubsection{Езикът на празната дума}
+Езикът на прзната дума съдържа само \(\varepsilon\), която няма букви.
+Трябват ни начално и финално състояние.
+Хубаво е автоматът да е с минимален брой състояния.
+Така, че само едно състояние, което е и начално и финално е достатъчно.
+Ако имаме преход с буква ще разпознаваме повече думи от празната.
+Така, че няма да имаме никакви преходи и така автомат за езикът на празната дума е
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial, accepting] (q0) {$0$};
+\end{tikzpicture}
+\end{center}
+Формално \(\langle \Sigma, \{0\}, \emptyset, \{0\}, \{0\} \rangle\).
+
+\subsubsection{За буква}
+Нека \(x \in \Sigma\).
+Искаме автомат, който разпознава думата с единствена буква \(x\) и никоя друга дума.
+Така достигаме до следния автомат
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial] (q0) {$0$};
+    \node[state, accepting, right of=q0] (q1) {$1$};
+    \draw (q0) edge[above] node{x} (q1);
+\end{tikzpicture}
+\end{center}
+Формално \(\langle \Sigma, \{0, 1\}, \{\langle 0, x, 1 \rangle\}, \{0\}, \{1\} \rangle\).
+
+\subsection{Конструкции съотвестващи на рекурсивните правила}
+Фиксираме азбука \(\Sigma\).
+
+\subsubsection{За \(+\)}
+Нека \(r, s \in RegExp(\Sigma)\). Тогава \(\mathcal{RL}_\Sigma(\textcolor{blue}{(}r \textcolor{blue}{+} s \textcolor{blue}{)}) = \mathcal{RL}_\Sigma(r) \cup \mathcal{RL}_\Sigma(s)\).
+Значи искаме КНА, който разпознава обединието на двата езика.
+Но ако състоянията на автоматите разпознаващи двата езика са непресичащи се множества,
+то ако някак си направим обединие на двата автомата ще сме получили автомат, който ни върши работа. \\
+
+Нека разгледаме следните два автомата зададени чрез свойте диаграми:
+
+\begin{minipage}{.5\textwidth}
+\centering
+\begin{tikzpicture}
+    \node[state, initial] (q0) {$0$};
+    \node[state, above right of=q0] (q1) {$1$};
+    \node[state, accepting, right of=q1] (q2) {$2$};
+    \node[state, right of=q0] (q3) {$3$};
+    \node[state, accepting, right of=q3] (q4) {$4$};
+    
+    \draw   (q0) edge[bend left, left] node{a} (q1)
+            (q1) edge[above] node{b} (q2)
+            (q2) edge[loop above] node{a} (q2);
+    \draw   (q0) edge[above] node{a} (q3)
+            (q3) edge[above] node{c} (q4)
+            (q4) edge[loop right] node{a} (q4);
+\end{tikzpicture}
+\end{minipage}
+\begin{minipage}{.5\textwidth}
+\centering
+\begin{tikzpicture}
+    \node[state, initial, below of=q0] (q5) {$5$};
+    \node[state, right of=q5] (q6) {$6$};
+    \node[state, accepting, right of=q6] (q7) {$7$};
+    
+    \draw   (q5) edge[above] node{b} (q6)
+            (q6) edge[above] node{c} (q7);
+\end{tikzpicture}
+\end{minipage}
+\\
+\vspace*{5mm}
+\\
+За да ги обединим интуитивно е достатъчно да направим обща диграма на двата автомата.
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial] (q0) {$0$};
+    \node[state, above right of=q0] (q1) {$1$};
+    \node[state, accepting, right of=q1] (q2) {$2$};
+    \node[state, right of=q0] (q3) {$3$};
+    \node[state, accepting, right of=q3] (q4) {$4$};
+    \node[state, initial, below of=q0] (q5) {$5$};
+    \node[state, right of=q5] (q6) {$6$};
+    \node[state, accepting, right of=q6] (q7) {$7$};
+    
+    \draw   (q0) edge[bend left, left] node{a} (q1)
+            (q1) edge[above] node{b} (q2)
+            (q2) edge[loop above] node{a} (q2);
+    \draw   (q0) edge[above] node{a} (q3)
+            (q3) edge[above] node{c} (q4)
+            (q4) edge[loop right] node{a} (q4);
+    \draw   (q5) edge[above] node{b} (q6)
+            (q6) edge[above] node{c} (q7);
+\end{tikzpicture}
+\end{center}
+
+\par Нека сега да формализираме. Нека
+
+\begin{align*}
+    \mathcal{N}_1 = \; \langle \Sigma, Q_1, \Delta_1, S_1, F_1 \rangle \\
+    \mathcal{N}_2 = \; \langle \Sigma, Q_2, \Delta_2, S_2, F_2 \rangle
+\end{align*}
+са два НКА съответно за регулярните изрази \(r_1\) и \(r_2\). \\
+Тоест \(\mathcal{L_{ND}}(\mathcal{N}_1) = \mathcal{RL}(r_1)\) и \(\mathcal{L_{ND}}(\mathcal{N}_2) = \mathcal{RL}(r_2)\).
+Тогава \\
+\(\mathcal{N} = \; \langle \Sigma, \; Q_1 \cup Q_2, \; \Delta_1 \cup \Delta_2, \; S_1 \cup S_2, \; F_1 \cup F_2 \rangle\)
+е такъв, че \\
+\(\mathcal{L_{ND}}(\mathcal{N}) = \mathcal{RL}(\textcolor{blue}{(} r_1 \textcolor{blue}{+} r_2 \textcolor{blue}{)} ) = \mathcal{RL}(r_1) \cup \mathcal{RL}(r_2)\).
+
+\subsubsection{За \(\cdot\)}
+Нека \(r, s \in RegExp(\Sigma)\). Тогава \(\mathcal{RL}_\Sigma(\textcolor{blue}{(}r \textcolor{blue}{\cdot} s \textcolor{blue}{)}) = \mathcal{RL}_\Sigma(r) \cup \mathcal{RL}_\Sigma(s)\).
+Искаме да направим автомат разпознаващ конкатенацията на двата езика.
+Нека разгледаме диаграмите на същите два автомата като в примера за \(+\).
+\begin{minipage}{.5\textwidth}
+\centering
+\begin{tikzpicture}
+    \node[state, initial] (q0) {$0$};
+    \node[state, above right of=q0] (q1) {$1$};
+    \node[state, accepting, right of=q1] (q2) {$2$};
+    \node[state, right of=q0] (q3) {$3$};
+    \node[state, accepting, right of=q3] (q4) {$4$};
+    
+    \draw   (q0) edge[bend left, left] node{a} (q1)
+            (q1) edge[above] node{b} (q2)
+            (q2) edge[loop above] node{a} (q2);
+    \draw   (q0) edge[above] node{a} (q3)
+            (q3) edge[above] node{c} (q4)
+            (q4) edge[loop right] node{a} (q4);
+\end{tikzpicture}
+\end{minipage}
+\begin{minipage}{.5\textwidth}
+\centering
+\begin{tikzpicture}
+    \node[state, initial, below of=q0] (q5) {$5$};
+    \node[state, right of=q5] (q6) {$6$};
+    \node[state, accepting, right of=q6] (q7) {$7$};
+    
+    \draw   (q5) edge[above] node{b} (q6)
+            (q6) edge[above] node{c} (q7);
+\end{tikzpicture}
+\end{minipage}
+\\
+\vspace*{5mm}
+\\
+Интиуитивно за конкатенацията трябва да навържем последователно двата автомата.
+Така вървейки по този от ляво ще разпознаем дума от първият език, след това ще се прехвърлим на десният и ще продължим да четем дума от вторият.
+Така общо ще сме прочели дума, която е конкатенация на дума от левия с дума от десният.
+Значи трябва да добавим преходи от финалните на този от ляво, към състония на този от дясно.
+Обаче ако напрвим преходи към началното състояние на този от дясно, то ще прочетем допълнително още една буква.
+Значи от финлно на този от ляво трябва да се прехвърлим в сътояние на вторият съотвестващо на преход от началното състояние.
+Тоест да започнем да четем дума от езикът на този в дясно, прочитайки първата буква и после да продължим нейното допрочитане.
+Например за думата \(ababc\) ще искаме да направим преходите \(0 \to 1 \to 2 \to 2 \to 6 \to 7\).
+Тоест вместо преходът \(5 \to 6\) ще искаме да можем да направим преход \(2 \to 6\). 
+На ниво диаграма трябва слеем двата автомата в един и да добавим преходите отбелязани с пунктир.
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial] (q0) {$0$};
+    \node[state, above right of=q0] (q1) {$1$};
+    \node[state, right of=q1] (q2) {$2$};
+    \node[state, below right of=q0] (q3) {$3$};
+    \node[state, right of=q3] (q4) {$4$};
+    \node[state, above right of=q4] (q5) {$5$};
+    \node[state, right of=q5] (q6) {$6$};
+    \node[state, accepting, right of=q6] (q7) {$7$};
+    
+    \draw   (q0) edge[bend left, left] node{a} (q1)
+            (q1) edge[above] node{b} (q2)
+            (q2) edge[loop above] node{a} (q2);
+    \draw   (q0) edge[bend right, above] node{a} (q3)
+            (q3) edge[above] node{c} (q4)
+            (q4) edge[loop below] node{a} (q4);
+    \draw   (q5) edge[above] node{b} (q6)
+            (q6) edge[above] node{c} (q7);
+            
+    \draw (q2) edge[dashed, bend left, above] node{b} (q6);
+    \draw (q4) edge[dashed, bend right, above] node{b} (q6);
+\end{tikzpicture}
+\end{center}
+Добре ще слеем двата автомата, но трябва да кажем, кои ще са началните и кои ще са финалните състояния.
+Невежо ще си кажем начални ще са началните състояния на този от ляво,
+а финални ще са финалните на тези от дясно.
+Проблем би настъпил ако в езикът на десният беше и празната дума, защото тогава всяка дума от езикът на левият ще бъде в конкатенацията,
+значи в такава ситуация финални сътояния трябва да са финалните и на двата автомата. \\
+
+\par Нека сега разгледаме ситуацията когато в езикът на левият автомат беше празната дума, дали тогава началните състояния на десния не трябва да са начални и в този за конкатенацията ? Отговорът на този въпрос е отрицателен, защото тогава левит ще има начално състояние, което е финално и тогава ще сме копирали и от него началните преходи в десният автомат, тоест ще има от къде да започнем диреткно да правим изчисление по деснияят автомат, ако думата е непразна разбира се. \\\par
+
+Нека да формализираме горните наблюдения. Нека
+
+\begin{align*}
+    \mathcal{N}_1 = \; \langle \Sigma, Q_1, \Delta_1, S_1, F_1 \rangle \\
+    \mathcal{N}_2 = \; \langle \Sigma, Q_2, \Delta_2, S_2, F_2 \rangle
+\end{align*}
+са два НКА съответно за регулярните изрази \(r_1\) и \(r_2\). \\
+Тоест \(\mathcal{L_{ND}}(\mathcal{N}_1) = \mathcal{RL}(r_1)\) и \(\mathcal{L_{ND}}(\mathcal{N}_2) = \mathcal{RL}(r_2)\). \\
+Тогава \(\mathcal{N} = \;\langle \Sigma, \; Q_1 \cup Q_2, \; \Delta_1 \cup \Delta_2 \cup \Delta_{bridge}, \; S_1, \; F \rangle\), където
+\begin{itemize}
+    \item \(\Delta_{bridge} = \{ \langle f, x, q \rangle \in F_1 \times \Sigma \times Q_2 \mid (\exists s \in S_2)( \langle s, x, q \rangle \in \Delta_2)\}\)
+    \item \(F = \begin{cases}
+	F_1 \cup F_2 & S_2 \cap F_2 \neq \emptyset \\
+    F_2 & S_2 \cap F_2 = \emptyset
+\end{cases}\)
+\end{itemize}
+е такъв, че \(\mathcal{L_{ND}}(\mathcal{N}) = \mathcal{RL}(\textcolor{blue}{(} r_1 \textcolor{blue}{.} r_2 \textcolor{blue}{)} ) = \mathcal{RL}(r_1) \cdot \mathcal{RL}(r_2)\).
+
+Ако следваме точно този формализъм, то за разгледаният пример получаваме
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial] (q0) {$0$};
+    \node[state, above right of=q0] (q1) {$1$};
+    \node[state, right of=q1] (q2) {$2$};
+    \node[state, below right of=q0] (q3) {$3$};
+    \node[state, right of=q3] (q4) {$4$};
+    \node[state, above right of=q4] (q5) {$5$};
+    \node[state, right of=q5] (q6) {$6$};
+    \node[state, accepting, right of=q6] (q7) {$7$};
+    
+    \draw   (q0) edge[bend left, left] node{a} (q1)
+            (q1) edge[above] node{b} (q2)
+            (q2) edge[loop above] node{a} (q2);
+    \draw   (q0) edge[bend right, above] node{a} (q3)
+            (q3) edge[above] node{c} (q4)
+            (q4) edge[loop below] node{a} (q4);
+    \draw   (q5) edge[above] node{b} (q6)
+            (q6) edge[above] node{c} (q7);
+            
+    \draw (q2) edge[bend left, above] node{b} (q6);
+    \draw (q4) edge[bend right, above] node{b} (q6);
+\end{tikzpicture}
+\end{center}
+Това, което можем да забележим е, че сътояние \(5\) е "висящо", по-точно е недостижимо състояние.
+Такива състояния са излишни и могат да бъдат премахнати без проблем.
+Нека променим въведената конструкция, така че всички привидно (само стартови) недостижи сътояния са премахнати. \\\par
+Нека
+
+\begin{align*}
+    \mathcal{N}_1 = \; \langle \Sigma, Q_1, \Delta_1, S_1, F_1 \rangle \\
+    \mathcal{N}_2 = \; \langle \Sigma, Q_2, \Delta_2, S_2, F_2 \rangle
+\end{align*}
+са два НКА съответно за регулярните изрази \(r_1\) и \(r_2\). \\
+Тоест \(\mathcal{L_{ND}}(\mathcal{N}_1) = \mathcal{RL}(r_1)\) и \(\mathcal{L_{ND}}(\mathcal{N}_2) = \mathcal{RL}(r_2)\). \\
+Тогава \(\mathcal{N} = \;\langle \Sigma, \; Q_1 \cup (Q_2 \setminus U), \; \Delta_1 \cup (\Delta_2 \setminus \Delta_u) \cup \Delta_{bridge}, \; S_1, \; F \rangle\), където
+\begin{itemize}
+    \item \(U = \{q \in S_2 \;\mid\; \lnot(\exists x \in \Sigma)(\exists p \in Q)(\langle p, x, q \rangle \in \Delta_2)\}\)
+    \item \(\Delta_u = \Delta_2 \cap (U \times \Sigma \times Q_2)\)
+    \item \(\Delta_{bridge} = \{ \langle f, x, q \rangle \in F_1 \times \Sigma \times Q_2 \mid (\exists s \in S_2)( \langle s, x, q \rangle \in \Delta_2)\}\)
+    \item \(F = \begin{cases}
+	F_1 \cup (F_2 \setminus U) & S_2 \cap F_2 \neq \emptyset \\
+    F_2 \setminus U & S_2 \cap F_2 = \emptyset
+\end{cases}\)
+\end{itemize}
+е такъв, че \(\mathcal{L_{ND}}(\mathcal{N}) = \mathcal{RL}(\textcolor{blue}{(} r_1 \textcolor{blue}{.} r_2 \textcolor{blue}{)} ) = \mathcal{RL}(r_1) \cdot \mathcal{RL}(r_2)\). \\\par
+Така автоматът за конкатенация от разгледаният пример е:
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial] (q0) {$0$};
+    \node[state, above right of=q0] (q1) {$1$};
+    \node[state, right of=q1] (q2) {$2$};
+    \node[state, below right of=q0] (q3) {$3$};
+    \node[state, right of=q3] (q4) {$4$};
+    \node[state, below right of=q2] (q6) {$6$};
+    \node[state, accepting, right of=q6] (q7) {$7$};
+    
+    \draw   (q0) edge[bend left, left] node{a} (q1)
+            (q1) edge[above] node{b} (q2)
+            (q2) edge[loop above] node{a} (q2);
+    \draw   (q0) edge[bend right, above] node{a} (q3)
+            (q3) edge[above] node{c} (q4)
+            (q4) edge[loop below] node{a} (q4);
+    \draw   (q6) edge[above] node{c} (q7);
+            
+    \draw (q2) edge[bend left, above] node{b} (q6);
+    \draw (q4) edge[bend right, below] node{b} (q6);
+\end{tikzpicture}
+\end{center}
+
+Разбира се оптимизираната конструкция вероятно се помни по-трудно, важна е идеята зад нея.
+За тази цел човек може да следва по-простата (първоначалната) конструкция и след това поглеждайки резултатният автомат лесно може да съобрази,
+кои бивши начални състояния на автомата от дясно са излишни и безпроблемно могат да бъдат премахнати.
+
+\subsubsection{За \(*\):}
+Нека се опитаме да обясним идеята зад тази конструкция като разгледаме следният автомат:
+
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial] (q0) {$0$};
+    \node[state, above right of=q0] (q1) {$1$};
+    \node[state, accepting, right of=q1] (q2) {$2$};
+    \node[state, right of=q0] (q3) {$3$};
+    \node[state, accepting, right of=q3] (q4) {$4$};
+    
+    \draw   (q0) edge[bend left, left] node{a} (q1)
+            (q1) edge[above] node{b} (q2)
+            (q2) edge[loop above] node{a} (q2);
+    \draw   (q0) edge[above] node{a} (q3)
+            (q3) edge[above] node{c} (q4)
+            (q4) edge[loop right] node{a} (q4);
+\end{tikzpicture}
+\end{center}
+
+Нека езикът разпознаван от разглежданият автомат е \(L\).
+Както знаем \(L^* = \displaystyle\bigcup_{n \in \mathbb{N}} L^n\),
+където \(L^0 = \{\varepsilon\}\) и ако \(k \in \mathbb{N}\), то \(L^{k + 1} = L^k\cdot L\). \\\par
+Така за да разпознаем дума от \(L^*\) интуитивно трябва да направим следното:
+след като прочетем дума от \(L\) да имаме възможост да приключим с четенето
+или да започем да четем отново дума от \(L\).
+Това можем да го постигнем като навържем автомата със себе си.
+Тоест да симулираме преходите от началните състояния (\(\{0\}\)) от всяко финално състояние (\(\{2, 4\}\)).
+Или да добавим преходите отбелязани с пунктир от картинката:
+
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial] (q0) {$0$};
+    \node[state, above right of=q0] (q1) {$1$};
+    \node[state, accepting, right of=q1] (q2) {$2$};
+    \node[state, below right of=q0] (q3) {$3$};
+    \node[state, accepting, right of=q3] (q4) {$4$};
+    
+    \draw   (q0) edge[bend left, left] node{a} (q1)
+            (q1) edge[above] node{b} (q2)
+            (q2) edge[loop above] node{a} (q2);
+    \draw   (q0) edge[bend right, above] node{a} (q3)
+            (q3) edge[above] node{c} (q4)
+            (q4) edge[loop below] node{a} (q4);
+            
+    \draw (q2) edge[dashed, bend left, below] node{a} (q1);
+    \draw (q2) edge[dashed, left] node{a} (q3);
+    \draw (q4) edge[dashed, right] node{a} (q1);
+    \draw (q4) edge[dashed, bend left, below] node{a} (q3);
+\end{tikzpicture}
+\end{center}
+
+С този автомат обаче не разпознаваме празната дума, която твърдо е в езика \(L^*\).
+За това добавяме ново начално състояние, което да е и финално и получаваме:
+
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial] (q0) {$0$};
+    \node[state, above right of=q0] (q1) {$1$};
+    \node[state, accepting, right of=q1] (q2) {$2$};
+    \node[state, below right of=q0] (q3) {$3$};
+    \node[state, accepting, right of=q3] (q4) {$4$};
+    \node[state, accepting, initial, below of=q0] (q5) {$5$};
+    
+    \draw   (q0) edge[bend left, left] node{a} (q1)
+            (q1) edge[above] node{b} (q2)
+            (q2) edge[loop above] node{a} (q2);
+    \draw   (q0) edge[bend right, above] node{a} (q3)
+            (q3) edge[above] node{c} (q4)
+            (q4) edge[loop below] node{a} (q4);
+            
+    \draw (q2) edge[bend left, below] node{a} (q1);
+    \draw (q2) edge[left] node{a} (q3);
+    \draw (q4) edge[right] node{a} (q1);
+    \draw (q4) edge[bend left, below] node{a} (q3);
+\end{tikzpicture}
+\end{center}
+
+Така ако трябва да опишем с думи конструкцията тя звучи така:
+Навързваме автомата сам съм себе си като копираме преходите от началните състояния във финалните
+и добавяме ново начално състояние, което е и финално, ако не е имало начално състояние, което да е и финално (празната дума не е в \(L\))
+в автомата, на който правим \(*\). \\\par
+Сега да формализираме: \\
+Нека \(\mathcal{N} = \langle \Sigma, Q, \Delta, S, F \rangle\) такъв, че \(\mathcal{L_{ND}}(\mathcal{N}) = \mathcal{RL}(r)\). \\
+Тогава \(\mathcal{N}' = \langle \Sigma, \; Q', \; \Delta \cup \Delta_{copy}, \; S', \; F' \rangle\), където
+\begin{align*}
+    t \notin Q \\
+    Q' = \begin{cases}
+    	Q &, S \cap F \neq \emptyset \\
+        Q \cup \{t\} &, S \cap F = \emptyset
+    \end{cases} \\
+    \Delta_{copy} = \{ \langle f, x, q \rangle \; \mid \; f \in F \; \& \; x \in \Sigma \; \& \; q \in Q \; \& \; (\exists s \in S)(\langle s, x, q \rangle \in \Delta)\} \\
+    S' = \begin{cases}
+    	S &, S \cap F \neq \emptyset \\
+        S \cup \{t\} &, S \cap F = \emptyset
+    \end{cases} \\
+    F' = \begin{cases}
+    	F &, S \cap F \neq \emptyset \\
+        F \cup \{t\} &, S \cap F = \emptyset
+    \end{cases}
+\end{align*}
+
+
+\section{Разрешени оптимизации}
+
+\subsection{\(+\) на букви}
+Когато например имаме регулярен израз, който представлява \(+\) на букви.
+Например \(\textcolor{blue}{(a + (b + (c + d)))}\), то можем директно да направим автомат разпознаващ същият език като езикът на регулярният израз.
+Като имаме две състояния - начално и финално и с всяка буква имаме преход от началното към финалното.
+За примера чрез диаграма:
+
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial] (q0) {$0$};
+    \node[state, accepting, right of=q0] (q1) {$1$};
+    \draw (q0) edge[above] node{$a, b, c, d$} (q1);
+\end{tikzpicture}
+\end{center}
+
+\subsection{\(.\) на букви}
+Когато например имаме регулярен израз, който представлява \(.\) на букви.
+Например \(\textcolor{blue}{(a \cdot (b \cdot c))}\), то можем директно да направим автомат разпознаващ същият език като езикът на регулярният израз.
+Като ако буквите са \(n\) на брой в израза, то правим автомат с \(n + 1\) състояния и преходи \(\langle q_i, x_i, q_{i + 1} \rangle\) като първото състояние е началното, а последното финално.
+За примера \(\textcolor{blue}{(a \cdot (b \cdot c))}\) чрез диаграма:
+
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial] (q0) {$0$};
+    \node[state, right of=q0] (q1) {$1$};
+    \node[state, right of=q1] (q2) {$2$};
+    \node[state, accepting, right of=q2] (q3) {$3$};
+    \draw (q0) edge[above] node{a} (q1)
+          (q1) edge[above] node{b} (q2)
+          (q2) edge[above] node{c} (q3);
+\end{tikzpicture}
+\end{center}
+
+\subsection{За израз, който е \(*\) на буква или \(+\) на букви}
+
+Ако имаме израз \(\textcolor{blue}{(u)*}\), то директно можем да направим автомат:
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial, accepting] (q0) {$0$};
+    \node[state, accepting, right of=q0] (q1) {$1$};
+    \draw (q0) edge[above] node{u} (q1);
+    \draw (q1) edge[loop above] node{u} (q1);
+\end{tikzpicture}
+\end{center}
+Защото езикът на изразът \(\textcolor{blue}{(u)*}\) е \(\{u\}^*\) или \(\{u^n \;\mid\; n \in \mathbb{N}\}\).\\\par
+Аналогично за израз \(\textcolor{blue}{((a + (b + (c + d)))*)}\) можем директно да направим автомат:
+
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial, accepting] (q0) {$0$};
+    \node[state, accepting, right of=q0] (q1) {$1$};
+    \draw (q0) edge[above] node{$a, b, c, d$} (q1);
+    \draw (q1) edge[loop above] node{$a, b, c, d$} (q1);
+\end{tikzpicture}
+\end{center}
+Защото езикът на изразът \(\textcolor{blue}{((a + (b + (c + d)))*)}\) e \(\{a, b, c, d\}^*\) или множеството на всички думи над азбуката \(\{a, b, c, d\}\).
+
+
+\subsection{Примери за конструиране на КНА по регулярен израз}
+
+\subsection{За изразът \((((a + b))*.(c)*)\)}
+
+Започваме да стройм автомата от долу на горе, използвайки споменатите оптимизации. \\
+
+Първо за изразът \(\textcolor{blue}{((a + b))*}\):
+
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial, accepting] (q0) {$0$};
+    \node[state, accepting, right of=q0] (q1) {$1$};
+    \draw (q0) edge[above] node{$a, b$} (q1);
+    \draw (q1) edge[loop above] node{$a, b$} (q1);
+\end{tikzpicture}
+\end{center}
+
+След това за изразът \(\textcolor{blue}{(c)*}\):
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial, accepting] (q2) {$2$};
+    \node[state, accepting, right of=q2] (q3) {$3$};
+    \draw (q2) edge[above] node{c} (q3);
+    \draw (q3) edge[loop above] node{c} (q3);
+\end{tikzpicture}
+\end{center}
+
+За да направим автомат за конкатенацията, удобо е да наредим двата автомата един до друг като запазим наредбата.
+
+\begin{minipage}{.5\textwidth}
+\centering
+\begin{tikzpicture}
+    \node[state, initial, accepting] (q0) {$0$};
+    \node[state, accepting, right of=q0] (q1) {$1$};
+    \draw (q0) edge[above] node{$a, b$} (q1);
+    \draw (q1) edge[loop above] node{$a, b$} (q1);
+\end{tikzpicture}
+
+\end{minipage}
+\begin{minipage}{.5\textwidth}
+\centering
+\begin{tikzpicture}
+    \node[state, initial, accepting] (q2) {$2$};
+    \node[state, accepting, right of=q2] (q3) {$3$};
+    \draw (q2) edge[above] node{c} (q3);
+    \draw (q3) edge[loop above] node{c} (q3);
+\end{tikzpicture}
+\end{minipage}
+\\
+\vspace*{5mm}
+\\
+Сега копираме преходите начално състояние, буква, състояние от десният от всяка финално състояние на левият.
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial, accepting] (q0) {$0$};
+    \node[state, accepting, right of=q0] (q1) {$1$};
+    \node[state, accepting, right of=q1] (q2) {$2$};
+    \node[state, accepting, right of=q2] (q3) {$3$};
+    
+    \draw (q0) edge[above] node{$a, b$} (q1);
+    \draw (q1) edge[loop below] node{$a, b$} (q1);
+    \draw (q2) edge[above] node{c} (q3);
+    \draw (q3) edge[loop above] node{c} (q3);
+    \draw (q0) edge[dashed, bend left, above] node{c} (q3);
+    \draw (q1) edge[dashed, bend right, below] node{c} (q3);
+\end{tikzpicture}
+\end{center}
+
+Забелязваме, че състояние \(2\) е недостижимо и може да бъде премахнато.
+Така получаваме КНА:
+
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial, accepting] (q0) {$0$};
+    \node[state, accepting, right of=q0] (q1) {$1$};
+    \node[state, accepting, right of=q1] (q3) {$3$};
+    
+    \draw (q0) edge[above] node{$a, b$} (q1);
+    \draw (q1) edge[loop below] node{$a, b$} (q1);
+    \draw (q3) edge[loop above] node{c} (q3);
+    \draw (q0) edge[bend left, above] node{c} (q3);
+    \draw (q1) edge[below] node{c} (q3);
+\end{tikzpicture}
+\end{center}
+
+\subsection{За изразът \(((a*).(b.(b*)))\)}
+Като използваме въведените конвенции да пропускаме скоби и точки изразът може да бъде записан като \(\textcolor{blue}{a^*bb^*}\).
+При последователни конкатенации, може би уробдно е да се кара от дясно на ляво. \\\par
+Авомат за \(\textcolor{blue}{b}\)
+
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial] (q0) {0};
+    \node[state, accepting, right of=q0] (q1) {1};
+    \draw (q0) edge[above] node{b} (q1);
+\end{tikzpicture}
+\end{center}
+
+За \(\textcolor{blue}{(b*)}\)
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial, accepting] (q0) {0};
+    \node[state, accepting, right of=q0] (q1) {1};
+    \draw (q0) edge[above] node{b} (q1);
+    \draw (q1) edge[loop above] node{b} (q1);
+\end{tikzpicture}
+\end{center}
+
+Отново рисуваме двата автомата един до друг като запазваме реда, но променя състоянията на този от дясно, така че двете множества да са непресичащи.
+
+\begin{minipage}{.5\textwidth}
+\centering
+\begin{tikzpicture}
+    \node[state, initial] (q0) {0};
+    \node[state, accepting, right of=q0] (q1) {1};
+    \draw (q0) edge[above] node{b} (q1);
+\end{tikzpicture}
+
+\end{minipage}
+\begin{minipage}{.5\textwidth}
+\centering
+\begin{tikzpicture}
+    \node[state, initial, accepting] (q0) {2};
+    \node[state, accepting, right of=q0] (q1) {3};
+    \draw (q0) edge[above] node{b} (q1);
+    \draw (q1) edge[loop above] node{b} (q1);
+\end{tikzpicture}
+\end{minipage}
+\\
+\vspace*{5mm}
+\\
+Копираме преходa  \(\langle 2, b, 3 \rangle\) в състояние \(1\).
+
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial] (q0) {0};
+    \node[state, right of=q0] (q1) {1};
+    \node[state, accepting, right of=q1] (q2) {2};
+    \node[state, accepting, right of=q2] (q3) {3};
+    \draw (q0) edge[above] node{b} (q1);
+    \draw (q2) edge[above] node{b} (q3);
+    \draw (q3) edge[loop above] node{b} (q3);
+    \draw (q1) edge[dashed, bend right, below] node{b} (q3);
+\end{tikzpicture}
+\end{center}
+
+Състояние \(2\) е недостижимо за това го премахваме.
+
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial] (q0) {0};
+    \node[state, accepting, right of=q0] (q1) {1};
+    \node[state, accepting, right of=q1] (q2) {3};
+    \draw (q0) edge[above] node{b} (q1);
+    \draw (q1) edge[above] node{b} (q2);
+    \draw (q2) edge[loop above] node{b} (q2);
+\end{tikzpicture}
+\end{center}
+
+С цел удобство променяме индексацията на състоянията.
+
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial] (q0) {0};
+    \node[state, accepting, right of=q0] (q1) {1};
+    \node[state, accepting, right of=q1] (q2) {2};
+    \draw (q0) edge[above] node{b} (q1);
+    \draw (q1) edge[above] node{b} (q2);
+    \draw (q2) edge[loop above] node{b} (q2);
+\end{tikzpicture}
+\end{center}
+
+Автомат за \(\textcolor{blue}{(a*)}\).
+
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial] (q0) {0};
+    \node[state, accepting, right of=q0] (q1) {1};
+    \draw (q0) edge[above] node{a} (q1);
+    \draw (q1) edge[loop above] node{a} (q1);
+\end{tikzpicture}
+\end{center}
+
+Правим за \(\textcolor{blue}{((a*).(b.(b*)))}\).
+Слагаме двата автомата един до друг като правим състоянията последователни.
+
+\begin{minipage}{.5\textwidth}
+\centering
+\begin{tikzpicture}
+    \node[state, initial] (q0) {0};
+    \node[state, accepting, right of=q0] (q1) {1};
+    \draw (q0) edge[above] node{a} (q1);
+    \draw (q1) edge[loop above] node{a} (q1);
+\end{tikzpicture}
+
+\end{minipage}
+\begin{minipage}{.5\textwidth}
+\centering
+\begin{tikzpicture}
+    \node[state, initial] (q0) {2};
+    \node[state, accepting, right of=q0] (q1) {3};
+    \node[state, accepting, right of=q1] (q2) {4};
+    \draw (q0) edge[above] node{b} (q1);
+    \draw (q1) edge[above] node{b} (q2);
+    \draw (q2) edge[loop above] node{b} (q2);
+\end{tikzpicture}
+\end{minipage}
+\\
+\vspace*{5mm}
+\\
+Копираме прехода \(\langle 2, b, 3 \rangle\) от състояние \(1\).
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial] (q0) {0};
+    \node[state, right of=q0] (q1) {1};
+    \node[state, right of=q1] (q2) {2};
+    \node[state, accepting, right of=q2] (q3) {3};
+    \node[state, accepting, right of=q3] (q4) {4};
+    \draw (q0) edge[above] node{a} (q1);
+    \draw (q1) edge[loop above] node{a} (q1);
+    \draw (q2) edge[above] node{b} (q3);
+    \draw (q3) edge[above] node{b} (q4);
+    \draw (q4) edge[loop above] node{b} (q4);
+    \draw (q1) edge[dashed, bend left, above] node{b} (q3);
+    \draw (q0) edge[dashed, bend right, below] node{b} (q3);
+\end{tikzpicture}
+\end{center}
+
+Състояние \(2\) е недостижимо за тов го премахваме.
+
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial] (q0) {$0$};
+    \node[state, right of=q0] (q1) {$1$};
+    \node[state, accepting, right of=q1] (q2) {$3$};
+    \node[state, accepting, right of=q2] (q3) {$4$};
+    \draw (q0) edge[above] node{a} (q1);
+    \draw (q1) edge[loop above] node{a} (q1);
+    \draw (q2) edge[above] node{b} (q3);
+    \draw (q3) edge[loop above] node{b} (q3);
+    \draw (q1) edge[bend left, above] node{b} (q2);
+    \draw (q0) edge[bend right, below] node{b} (q2);
+\end{tikzpicture}
+\end{center}
+
+Така автомат разпознаващ езикът на регулярния израз \(\textcolor{blue}{((a*).(b.(b*)))}\).
+
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial] (q0) {$0$};
+    \node[state, right of=q0] (q1) {$1$};
+    \node[state, accepting, right of=q1] (q2) {$2$};
+    \node[state, accepting, right of=q2] (q3) {$3$};
+    \draw (q0) edge[above] node{a} (q1);
+    \draw (q1) edge[loop above] node{a} (q1);
+    \draw (q2) edge[above] node{b} (q3);
+    \draw (q3) edge[loop above] node{b} (q3);
+    \draw (q1) edge[bend left, above] node{b} (q2);
+    \draw (q0) edge[bend right, below] node{b} (q2);
+\end{tikzpicture}
+\end{center}
+
+\subsection{За израза \(((a + (((a.b)*).b))*)\)}
+
+За \(\textcolor{blue}{(a.b)}\).
+
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial] (q0) {0};
+    \node[state, right of=q0] (q1) {1};
+    \node[state, accepting, right of=q1] (q2) {2};
+    \draw (q0) edge[above] node{a} (q1)
+          (q1) edge[above] node{b} (q2);
+\end{tikzpicture}
+\end{center}
+
+За \(\textcolor{blue}{((a.b)*)}\).
+Копираме преходът \(\langle 0, a, 1 \rangle\) от състояние \(2\) и добавяме ново финално състояние, което е и финално.
+
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial] (q0) {0};
+    \node[state, right of=q0] (q1) {1};
+    \node[state, accepting, right of=q1] (q2) {2};
+    \node[state, initial, accepting, below of=q0] (q3) {3};
+    \draw (q0) edge[above] node{a} (q1)
+          (q1) edge[above] node{b} (q2)
+          (q2) edge[dashed, bend left, below] node{a} (q1);
+\end{tikzpicture}
+\end{center}
+
+За \(\textcolor{blue}{b}\).
+
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial] (q0) {0};
+    \node[state, accepting, right of=q0] (q1) {1};
+    \draw (q0) edge[above] node{b} (q1);
+\end{tikzpicture}
+\end{center}
+
+За \(\textcolor{blue}{(((a.b)*).b)}\) слагаме двата автомата един до друг и ги правим с полседователни състояния. \\
+
+\begin{minipage}{.5\textwidth}
+\centering
+\begin{tikzpicture}
+    \node[state, initial] (q0) {0};
+    \node[state, right of=q0] (q1) {1};
+    \node[state, accepting, right of=q1] (q2) {2};
+    \node[state, initial, accepting, below of=q0] (q3) {3};
+    \draw (q0) edge[above] node{a} (q1)
+          (q1) edge[above] node{b} (q2)
+          (q2) edge[bend left, below] node{a} (q1);
+\end{tikzpicture}
+\end{minipage}
+\begin{minipage}{.5\textwidth}
+\centering
+\begin{tikzpicture}
+    \node[state, initial] (q0) {4};
+    \node[state, accepting, right of=q0] (q1) {5};
+    \draw (q0) edge[above] node{b} (q1);
+\end{tikzpicture}
+\end{minipage}
+\\
+\vspace*{5mm}
+\\
+Свързваме ги.
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial] (q0) {0};
+    \node[state, right of=q0] (q1) {1};
+    \node[state, right of=q1] (q2) {2};
+    \node[state, initial, below =5mm of q0] (q3) {3};
+    \node[state, below =1cm of q2] (q4) {4};
+    \node[state, accepting, right of=q4] (q5) {5};
+    \draw (q0) edge[above] node{a} (q1)
+          (q1) edge[above] node{b} (q2)
+          (q2) edge[bend left, below] node{a} (q1);
+          
+    \draw (q4) edge[above] node{b} (q5);
+    \draw (q2) edge[dashed, bend left, above] node{b} (q5);
+    \draw (q3) edge[dashed, bend right, below] node{b} (q5);
+\end{tikzpicture}
+\end{center}
+
+Премахваме състояние \(4\).
+
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial] (q0) {0};
+    \node[state, right of=q0] (q1) {1};
+    \node[state, right of=q1] (q2) {2};
+    \node[state, initial, below =1cm of q0] (q3) {3};
+    \node[state, accepting, below =1cm of q2] (q4) {5};
+    \draw (q0) edge[above] node{a} (q1)
+          (q1) edge[above] node{b} (q2)
+          (q2) edge[bend left, below] node{a} (q1);
+    \draw (q2) edge[right] node{b} (q4);
+    \draw (q3) edge[below] node{b} (q4);
+\end{tikzpicture}
+\end{center}
+
+Правим състоянията последователни.
+
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial] (q0) {0};
+    \node[state, right of=q0] (q1) {1};
+    \node[state, right of=q1] (q2) {2};
+    \node[state, initial, below =1cm of q0] (q3) {3};
+    \node[state, accepting, below =1cm of q2] (q4) {4};
+    \draw (q0) edge[above] node{a} (q1)
+          (q1) edge[above] node{b} (q2)
+          (q2) edge[bend left, below] node{a} (q1);
+    \draw (q2) edge[right] node{b} (q4);
+    \draw (q3) edge[below] node{b} (q4);
+\end{tikzpicture}
+\end{center}
+
+Автомат за регулярния израз \(\textcolor{blue}{a}\).
+
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial] (q0) {0};
+    \node[state, accepting, right of=q0] (q1) {1};
+    \draw (q0) edge[above] node{a} (q1);
+\end{tikzpicture}
+\end{center}
+
+За \(\textcolor{blue}{(a + (((a.b)*).b))}\) обединяваме двата автотмата като правим множествата от състояния непресичащи се.
+
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial] (q0) {$0$};
+    \node[state, right of=q0] (q1) {$1$};
+    \node[state, right of=q1] (q2) {$2$};
+    \node[state, initial, below of= q2] (q3) {$3$};
+    \node[state, accepting, below right =2cm of q2] (q4) {$4$};
+    \node[state, initial, below =3cm of q0] (q5) {$5$};
+    \node[state, accepting, right =1cm of q5] (q6) {$6$};
+    \draw (q0) edge[above] node{a} (q1)
+          (q1) edge[bend left, above] node{b} (q2)
+          (q2) edge[below] node{a} (q1);
+    \draw (q2) edge[bend left, right] node{b} (q4);
+    \draw (q3) edge[below] node{b} (q4);
+    \draw (q5) edge[below] node{a} (q6);
+\end{tikzpicture}
+\end{center}
+
+За \(\textcolor{blue}{((a + (((a.b)*).b))*)}\) първо свързваме циклично предният автомат.
+Тоест копираме преходите от началните състояния във всяко финално.
+
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial] (q0) {$0$};
+    \node[state, right of=q0] (q1) {$1$};
+    \node[state, right of=q1] (q2) {$2$};
+    \node[state, initial, below right of= q1] (q3) {$3$};
+    \node[state, accepting, below right =2cm of q2] (q4) {$4$};
+    \node[state, initial, below =3cm of q0] (q5) {$5$};
+    \node[state, accepting, right =1cm of q5] (q6) {$6$};
+    \draw (q0) edge[above] node{a} (q1)
+          (q1) edge[bend left, above] node{b} (q2)
+          (q2) edge[below] node{a} (q1);
+    \draw (q2) edge[bend left, right] node{b} (q4);
+    \draw (q3) edge[below] node{b} (q4);
+    \draw (q5) edge[below] node{a} (q6);
+    \draw (q6) edge[dashed, below] node{b} (q4);
+    \draw (q6) edge[dashed, left] node{a} (q1);
+    \draw (q6) edge[dashed, loop below] node{a} (q6);
+    \draw (q4) edge[dashed, bend left, below] node{a} (q6);
+    \draw (q4) edge[dashed, loop right] node{b} (q4);
+    \draw (q4) edge[dashed, above] node{a} (q1);
+\end{tikzpicture}
+\end{center}
+
+В автоматът за \(\textcolor{blue}{(a + (((a.b)*).b))}\) няма начално състояние, което е финално.
+За това добавя ново начално състояние \(7\), което е и финално състояние, за да разпознаваме и празната дума.
+
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial] (q0) {$0$};
+    \node[state, right of=q0] (q1) {$1$};
+    \node[state, right of=q1] (q2) {$2$};
+    \node[state, initial, below right of= q1] (q3) {$3$};
+    \node[state, accepting, below right =2cm of q2] (q4) {$4$};
+    \node[state, initial, below =3cm of q0] (q5) {$5$};
+    \node[state, accepting, right =1cm of q5] (q6) {$6$};
+    \node[state, initial, accepting, below =1cm of q0] (q7) {$7$};
+    \draw (q0) edge[above] node{a} (q1)
+          (q1) edge[bend left, above] node{b} (q2)
+          (q2) edge[below] node{a} (q1);
+    \draw (q2) edge[bend left, right] node{b} (q4);
+    \draw (q3) edge[below] node{b} (q4);
+    \draw (q5) edge[below] node{a} (q6);
+    \draw (q6) edge[below] node{b} (q4);
+    \draw (q6) edge[left] node{a} (q1);
+    \draw (q6) edge[loop below] node{a} (q6);
+    \draw (q4) edge[bend left, below] node{a} (q6);
+    \draw (q4) edge[loop right] node{b} (q4);
+    \draw (q4) edge[above] node{a} (q1);
+\end{tikzpicture}
+\end{center}
+
+\subsection{За изразът (((((a + b)*) + (c.b))*.a)*)}
+
+Директно можем да направим автомат за \(\textcolor{blue}{(((a + b)*) + (c.b))}\) следвайки конструкциите, но пропускайки няколко стъпки.
+
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial, accepting] (q0) {0};
+    \node[state, accepting, right of=q0] (q1) {1};
+    
+    \node[state, initial, below of=q0] (q2) {2};
+    \node[state, right of=q2] (q3) {3};
+    \node[state, accepting, right of=q3] (q4) {4};
+    
+    \draw (q0) edge[above] node{$a, b$} (q1);
+    \draw (q1) edge[loop above] node{$a, b$} (q1);
+    
+    \draw (q2) edge[above] node{c} (q3);
+    \draw (q3) edge[above] node{b} (q4);
+\end{tikzpicture}
+\end{center}
+
+За \(\textcolor{blue}{((((a + b)*) + (c.b))*)}\) навързваме автомата циклично.
+
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial, accepting] (q0) {0};
+    \node[state, accepting, right of=q0] (q1) {1};
+    
+    \node[state, initial, below of=q0] (q2) {2};
+    \node[state, right of=q2] (q3) {3};
+    \node[state, accepting, right of=q3] (q4) {4};
+    
+    \draw (q0) edge[above] node{$a, b$} (q1);
+    \draw (q1) edge[loop above] node{$a, b$} (q1);
+    
+    \draw (q2) edge[above] node{c} (q3);
+    \draw (q3) edge[above] node{b} (q4);
+    
+    \draw (q1) edge[dashed, left] node{c} (q3);
+    \draw (q4) edge[dashed, above right] node{$a, b$} (q1);
+    \draw (q4) edge[dashed, bend left, below] node{c} (q3);
+\end{tikzpicture}
+\end{center}
+
+Състояние \(0\) е и начално и финално, за това не добавяме ново състояние.
+Така автоматът за \(\textcolor{blue}{((((a + b)*) + (c.b))*)}\) е
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial, accepting] (q0) {0};
+    \node[state, accepting, right of=q0] (q1) {1};
+    
+    \node[state, initial, below of=q0] (q2) {2};
+    \node[state, right of=q2] (q3) {3};
+    \node[state, accepting, right of=q3] (q4) {4};
+    
+    \draw (q0) edge[above] node{$a, b$} (q1);
+    \draw (q1) edge[loop above] node{$a, b$} (q1);
+    
+    \draw (q2) edge[above] node{c} (q3);
+    \draw (q3) edge[above] node{b} (q4);
+    
+    \draw (q1) edge[left] node{c} (q3);
+    \draw (q4) edge[above right] node{$a, b$} (q1);
+    \draw (q4) edge[bend left, below] node{c} (q3);
+\end{tikzpicture}
+\end{center}
+
+За \(\textcolor{blue}{(((((a + b)*) + (c.b))*).a)}\) добавяме ново състояние, което става единственото финално и добавяме преходи от всяко старо финално, към това ново състояние с буквата \(a\).
+
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial] (q0) {$0$};
+    \node[state, right of=q0] (q1) {$1$};
+    
+    \node[state, initial, below of=q0] (q2) {$2$};
+    \node[state, right of=q2] (q3) {$3$};
+    \node[state, right of=q3] (q4) {$4$};
+    
+    \node[state, accepting, above right =3cm of q1] (q5) {$5$};
+    
+    \draw (q0) edge[above] node{$a, b$} (q1);
+    \draw (q1) edge[loop above] node{$a, b$} (q1);
+    
+    \draw (q2) edge[above] node{c} (q3);
+    \draw (q3) edge[above] node{b} (q4);
+    
+    \draw (q1) edge[left] node{c} (q3);
+    \draw (q4) edge[above right] node{$a, b$} (q1);
+    \draw (q4) edge[bend left, below] node{c} (q3);
+    
+    \draw (q0) edge[bend left, above] node{a} (q5);
+    \draw (q1) edge[above] node{a} (q5);
+    \draw (q4) edge[above right] node{a} (q5);
+\end{tikzpicture}
+\end{center}
+
+За \(\textcolor{blue}{((((((a + b)*) + (c.b))*).a)*)}\) навързваме автомата циклично.
+
+\begin{center}
+\begin{tikzpicture}
+    \node[state] (q1) {$1$};
+    \node[state, initial, above left =2cm of q1] (q0) {$0$};
+    \node[state, accepting, right =3cm of q1] (q5) {$5$};
+    \node[state, below =3cm of q5] (q4) {$4$};
+    \node[state, below =3cm of q1] (q3) {$3$};
+    
+    \node[state, initial, left of=q3] (q2) {$2$};
+
+    
+    \draw (q0) edge[left] node{$a, b$} (q1);
+    \draw (q1) edge[loop left] node{$a, b$} (q1);
+    
+    \draw (q2) edge[above] node{c} (q3);
+    \draw (q3) edge[bend right, below] node{b} (q4);
+    
+    \draw (q1) edge[left] node{c} (q3);
+    \draw (q4) edge[bend left, left] node{$a, b$} (q1);
+    \draw (q4) edge[below] node{c} (q3);
+    
+    \draw (q0) edge[above] node{a} (q5);
+    \draw (q1) edge[above] node{a} (q5);
+    \draw (q4) edge[right] node{a} (q5);
+    
+    \draw (q5) edge[dashed, bend right, above] node{а} (q0);
+    \draw (q5) edge[dashed, bend left, below] node{$a, b$} (q1);
+    \draw (q5) edge[dashed, bend left, below right] node{c} (q3);
+\end{tikzpicture}
+\end{center}
+
+Съобразяваме, че не разпознаваме празната дума за това добавяме ново начално състояние, което е и финално.
+
+\begin{center}
+\begin{tikzpicture}
+    \node[state] (q1) {$1$};
+    \node[state, initial, above left =2cm of q1] (q0) {$0$};
+    \node[state, accepting, right =3cm of q1] (q5) {$5$};
+    \node[state, below =3cm of q5] (q4) {$4$};
+    \node[state, below =3cm of q1] (q3) {$3$};
+    
+    \node[state, initial, left of=q3] (q2) {$2$};
+    \node[state, initial, accepting, above of=q2] (q6) {$6$};
+
+    
+    \draw (q0) edge[left] node{$a, b$} (q1);
+    \draw (q1) edge[loop left] node{$a, b$} (q1);
+    
+    \draw (q2) edge[above] node{c} (q3);
+    \draw (q3) edge[bend right, below] node{b} (q4);
+    
+    \draw (q1) edge[left] node{c} (q3);
+    \draw (q4) edge[bend left, left] node{$a, b$} (q1);
+    \draw (q4) edge[below] node{c} (q3);
+    
+    \draw (q0) edge[above] node{a} (q5);
+    \draw (q1) edge[above] node{a} (q5);
+    \draw (q4) edge[right] node{a} (q5);
+    
+    \draw (q5) edge[bend right, above] node{а} (q0);
+    \draw (q5) edge[bend left, below] node{$a, b$} (q1);
+    \draw (q5) edge[bend left, below right] node{c} (q3);
+\end{tikzpicture}
+\end{center}
+
+\end{document}

@@ -1,0 +1,272 @@
+\documentclass[12pt]{article}
+\usepackage{tikz}
+\usepackage{tikz-qtree}
+\usepackage{float}
+\usetikzlibrary{automata, positioning, arrows}
+\tikzset{
+->, >=stealth, node distance=2.5cm,
+every state/.style={thick},
+initial text=$ $
+}
+\usepackage[utf8]{inputenc}
+\usepackage[T2A]{fontenc}
+\usepackage[english,bulgarian]{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{relsize}
+\usepackage{euler}
+
+\title{Лема за покачването за регулярни езици}
+\author{Иво Стратев}
+
+\begin{document}
+
+\maketitle
+
+\section{Въведение}
+
+Да разгледаме следният автомат
+
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial] (q0) {$0$};
+    \node[state,right of=q0] (q1) {$1$};
+    \node[state,right of=q1] (q2) {$2$};
+    \node[state, above right of=q2] (q3) {$3$};
+    \node[state, below right of=q2] (q4) {$4$};
+    \node[state, below right of=q3] (q5) {$5$};
+    \node[state, accepting, right of=q5] (q6) {$6$};
+    
+    
+    \draw (q0) edge[above] node{a} (q1);
+    \draw (q1) edge[above] node{b} (q2);
+    \draw (q2) edge[bend left, left] node{c} (q3);
+    \draw (q3) edge[bend left, above] node{d} (q5);
+    \draw (q5) edge[bend left, right] node{b} (q4);
+    \draw (q4) edge[bend left, below] node{a} (q2);
+    \draw (q5) edge[above] node{a} (q6);
+\end{tikzpicture}
+\end{center}
+
+Лесно се съобразва, че езикът на този автомат е безкраен, понеже съществува ориентиран цикъл, в който участва състояние, от което е достижимо финално състояние. Например \(5\) е състояние участващо в цикъла \([2, 3, 5, 4, 2]\) и \(2\) е достижимо от началното състояние и от \(5\) е достижимо \(6\), което е финално.
+
+Също така сравнително лесно се съобразява, че ако вземем дума от езика на автомата с дължина по-голяма или равна от \(6\),
+то думата ще е \(ab . (cdba)^k . cda\) за някое \(k \in \mathbb{N}_+\).
+
+Лесно се съобразява и факта, че ако \(k \in \mathbb{N}_+\), то за всяко \(i \in \mathbb N\) думата  \(ab . (cdba)^{ik} . cda\) е от езика на автомата. Ако \(i = 0\), то все едно не минаваме през цикъла съотвестващ на \((cdba)^k\). Ако \(i > 1\), то все едно правим допълнителни "обиколки" на цикъла съотвестващ на \((cdba)^k\).
+
+\section{Лема за покачването}
+Нека \(L\) е безкраен език над азбука \(\Sigma\). Ако \(L\) е регулярен език, то съществува \(p \in \mathbb{N}_+\), такова че 
+за всяка дума \(\alpha \in L\) ако \(|\alpha| \geq p\), то съществуват \(x, y, z \in \Sigma^*\), такива че
+\(\alpha = xyz\) и \(|xy| \leq p\) и \(y \neq \varepsilon\) и за всяко \(i \in \mathbb N\) думата \(xy^iz\) е от езика \(L\).
+
+\section{Контрапозиция на лемата за покачването}
+Нека \(L\) е безкраен език над азбука \(\Sigma\). Ако за всяко \(p \in \mathbb{N}_+\) същесвува дума \(\alpha\) от \(L\) с дължина поне \(p\) и за всеки \(x, y, z \in \Sigma^*\), такива че \(\alpha = xyz\) и \(|xy| \leq p\) и \(y \neq \varepsilon\) същесвува \(i \in \mathbb N\), такова че думата \(xy^iz\) \textbf{не} е от езика \(L\), то \(L\) \textbf{не} е регулярен.
+
+\section{Схема на доказателство, че даден безкраен език не е регулярен}
+Нека \(L\) е безкраен език над азбука \(\Sigma\).
+
+\vspace*{5mm}
+
+Нека \(p \in \mathbb{N}_+\) и \(p\) е произволно.
+
+\vspace*{5mm}
+
+Избираме дума \(\alpha\) от \(L\) с дължина поне \(p\).
+
+\vspace*{5mm}
+
+Показваме, че за всяко разбиване на думата на три части \(x, y, z \in \Sigma^*\), такива че \(\alpha = xyz\) и \(|xy| \leq p\) и \(y \neq \varepsilon\) можем да посочим \(i \in \mathbb N\),
+такова че \(xy^iz\) не е от \(L\) (pump-ваме с \(i\)).
+
+\vspace*{5mm}
+
+От лемата за покачването заключваме, че \(L\) не е регулярен език.
+
+\section{Пример 1}
+
+Нека \(L = \{\omega.b^n \;\mid\; \omega \in \{a, c\}^* \;\&\; n \in \mathbb{N} \;\&\; |\omega| = n\}\).
+
+\vspace*{5mm}
+
+Нека \(p \in \mathbb{N}_+\) и \(p\) е произволно.
+
+\vspace*{5mm}
+
+Избираме \(\alpha = a^pb^p\), която е от \(L\) с дължина \(2p\), което е повече от \(p\).
+
+\vspace*{4mm}
+
+\par Избрахме \(a^pb^p\), защото от лемата \(xy\) е с дължина не повече от \(p\), така че \(xy\) ще е съставена изцяло от \(a\)-та и понеже има ясна граница това са \(b\)-тата и както и да пъпнем надолу (\(i = 0\)) или нагоре (\(i > 1\)) pump-натата дума няма да е в езика. Нека все пак формално да изкажем горното наблюдение.
+
+\vspace*{4mm}
+
+\par Нека \(x, y, z \in \{a, b, c\}^*\) са такива, че \(\alpha = xyz\), \(|xy| \leq p\) и \(y \neq \varepsilon\).
+Тогава \(xy\) е префикс на \(a^p\), от където \(z = a^{p - |xy|}b^p\). Също \(0 < |y| \leq |x| + |y| = |xy| \leq p\). Тогава \(xy^iz = a^{|x|}.a^{i|y|}.a^{p - |xy|}.b^p = a^{|x| + i|y| + p - |x| - |y|}.b^p = a^{p + (i - 1)|y|}.b^p\) и понеже \(a^{p + (i - 1)|y|} \in \{a, c\}^*\) търсим такова \(i \in \mathbb N\), че \\
+\(p + (i - 1)|y| \neq p\). Избираме \(i = 0\) понеже \(0 < |y| \leq p\) и тогава \(p - |y| < p\).
+Тоест \(xy^0z \notin L\).
+
+\vspace*{4mm}
+
+\par От лемата за покачването заключваме, че \(L\) не е регулярен език.
+
+\section{Пример 2}
+Нека \(L = \{\alpha.\beta.\alpha \;\mid\; \alpha \in \{a, b\}^+ \;\&\; \beta \in \{a, b\}^+\}\).
+
+\vspace*{5mm}
+
+Нека \(p \in \mathbb{N}_+\) и \(p\) е произволно.
+
+\vspace*{5mm}
+
+Избираме \(\alpha = a^pb\) и \(\beta = b\) и нека \(\omega = \alpha.\beta.\alpha\).
+Тогава \(\omega \in L\) и \(|\omega| = 2(p + 1) + 1 = 2p + 3 > p\).
+
+\vspace*{5mm}
+
+\par Нека \(x, y, z \in \{a, b\}^*\) са такива, че \(\alpha = xyz\), \(|xy| \leq p\) и \(y \neq \varepsilon\).
+Тогава \(xy\) е префикс на \(a^p\), от където \(z = a^{p - |xy|}bba^pb\). Също \(0 < |y| \leq |x| + |y| = |xy| \leq p\). Тогава \(xy^iz = a^{|x|}.a^{i|y|}.a^{p - |xy|}.bba^pb = a^{|x| + i|y| + p - |x| - |y|}.bba^pb = a^{p + (i - 1)|y|}.bba^pb\).
+
+\vspace*{3mm}
+
+\par Нека изберем \(i = 2\). Тогава \(xy^2z = a^{p + |y|}.bba^pb\). Искаме да покажем, че \(xy^2z \notin L\).
+Да допусем, че \(xy^2z \in L\).
+Нека тогава \(\rho, \sigma \in \{a, b\}^+\) са такива, че \(\rho.\sigma.\rho = a^{p + |y|}.bba^pb\).
+
+Възможни са няколко случая спрямо краят на \(\rho\) (всеки суфикс на \(\rho\) е суфикс на \(a^{p + |y|}.bba^pb\)).
+
+\subsection{Случай 1. \(\rho = b\)}
+Тогава \(xy^2z\) започва с \(b\), което не е вярно. Достигаме до Абсурд!
+
+\subsection{Случай 2. за някое \(k \in \{1, 2, \dots, p\}\) е в сила, че \(\rho = a^kb\)}
+Тогава \(xy^2z\) започва с \(a^kb\), което не е вярно понеже първото \(b\) е след \(p + |y|\) на брой \(a\)-та и \(p + |y| > k\).
+Достигаме до Абсурд!
+
+\subsection{Случай 3. за някоя дума \(\gamma \in \{a, b\}^*\) е в сила, че \(\rho = \gamma.b.a^p.b\)}
+Тогава \(xy^2z = (\gamma.b.a^p.b).\sigma.(\gamma.b.a^p.b)\) и значи \(\mathcal{N}_b(xy^2z) \geq 4 > 3 = \mathcal{N}_b(xy^2z)\).
+Това е Абсурд!
+
+\vspace*{5mm}
+
+\par Следователно \(xy^2z \notin L\).
+
+\vspace*{4mm}
+
+\par От лемата за покачването заключваме, че \(L\) не е регулярен език.
+
+\section{Пример 3}
+Нека \(L = \{\alpha.\gamma \;\mid\; \alpha, \gamma \in \{a, b, c\}^* \;\&\; \mathcal{N}_b(\alpha) = 2\mathcal{N}_a(\alpha) \;\&\; \mathcal{N}_c(\gamma) = 3\mathcal{N}_b(\gamma)\}\).
+
+\vspace*{5mm}
+
+Нека \(p \in \mathbb{N}_+\) и \(p\) е произволно.
+
+\vspace*{5mm}
+
+Избираме \(\alpha = a^pb^{2p}\) и \(\gamma = c^{3p}b^p\) и нека \(\omega = \alpha.\gamma = a^pb^{2p}c^{3p}b^p\).
+Тогава \(\omega \in L\) и \(|\omega| = p + 2p + 3p + p> 7p > p\).
+
+\vspace*{5mm}
+
+\par Нека \(x, y, z \in \{a, b, c\}^*\) са такива, че \(\alpha = xyz\), \(|xy| \leq p\) и \(y \neq \varepsilon\).
+Тогава \(xy\) е префикс на \(a^p\), от където \(z = a^{p - |xy|}b^{2p}c^{3p}b^p\). Също \\
+\(0 < |y| \leq |x| + |y| = |xy| \leq p\). Тогава \(xy^iz = a^{|x|}.a^{i|y|}.a^{p - |xy|}b^{2p}c^{3p}b^p = a^{|x| + i|y| + p - |x| - |y|}.b^{2p}c^{3p}b^p = a^{p + (i - 1)|y|}.b^{2p}c^{3p}b^p\).
+
+\vspace*{3mm}
+
+\par Нека изберем \(i = 0\). Тогава \(xy^0z = a^{p - |y|}.b^{2p}c^{3p}b^p\). Искаме да покажем, че \(xz \notin L\).
+Да допусем, че \(xz \in L\).
+Нека тогава \(\rho, \sigma \in \{a, b, c\}^*\) са такива, че \(\rho.\sigma = xz = a^{p - |y|}.b^{2p}c^{3p}b^p\)
+и \(\mathcal{N}_b(\rho) = 2\mathcal{N}_a(\rho)\) и  \(\mathcal{N}_c(\sigma) = 3\mathcal{N}_b(\sigma)\).
+
+Възможни са два случая спрямо \(\rho\).
+
+\subsection{Случай 1. \(\rho = \varepsilon\)}
+Тогава \(\sigma = xz = a^{p - |y|}.b^{2p}c^{3p}b^p\). Но \(\mathcal{N}_c(\sigma) = 3p\) и \(\mathcal{N}_b(\sigma) = 3p\) и \(3p < 9p\). Така \(xz \notin L\). Достигаме до Абсурд!
+
+\subsection{Случай 2. \(\rho \neq \varepsilon\)}
+Тогава \(\mathcal{N}_a(\rho) > 0\) от където \(\mathcal{N}_b(\rho) > 0\) Тогава \(\rho = a^{p - |y|}.b^{2p - 2|y|}\) и \(\sigma = b^{2|y|}c^{3p}.b^p\). Така \(\mathcal{N}_b(\sigma) = p + 2|y| > p\) и значи \(3\mathcal{N}_b(\sigma) > 3p = \mathcal{N}_c(\sigma)\), което е Абсурд!
+
+\vspace*{5mm}
+
+\par Следователно \(xy^0z = xz \notin L\).
+
+\vspace*{4mm}
+
+\par От лемата за покачването заключваме, че \(L\) не е регулярен език.
+
+\section{Пример 4}
+
+Нека \(L = \{c^n.a^k.b^s \; \mid\; n \in \mathbb{N}_+ \;\&\; s \in \mathbb{N}_+ \;\&\; (\exists l \in \mathbb{N}_+)(k = ls)\}\).
+
+\vspace*{5mm}
+
+Нека \(p \in \mathbb{N}_+\) и \(p\) е произволно.
+
+\vspace*{5mm}
+
+Избираме \(\alpha = ca^pb^p\) и \(|\omega| = 2p + 1 > p\).
+Понеже \(p = 1.p\), то \(\omega \in L\).
+
+\vspace*{5mm}
+
+\par Нека \(x, y, z \in \{a, b\}^*\) са такива, че \(\alpha = xyz\), \(|xy| \leq p\) и \(y \neq \varepsilon\).
+Тогава \(xy\) е префикс на \(ca^{p - 1}\). Възможни са два случая.
+
+\vspace*{5mm}
+
+\par \textbf{Случай 1.} \(x = \varepsilon\). Тогава \(\alpha = xyz = yz = ca^pb^p\) и понеже \(|y| = |xy| \leq p\), то 
+\(z = a^{p - |y| + 1}b^p\). Тогава \(xy^iz = y^iz = (ca^{|y| - 1})^ia^{p - |y| + 1}b^p\).
+
+Избираме \(i = 0\) тогава \(xy^iz = z = a^{p - |y| + 1}b^p\), защото тогава \(\mathcal{N}_c(xy^iz) = 0 \notin \mathbb{N}_+\) и \(xy^iz \notin L\). 
+
+\vspace*{5mm}
+
+\par \textbf{Случай 2.} \(x \neq \varepsilon\). Тогава \(z = a^{p - |xy| + 1}b^p\) и \(0 < |y| < p\), понеже \(|xy| \leq p\).
+Тогава \(xy^iz = ca^{|x| - 1 + i|y| + p - |xy| + 1}b^p = ca^{p + (i - 1)|y|}b^p\).
+Търсим такова \(i \in \mathbb N\), че \(xy^iz \notin L\). За целта пресмятаме \[\displaystyle\frac{p + (i - 1)|y|}{p} = 1 + \displaystyle\frac{(i - 1)|y|}{p}\]
+Ако \(i = 2\) получаваме \(1 + \displaystyle\frac{|y|}{p} \notin \mathbb N\).
+Ако \(i = p\) получаваме \(1 + |y| - \displaystyle\frac{|y|}{p} \notin \mathbb N\).
+Тоест не зависимо какво изберем \(i = 2\) или \(i = p\) думата \(xy^iz\) не е в \(L\).
+
+\vspace*{5mm}
+
+\par От лемата за покачването заключваме, че \(L\) не е регулярен език.
+
+\section{Пример 5.}
+Нека \(L = \{\alpha\#\beta \;\mid\; \alpha \in \{0, 1\}^+ \;\&\; \beta \in \{0, 1\}^+ \;\&\; \alpha_{(2)} + \beta_{(2)} = 3 \alpha_{(2)}\}\), където (бинарна дума)\(_{(2)}\) е числото с двойчен запис бинарна дума. Тоест
+
+\begin{align*}
+    0_{(2)} = 0_{\mathbb{N}} \\
+    1_{(2)} = 1_{\mathbb{N}} \\
+    (\omega.0)_{(2)} = 2_{\mathbb{N}} * \omega_{(2)} \\
+    (\omega.1)_{(2)} = 2_{\mathbb{N}} * \omega_{(2)} + 1_{\mathbb{N}}
+\end{align*}
+Например \(1000_{(2)} = 8\) и \(100_{(2)} = 4\) и значи \(1000\#100 \in L\), защото \(8 + 4 = 12 = 3.4\).
+Условието на \(L\) същност се свежда до решенията на уравнението \(2x + x = 3x\), които са безкрайно много. 
+
+\vspace*{5mm}
+
+\par Нека \(p \in \mathbb{N}_+\) и \(p\) е произволно.
+
+\vspace*{5mm}
+
+\par Избираме \(\omega = 100^p\#10^p\), която е в езикът, защото \(100^p_{(2)} = 2_\mathbb{N} * 10^p_{(2)}\).
+Дължината на \(\omega\) е \(2 + p + 1 + 1 + p\), което е поне \(p\).
+
+\vspace*{5mm}
+
+\par Нека \(x, y, z \in \{0, 1\}^*\) и са такива, че \(\omega = x.y.z\) и \(|x.y| \leq p\) и \(|y| \geq 1\).
+Възможни са два случая.
+
+\vspace*{5mm}
+
+\par \textbf{Случай 1.} \(x = \varepsilon\). Тогава \(z = 0^{p + 1 - |y| + 1}\#10^p = 0^{p + 2 - |y|}\#10^p\).
+В този случай избираме \(i = 0\), защото \(x.y^0.z = \varepsilon.\varepsilon.z = 0^{p + 2 - |y|}\#10^p\) и \(0^{p + 2 - |y|}_{(2)} = 0_\mathbb{N}\)  и \(10^p_{(2)} \neq 0_\mathbb{N}\) и значи \(x.y^0.z \notin L\).
+
+\vspace*{5mm}
+
+\par \textbf{Случай 2.} \(x \neq \varepsilon\). Тогава \(z = 0^{p + 1 - |xy| + 1}\#10^p = 0^{p + 2 - |xy|}\#10^p\).
+В този случай избираме \(i = 2\), защото \(x.y^2.z = 100^{p + |y|}\#10^p\) и \[100^{p + |y|}_{(2)} = 2^{|y| + 1}_\mathbb{N} * 10^p_{(2)} > 2_\mathbb{N} * 10^p_{(2)}\] и значи \(x.y^2.z \notin L\).
+\end{document}

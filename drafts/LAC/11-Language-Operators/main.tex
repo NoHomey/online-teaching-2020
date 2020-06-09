@@ -1,0 +1,1095 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T2A]{fontenc}
+\usepackage[english,bulgarian]{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{euler}
+
+\title{Оператори}
+\author{Иво Стратев}
+
+\begin{document}
+
+\maketitle
+
+\section*{Увод}
+Нека \(\Sigma\) е крайна азбука. Тогава всяка функция от \(\mathcal{P}(\Sigma^*)\) в \(\mathcal{P}(\Sigma^*)\)
+ще наричаме оператор над \(\Sigma\). Тоест оператор над \(\Sigma\) е всяка функция, която преработва език над \(\Sigma\) в език над \(\Sigma\).
+
+\subsection*{Регулярен оператор}
+Нека \(\Gamma : \mathcal{P}(\Sigma^*) \to \mathcal{P}(\Sigma^*)\).
+Казваме, че \(\Gamma\) е регулярен оператор ако запазва регулярните езици.
+Тоест образа на всеки регулярен език над \(\Sigma\) е регулярен език над \(\Sigma\).
+Формално
+\[(\forall L \in \mathcal{P}(\Sigma^*))(Regular(L) \implies Regular(\Gamma(L)) )\]
+Къдетo \(Regular(L) \iff (\exists r \in RegExp(\Sigma))(L = \mathcal{RL}_\Sigma(r))\)
+
+\subsection*{Нерегулярен оператор}
+Нека \(\Gamma : \mathcal{P}(\Sigma^*) \to \mathcal{P}(\Sigma^*)\).
+Казваме, че \(\Gamma\) е нерегулярен оператор, ако \(\Gamma\) не е регулярен оператор. (стандартна дефиниция с отрицание)
+Тоест има регулярен език над \(\Sigma\), чийто образ под \(\Gamma\) не е регулярен език над \(\Sigma\).
+Формално
+\[(\exists L \in \mathcal{P}(\Sigma^*))(Regular(L) \;\&\; \lnot Regular(\Gamma(L)) )\]
+
+\subsection*{Пример}
+Нека \(\Sigma\) е азбука.
+Нека \(Even\) е опаратор над \(\Sigma\), такъв че
+\[(\forall L \in \mathcal{P}(\Sigma^*))(Even(L) = \{\omega \in L \; \mid \; |\omega| \equiv 0 \pmod{2}\})\]
+Тоест \(Even\) отделя от \(L\) думте с четна дължина. Ще покажем, че той е регулярен.
+
+\vspace*{5mm}
+
+\par Нека \(L\) е регулярен език над \(\Sigma\).
+Тогава очевидно
+\begin{align*}
+    Even(L) = \{\omega \in L \; \mid \; |\omega| \equiv 0 \pmod{2}\} \\
+    = \{\omega \in \Sigma^* \mid \omega \in L \;\&\; |\omega| \equiv 0 \pmod{2}\} \\
+    = \{\omega \in \Sigma^* \mid \omega \in L \;\&\; \omega \in (\Sigma \cdot \Sigma)^*\} \\
+    = \{\omega \in \Sigma^* \mid \omega \in L \cap (\Sigma \cdot \Sigma)^*\} \\
+    = L \cap (\Sigma \cdot \Sigma)^*
+\end{align*}
+Също така \(\Sigma\) е регулярен език понеже е краен.
+Следователно \(\Sigma \cdot \Sigma\) е регулярен език.
+Следователно \((\Sigma \cdot \Sigma)^*\) е регулярен език.
+Следователно \(L \cap (\Sigma \cdot \Sigma)^*\) е регулярен език,
+защото всеки регулярен език е автоматен, автоматните са затворени относно сечение и всеки автоматен език е регулярен език.
+Следователно \(Even(L)\) е регулярен език.
+
+Но \(L\) беше проиволен така като обобщим получения резултат получаваме
+\[(\forall L \in \mathcal{P}(\Sigma^*))(Regular(L) \implies Regular(Even(L)) )\]
+Следователно \(Even\) е регулярен оператор.
+
+\section*{Техника 1 за доказване на регулярност на оператор. Индукция по построението на регулярните езици}
+Нека \(\Sigma\) е крайна азбука и нека \(\Gamma\) е оператор над \(\Sigma\).
+Тогава можем да докажем, че \(\Gamma\) е регулярен доказвайки, че запазва регулярните операции.
+Тоест трябва да докажем следните твърдения.
+\[Regular(\Gamma(\emptyset))\]
+\[Regular(\Gamma(\{\varepsilon\}))\]
+\[(\forall x \in \Sigma)(Regular(\Gamma(\{x\}))\]
+\[(\forall A \in \mathcal{P}(\Sigma^*))(\forall B \in \mathcal{P}(\Sigma^*))(Regular(A) \;\&\; Regular(B) \implies  Regular(\Gamma(A \cup B)))\]
+\[(\forall A \in \mathcal{P}(\Sigma^*))(\forall B \in \mathcal{P}(\Sigma^*))(Regular(A) \;\&\; Regular(B) \implies  Regular(\Gamma(A \cdot B)))\]
+\[(\forall L \in \mathcal{P}(\Sigma^*))(Regular(L) \implies  Regular(\Gamma(L^*)))\]
+
+Горните доказателства могат да бъдат доказани чрез индукция по построението на регулярните езици.
+Схемата е следната доказваме, че
+\(\Gamma(\emptyset)\) и \(\Gamma(\{\varepsilon\})\) са регулярни.
+След, което вземаме произволна буква \(x\) от \(\Sigma\) и доказваме, че \(\Gamma(\{x\})\) е регулярен.
+След това вземаме произволни два регулярни езика \(A\) и \(B\) и допускаме, че \(\Gamma(A)\) и \(\Gamma(B)\) са регулярни.
+На база на допускането показваме, че \(\Gamma(A \cup B)\), \(\Gamma(A \cdot B)\) и \(\Gamma(A^*)\) са регулярни.
+
+\subsection*{Преди примерите}
+Преди да разгледаме два примера за доказателство по горната схема. Нека докажем три помощни твърдения в най-общ вид.
+Нека \(f : A \to B\). Нека \(X \in \mathcal{P}(A)\) тогава образа на множеството \(X\) под действие на \(f\) се означава с \(f[X]\) и по дефиниция \(f[X] = \{b \in B \mid (\exists x \in X)(b = f(x))\} = \{f(x) \mid x \in X\}\).
+Нека \(F : \mathcal{P}(A) \to \mathcal{P}(B)\) и \((\forall X \in \mathcal{P}(A))(F(X) = f[X])\).
+
+\subsubsection*{Твърдение 1}
+\[F(\emptyset) = \emptyset\]
+\textbf{Доказателство}:
+\[F(\emptyset) = f[\emptyset] = \{b \in B \mid (\exists x \in \emptyset)(b = f(x))\} = \emptyset \quad \qed\]
+
+\subsubsection*{Твърдение 2}
+\[(\forall X \in \mathcal{P}(A))(\forall Z \in \mathcal{P}(A))(F(X \cup Z) = F(X) \cup F(Z))\]
+
+\textbf{Доказателство}: Нека \(X, Z \in \mathcal{P}(A)\). Тогава
+\begin{align*}
+    F(X \cup Z) = f[X \cup Z] = \{b \in B \mid (\exists s \in X \cup Z)(b = f(s))\} \\
+    = \{b \in B \mid (\exists s \in X)(b = f(s)) \;\lor\; (\exists s \in Z)(b = f(s))\} \\
+    = \{b \in B \mid b \in f[X] \;\lor\; b \in F[Z]\} \\
+    = f[X] \cup f[Z] \\
+    = F(X) \cup F(Z)
+\end{align*}
+Следователно \((\forall X \in \mathcal{P}(A))(\forall Z \in \mathcal{P}(A))(F(X \cup Z) = F(X) \cup F(Z))\). \(\qed\)
+
+\subsubsection*{Твърдение 3}
+Нека \(s\) е изброима редица с елементи от \(\mathcal{P}(A)\).
+Тоест \(s : \mathbb N \to \mathcal{P}(A)\).
+Тогава
+\[F\left(\displaystyle\bigcup_{n \in \mathbb N} s(n) \right) = \displaystyle\bigcup_{n \in \mathbb N} F(s(n))\]
+
+\textbf{Доказателство}:
+\begin{align*}
+    F\left(\displaystyle\bigcup_{n \in \mathbb N} s(n) \right) = \\\\
+    f\left[\displaystyle\bigcup_{n \in \mathbb N} s(n) \right] = \\\\
+    \left\{b \in B \mid \left(\exists x \in \displaystyle\bigcup_{n \in \mathbb N} s(n) \right)(b = f(x)) \right\} = \\\\
+    \{b \in B \mid (\exists n \in \mathbb N)(\exists x \in s(n))(b = f(x))\} = \\\\
+    \{b \in B \mid (\exists n \in \mathbb N)(b \in f[s(n)]\} = \\\\
+    \left\{b \in B \mid b \in \displaystyle\bigcup_{n \in \mathbb N} F(s(n)) \right\} = \\\\
+    \displaystyle\bigcup_{n \in \mathbb N} F(s(n)) \quad \qed
+\end{align*}
+
+\subsubsection*{Следствие на Твърдение 3}
+Нека \(g : \Sigma^* \to \Sigma^*\) и нека \(\Gamma : \mathcal{P}(\Sigma^*) \to \mathcal{P}(\Sigma^*)\)
+и нека \((\forall L \in \mathcal{P}(\Sigma^*))(\Gamma(L) = g[L])\).
+Тогава
+\[\Gamma(L^*) = \displaystyle\bigcup_{n \in \mathbb N} \Gamma(L^n)\]
+\textbf{Доказателство}: Нека \(s\) е редицата с общ член \(s(n) = L^n\).
+Тогава прилагайки Твърдение 3 получаваме
+\[\Gamma(L^*) = \Gamma\left(\displaystyle\bigcup_{n \in \mathbb N} L^n \right)
+= \Gamma\left(\displaystyle\bigcup_{n \in \mathbb N} s(n) \right) = \displaystyle\bigcup_{n \in \mathbb N} \Gamma(s(n)) = \displaystyle\bigcup_{n \in \mathbb N} \Gamma(L^n) \quad \qed \]
+
+\subsection*{Пример 1}
+Нека \(\Sigma\) е крайна азбука.
+Нека \(stretchLeft : \Sigma^* \to \Sigma^*\) и \[stretchLeft(\omega) = \begin{cases}
+\varepsilon &,\; \omega = \varepsilon \\
+\omega_1.\omega &,\; \omega \neq \varepsilon
+\end{cases}\]
+Където \(\omega_1\) е означение за първата буква в непразната дума \(\omega\). \\
+Нека \(StretchLeft : \mathcal{P}(\Sigma^*) \to \mathcal{P}(\Sigma^*)\) и \(StretchLeft(L) = stretchLeft[L]\).
+Преди доказателството по индукция ще докажем три помощни твърдения.
+
+\subsubsection*{Помощно твърдение 1}
+Нека \(L, K\) са езици над \(\Sigma\) и нека \(\varepsilon \in L\) тогава 
+\(StretchLeft(L \cdot K) = (StretchLeft(L \setminus \{\varepsilon\}) \cdot K) \cup StretchLeft(K)\).
+
+\vspace*{5mm}
+
+\textbf{Доказателство}: Ще докажем двете включвания на множества. \\
+Първо ще покажем, че \\
+\(StretchLeft(L \cdot K) \subseteq (StretchLeft(L \setminus \{\varepsilon\}) \cdot K) \cup StretchLeft(K)\). \\
+Нека \(\omega \in StretchLeft(L \cdot K)\). Тогава \((\exists \gamma \in L \cdot K)(\omega = stretchLeft(\gamma))\).
+Нека тогава \(\alpha \in L\) и \(\beta \in K\) са такива, че \(\omega = stretchLeft(\alpha . \beta)\).
+Възможни са два случая спрямо \(\alpha\). \\
+
+\vspace*{5mm}
+
+\textbf{Случай 1} \(\alpha = \varepsilon\):
+Тогава \(\omega = stretchLeft(\beta) \in stretchLeft[K] = StretchLeft(K)\).
+Следователно \(\omega \in (StretchLeft(L \setminus \{\varepsilon\}) \cdot K) \cup StretchLeft(K)\). \\
+
+\vspace*{5mm}
+\textbf{Случай 2} \(\alpha \neq \varepsilon\):
+Тогава \(\alpha.\beta \neq \varepsilon\) и
+\(\omega = stretchLeft(\alpha . \beta) = (\alpha.\beta)_1.(\alpha.\beta) = \alpha_1.(\alpha.\beta)
+= (\alpha_1.\alpha).\beta =  stretchLeft(\alpha) . \beta \in StretchLeft(L \setminus \{\varepsilon\}) \cdot K\). \\
+Следователно \(\omega \in (StretchLeft(L \setminus \{\varepsilon\}) \cdot K) \cup StretchLeft(K)\). \\
+
+\vspace*{3mm}
+
+Така във всеки от двата случая получихме
+\[\omega \in (StretchLeft(L \setminus \{\varepsilon\}) \cdot K) \cup StretchLeft(K)\]
+Следоватлно \(StretchLeft(L \cdot K) \subseteq (StretchLeft(L \setminus \{\varepsilon\}) \cdot K) \cup StretchLeft(K)\). \\
+
+\vspace*{3mm}
+
+Сега ще покажем, че \[(StretchLeft(L \setminus \{\varepsilon\}) \cdot K) \cup StretchLeft(K) \subseteq StretchLeft(L \cdot K)\]
+Като за целта ще покажем, че \(StretchLeft(L \setminus \{\varepsilon\}) \cdot K \subseteq StretchLeft(L \cdot K)\) и
+\(StretchLeft(K) \subseteq StretchLeft(L \cdot K)\). \\
+
+\vspace*{3mm}
+
+\par Нека \(\omega \in StretchLeft(L \setminus \{\varepsilon\}) \cdot K\). Нека тогава \(\alpha \in StretchLeft(L \setminus \{\varepsilon\})\) и \(\beta \in K\)
+са такива, че \(\omega = \alpha.\beta\). Нека тогава \(\gamma \in L \setminus \{\varepsilon\}\) е такава, че \(\alpha = stretchLeft(\gamma)\). Тогава \(\alpha = \gamma_1.\gamma\). Така \(\omega = \gamma_1.\gamma.\beta\),
+но \(\gamma_1 = (\gamma.\beta)_1\) понеже \(\gamma \neq \varepsilon\).
+Следователно \(\omega = (\gamma.\beta)_1.(\gamma.\beta) = stretchLeft(\gamma.\beta) \in stretchLeft[(L \setminus \varepsilon) \cdot K ] \subseteq sretchLeft[L \cdot K] = StretchLeft(L \cdot K)\). \\
+Следователно \(StretchLeft(L \setminus \{\varepsilon\}) \cdot K \subseteq StretchLeft(L \cdot K)\). \\
+
+\vspace*{3mm}
+
+\par Нека \(\omega \in StretchLeft(K)\). Нека тогава \(\gamma \in K\) е такава, че \(\omega = stretchLeft(\gamma)\).
+Но \(\varepsilon \in L\) и значи \(\gamma = \varepsilon.\gamma \in L \cdot K\). \\
+Следователно \(\omega \in stretchLeft[L \cdot K] = StretchLeft(L \cdot K)\). \\
+Следователно \(StretchLeft(K) \subseteq StretchLeft(L \cdot K)\).  \\
+
+\vspace*{3mm}
+
+\par Така \((StretchLeft(L \setminus \{\varepsilon\}) \cdot K) \cup StretchLeft(K) \subseteq \\ StretchLeft(L \cdot K) \cup StretchLeft(L \cdot K) = StretchLeft(L \cdot K)\). \\
+Следователно \(StretchLeft(L \cdot K) = (StretchLeft(L \setminus \{\varepsilon\}) \cdot K) \cup StretchLeft(K)\). \(\qed\)
+
+\subsubsection*{Помощно твърдение 2}
+Нека \(L, K\) са езици над \(\Sigma\) и нека \(\varepsilon \notin L\)  тогава 
+\(StretchLeft(L \cdot K) = StretchLeft(L) \cdot K\). \\
+
+\vspace*{5mm}
+
+\textbf{Доказателство}: Ще докажем двете включвания на множества. \\
+Първо ще покажем, че \(StretchLeft(L \cdot K) \subseteq StretchLeft(L) \cdot K\). \\
+Нека \(\omega \in StretchLeft(L \cdot K)\). Тогава \((\exists \gamma \in L \cdot K)(\omega = stretchLeft(\gamma))\).
+Нека тогава \(\alpha \in L\) и \(\beta \in K\) са такива, че \(\omega = stretchLeft(\alpha . \beta)\).
+Понеже \(\varepsilon \notin L\), то \(\alpha \neq \varepsilon\). Тогава \(\alpha_1 = (\alpha . \beta)_1\).
+Така \(\omega = (\alpha.\beta)_1.(\alpha . \beta) = (\alpha_1 . \alpha) . \beta = stretchLeft(\alpha).\beta \in StretchLeft(L) \cdot K \). Получихме \(\omega \in StretchLeft(L) \cdot K\).
+Следователно \(StretchLeft(L \cdot K) \subseteq StretchLeft(L) \cdot K\). \\
+\vspace*{3mm}
+
+\par Нека \(\omega \in StretchLeft(L) \cdot K\). Нека тогава \(\alpha \in L\) и \(\beta \in K\) са такива, че \(\omega = stretchLeft(\alpha) . \beta\). Тогава \(stretchLeft(\alpha . \beta) = (\alpha . \beta)_1 . (\alpha.\beta) = (\alpha_1 .\alpha) . \beta = stretchLeft(\alpha) . \beta = \omega\). Следователно \(\omega \in StretchLeft(L \cdot K)\).
+Следователно \(StretchLeft(L) \cdot K \subseteq StretchLeft(L \cdot K)\). \\
+
+\vspace*{3mm}
+
+Следователно \(StretchLeft(L \cdot K) = StretchLeft(L) \cdot K\). \(\qed\)
+
+\subsubsection*{Помощно твърдение 3}
+Нека \(L\) е език над \(\Sigma\) тогава \(StretchLeft(L \setminus \{\varepsilon\}) = StretchLeft(L) \setminus \{\varepsilon\}\). \\
+
+\vspace*{5mm}
+
+\textbf{Доказателство}:
+\begin{align*}
+    StretchLeft(L) \setminus \{\varepsilon\} = \\
+    StretchLeft((L \setminus \{\varepsilon\}) \cup (L \cap \{ \varepsilon \})) \setminus \{\varepsilon\} = \\
+    (StretchLeft(L \setminus \{\varepsilon\}) \cup StretchLeft(L \cap \{ \varepsilon \})) \setminus \{\varepsilon\} = \\
+    (StretchLeft(L \setminus \{\varepsilon\}) \setminus \{\varepsilon\}) \cup (StretchLeft(L \cap \{ \varepsilon \}) \setminus \{\varepsilon\} ) = \\
+    StretchLeft(L \setminus \{\varepsilon\}) \cup \emptyset = \\
+    StretchLeft(L \setminus \{\varepsilon\})
+\end{align*}
+Ползвахме, че \(\varepsilon \notin StretchLeft(L \setminus \{\varepsilon\})\) и \(StretchLeft(L \cap \{ \varepsilon \}) \subseteq \{\varepsilon\}\). \(\qed\)
+
+\subsubsection*{Индукция}
+От Твърдение 1 имаме, че \(StretchLeft(\emptyset) = \emptyset\). За езика на празната дума получаваме
+\[StretchLeft(\{\varepsilon\}) = stretchLeft[\{\varepsilon\}] = \{ stretchLeft(\varepsilon) \}  = \{ \varepsilon \}\]
+Нека \(x \in \Sigma\) тогава 
+\[StretchLeft(\{x\}) = stretchLeft[\{x\}] = \{ stretchLeft(x) \}  = \{ xx \}\]
+Понеже \(\{ xx \}\) е креан език, то \(StretchLeft(\{x\})\) е регулярен език. \\
+Нека \(A\) и \(B\) са произволни регулярни езици и \(StretchLeft(A)\) и \(StretchLeft(B)\) са регулярни.
+Тогава от Твърдение 2 получаваме, че \(StrechLeft(A \cup B) = StretchLeft(A) \cup StretchLeft(B)\).
+Но от допускането \(StretchLeft(A)\) и \(StretchLeft(B)\) са регулярни, следователно \(StrechLeft(A \cup B)\) е регулярен
+понеже е обединие на два регулярни. За \(StretchLeft(A \cdot B)\) ще ползваме трите помощни твърдения.
+Възможни са два случая. \\
+
+\vspace*{3mm}
+
+\par \textbf{Случай 1} \(\varepsilon \in A\). Тогава от Помощно твърдение 1 следва, че \\
+\(StretchLeft(A \cdot B) = (StretchLeft(A \setminus \{\varepsilon\}) \cdot B) \cup StretchLeft(B)\). \\
+Но от Помощно твърдение 3 следва, че \\
+\(StretchLeft(A \cdot B) = ((StretchLeft(A) \setminus \{\varepsilon\}) \cdot B) \cup StretchLeft(B)\).
+Така получихме изразяване на \(StretchLeft(A \cdot B)\), в което всички участващи езици са регулярни.
+От това, че регулярните са затворени относно разлика, обединение и конкатенация следва,
+че \(StretchLeft(A \cdot B)\) е регулярен. \\
+
+\vspace*{3mm}
+
+\par \textbf{Случай 2} \(\varepsilon \notin A\). Тогава от Помощно твърдение 1 следва, че \\
+\(StretchLeft(A \cdot B) = StretchLeft(A) \cdot B\). Но \(StretchLeft(A)\) и \(B\) са регулярни,
+следователно \(StretchLeft(A \cdot B)\) е регулярен. \\
+
+\vspace*{3mm}
+
+\par Остава да покажем, че \(StretchLeft(A^*)\) е регулярен.
+От помощните твърдения и очевидното равенство \(A^* = \{\varepsilon\} \cup (A \setminus \{\varepsilon\})^+\) следва
+\begin{align*}
+    StretchLeft(A^*) = \\\\
+    StretchLeft(\{\varepsilon\} \cup (A \setminus \{\varepsilon\})^+) = \\\\
+    StretchLeft(\{\varepsilon\}) \cup  StretchLeft((A \setminus \{\varepsilon\})^+) = \\\\
+    \{\varepsilon\} \cup (StretchLeft((A \setminus \{\varepsilon\}) \cdot (A \setminus \{\varepsilon\})^*) = \\\\
+    \{\varepsilon\} \cup (StretchLeft(A \setminus \{\varepsilon\}) \cdot (A \setminus \{\varepsilon\})^*) = \\\\
+    \{\varepsilon\} \cup ((StretchLeft(A) \setminus \{\varepsilon\}) \cdot A^*)
+\end{align*}
+От изразяването \(StretchLeft(A^*) = \{\varepsilon\} \cup ((StretchLeft(A) \setminus \{\varepsilon\}) \cdot A^*)\), \\
+регулярността на всички участващи езици и затвореността на регулярните относно обединение, конкатенация и разлика следва,
+че \(StretchLeft(A^*)\) е регулярен.
+
+\subsubsection*{Заключение}
+От индукцията по построението на регулярните езици (структурна индукция) следва, че
+\((\forall L \in \mathcal{P}(\Sigma^*))(Regular(L) \implies Regular(StretchLeft(L)))\).
+
+Следователно \(StretchLeft\) е регулярен оператор над \(\Sigma\). \(\qed\)
+
+\subsection*{Пример 2}
+Да припомним \(rev : \Sigma^* \to \Sigma^*\), където
+
+\(rev(\varepsilon) = \varepsilon\) и \((\forall \alpha \in \Sigma^*)(\forall x \in \Sigma)(rev(x.\alpha) = rev(\alpha).x)\).
+
+Както и \(Reverse : \mathcal{P}(\Sigma^*) \to \mathcal{P}(\Sigma^*)\) и
+
+\((\forall L \in \mathcal{P}(\Sigma^*))(Reverse(L) = rev[L])\).
+
+Преди със структурна индукция да докажем, че \(Reverse\) е регулярен оператор над \(\Sigma\),
+ще докажем три помощни твърдения.
+
+\subsubsection*{Помощно твърдение 1}
+\((\forall \alpha \in \Sigma^*)(\forall \beta \in \Sigma^*)(rev(\alpha.\beta) = rev(\beta).rev(\alpha))\)
+
+\vspace*{5mm}
+
+\textbf{Доказателство}: С индукция по дължината на \(\alpha\). \\
+
+\vspace*{5mm}
+
+\textbf{База}: Нека \(\beta \in \Sigma^*\). Тогава
+\(rev(\varepsilon.\beta) = rev(\beta) = rev(\beta).\varepsilon = rev(\beta).rev(\varepsilon)\).
+Обобщение: \((\forall \beta \in \Sigma^*)(rev(\varepsilon.\beta) = rev(\beta).rev(\varepsilon))\). \\
+
+\textbf{Стъпка.}
+Нека \(\alpha \in \Sigma^*\) и нека
+\((\forall \beta \in \Sigma^*)(rev(\alpha.\beta) = rev(\beta).rev(\alpha))\).  \\
+
+Нека \(x \in \Sigma\). Нека \(\beta \in \Sigma^*\). Тогава
+\(rev((x.\alpha).\beta) = rev(x.(\alpha.\beta)) = rev(\alpha.\beta).x = rev(\beta).rev(\alpha).x = rev(\beta).rev(x.\alpha)\). \\
+
+Обобщение: \((\forall \beta \in \Sigma^*)(rev((x.\alpha).\beta) = rev(\beta).rev(x.\alpha))\). \\
+
+Обобщение: \((\forall \alpha \in \Sigma^*)((\forall \beta \in \Sigma^*)(rev(\alpha.\beta) = rev(\beta).rev(\alpha)) \implies (\forall x \in \Sigma)(\forall \beta \in \Sigma^*)(rev((x.\alpha).\beta) = rev(\beta).rev(x.\alpha))  )\) \\
+
+Следствие: 
+
+\((\forall \alpha \in \Sigma^*)(\forall \beta \in \Sigma^*)(rev(\alpha.\beta) = rev(\beta).rev(\alpha))\). \(\qed\)
+
+\subsubsection*{Помощно твърдение 2}
+\((\forall A \in \mathcal{P}(\Sigma^*))(\forall B \in \mathcal{P}(\Sigma^*))( Reverse(A \cdot B) = Reverse(B) \cdot Reverse(A))\).
+
+\vspace*{5mm}
+
+\textbf{Доказателство}: Нека \(A, B \in \mathcal{P}(\Sigma^*)\). Тогава
+
+\begin{align*}
+    Reverse(A \cdot B) = \\
+    rev[A \cdot B] = \\
+    \{ rev(\omega) \mid \omega \in A \cdot B \} = \\
+    \{ rev(\alpha.\beta) \mid \alpha \in A, \beta \in B \} = \\
+    \{ rev(\beta).rev(\alpha) \mid \alpha \in A, \beta \in  B \} = \\
+    \{ \omega.\gamma \mid \omega \in rev[B], \gamma \in rev[A] \} = \\
+    \{ \omega.\gamma \mid \omega \in Reverse(B), \gamma \in Reverse(A) \} = \\
+    Reverse(B) \cdot Reverse(A)
+\end{align*}
+
+Следователно
+
+\((\forall A \in \mathcal{P}(\Sigma^*))(\forall B \in \mathcal{P}(\Sigma^*))( Reverse(A \cdot B) = Reverse(B) \cdot Reverse(A)). \; \qed\)
+
+\subsubsection*{Помощно твърдение 3}
+\((\forall L \in \mathcal{P}(\Sigma^*))(\forall n \in \mathbb N)( Reverse(L^n) = Reverse(L)^n)\).
+
+\vspace*{5mm}
+
+\textbf{Доказателство}: Нека \(\forall L \in \mathcal{P}(\Sigma^*)\).
+С индукция ще докажем, че
+
+\((\forall n \in \mathbb N)( Reverse(L^n) = Reverse(L)^n)\). \\
+
+\textbf{База.}
+\(Reverse(L^0) = Reverse(\{\varepsilon\}) = rev[\{\varepsilon\} ] = \{rev(\varepsilon)\} = \{\varepsilon\} = Reverse(L)^0\). \\
+
+\textbf{И.Х.}
+Нека \(n \in \mathbb N\) и нека \(Reverse(L^n) = Reverse(L)^n\). \\
+
+\textbf{И.С.}
+Тогава \(Reverse(L^{n + 1}) = Reverse(L^n \cdot L)\), но от предното помощно твърдение следва, че
+\(Reverse(L^{n + 1}) = Reverse(L).Reverse(L^n) \) и от И.Х. следва, че
+\(Reverse(L^{n + 1}) = Reverse(L).Reverse(L)^n \) и значи
+\(Reverse(L^{n + 1}) = Reverse(L)^{n + 1} \). \\
+
+\textbf{Заключение.}
+\((\forall n \in \mathbb N)( Reverse(L^n) = Reverse(L)^n)\). \\
+
+\textbf{Обобщение:}
+\((\forall L \in \mathcal{P}(\Sigma^*))(\forall n \in \mathbb N)( Reverse(L^n) = Reverse(L)^n)\). \(\qed\)
+
+\subsubsection*{Индукция}
+От Твърдение 1 имаме, че \(Reverse(\emptyset) = \emptyset\). За езика на празната дума получаваме
+\[Reverse(\{\varepsilon\}) = rev[\{\varepsilon\}] = \{ rev(\varepsilon) \}  = \{ \varepsilon \}\]
+Нека \(x \in \Sigma\) тогава 
+\[Reverse(\{x\}) = rev[\{x\}] = \{ rev(x) \}  = \{ x \}\]
+Следователно \(Reverse(\{x\})\) е регулярен език. \\
+Нека \(A\) и \(B\) са произволни регулярни езици и \(Reverse(A)\) и \(Reverse(B)\) са регулярни.
+Тогава от Твърдение 2 получаваме, че \(Reverse(A \cup B) = Reverse(A) \cup Reverse(B)\).
+Но от допускането \(Reverse(A)\) и \(Reverse(B)\) са регулярни, следователно \(Reverse(A \cup B)\) е регулярен
+понеже е обединие на два регулярни. За \(Reverse(A \cdot B)\) от помощно твърдение 2 получаваме
+\(Reverse(A \cdot B) = Reverse(B) \cdot Reverse(A) \).
+Но от допускането \(Reverse(A)\) и \(Reverse(B)\) са регулярни, следователно \(Reverse(A \cdot B)\) е регулярен.
+От следствието на твърдение 3, следва че
+\[Reverse(A^*) = \displaystyle\bigcup_{n \in \mathbb N} Reverse(A^n)\]
+Но от помощно твърдение 3, следва че
+\[Reverse(A^*) = \displaystyle\bigcup_{n \in \mathbb N} Reverse(A)^n = Reverse(A)^*\]
+Понеже \(Reverse(A)\) е регулярен, следва че и \(Reverse(A^*)\) е регулярен.
+
+\subsubsection*{Заключение}
+От индукцията по построението на регулярните езици (структурна индукция) следва, че
+\((\forall L \in \mathcal{P}(\Sigma^*))(Regular(L) \implies Regular(Reverse(L)))\).
+
+Следователно \(Reverse\) е регулярен оператор над \(\Sigma\). \(\qed\)
+
+\section*{Техника 2 за доказване на регулярност на оператор. Изразяване на езика (сума и произведение)}
+Въвеждаме две помощни означения.
+
+\subsection*{ТДКА с променени (patch-нати) начално и финално състояние }
+Ако \(\mathcal{A} = \langle \Sigma, Q, s, \delta, F \rangle\) е тотален КДА и \(t, q \in Q\), то с \(\mathcal{A}_{t, q}\) ще означаваме автомата \(\langle \Sigma, Q, t, \delta, \{q\} \rangle\).
+
+\subsection*{ТДКА с промененo (patch-натo) начaлно състояние }
+
+Ако \(\mathcal{A} = \langle \Sigma, Q, s, \delta, F \rangle\) е тотален КДА и \(q \in Q\), то с \(\mathcal{A}_q\) ще означаваме автомата \(\langle \Sigma, Q, q, \delta, F \rangle\).
+
+\subsection*{Идея на техниката}
+Нека \(\Sigma\) е крайна азбука и нека \(\Gamma\) е оператор над \(\Sigma\).
+Нека \(L\) е автоматен език. Ако успеем, чрез регулярните конструкции и въведените по-горе означения успеем да изразим \(\Gamma(L)\), то ще следва че \(\Gamma\) е регулярен оператор над \(\Sigma\).
+
+\subsection*{Пример 1}
+Нека \(\Sigma\) е крайна азбука.
+Нека \(Delete : \mathcal{P}(\Sigma^*) \to \mathcal{P}(\Sigma^*)\) и
+
+\(Delete(L) = \{\alpha.\beta \;\mid \alpha \in \Sigma^* \;\&\; \beta \in \Sigma^* \;\&\;  (\exists x \in \Sigma)(\alpha.x.\beta \in L)\}\).
+
+Ще докажем, че \(Delete\) е регулярен оператор над \(\Sigma\). \\
+
+Нека \(L\) е регулярен език. Тогава \(L\) е автоматен език.
+
+Нека тогава \(\mathcal{A} = \langle \Sigma, Q, s, \delta, F \rangle\) е такъв, че \(\mathcal{L}(\mathcal{A}) = L\).
+
+Да направим анализ на ситуацията.
+
+Нека \(\omega \in Delete(L)\). Тогава нека \(\alpha, \beta \in \Sigma^*\) и \(x \in \Sigma\) са такива, че \(\omega = \alpha.\beta\) и \(\alpha.x.\beta \in L\). Нека тогава \(t, q \in Q\) и \(f \in F\) са такива,
+
+че \(s \overset{\alpha}{\leadsto} q \overset{x}{\leadsto} t \overset{\beta}{\leadsto} f\). Тогава схематично искаме \(s \overset{\alpha}{\leadsto} q, t \overset{\beta}{\leadsto} f\),
+
+като \(t = \delta(q, x)\).
+
+Тогава на база горното разсъждение ще се опитаме да докажем, че
+\[Delete(L) = \displaystyle\bigcup_{q \in Q} \left( \displaystyle\bigcup_{x \in \Sigma}  \mathcal{L}(\mathcal{A}_{s, q}) \cdot \mathcal{L}(\mathcal{A}_{\delta(q, x)})\right) = \displaystyle\bigcup_{\langle q, x \rangle \in Q \times \Sigma} \mathcal{L}(\mathcal{A}_{s, q}) \cdot \mathcal{L}(\mathcal{A}_{\delta(q, x)})\]
+
+Нека ако \(q \in Q\) и \(x \in \Sigma\) да означим езика \(\mathcal{L}(\mathcal{A}_{s, q}) \cdot \mathcal{L}(\mathcal{A}_{\delta(q, x)})\) с \(D_{q, x}\).
+
+Тогава ще докажем, че \(Delete(L) = \displaystyle\bigcup_{\langle q, x \rangle \in Q \times \Sigma} D_{q, x}\).
+
+Нека означим езика \(\displaystyle\bigcup_{\langle q, x \rangle \in Q \times \Sigma} D_{q, x}\) с \(D\).
+
+Тогава трябва да покажем, че \(Delete(L) = D\).
+
+Очевидно е, че \(D = \{\omega \in \Sigma^* \mid (\exists q \in Q)(\exists x \in \Sigma)(\omega \in D_{q, x})\}\).
+
+
+\subsubsection*{Включването \(Delete(L) \subseteq D\)}
+Нека \(\omega \in Delete(L)\). Нека тогава \(\alpha \in \Sigma^*\), \(x \in \Sigma\) и \(\beta \in \Sigma^*\)
+са такива,
+
+че \(\omega = \alpha.\beta\) и \(\alpha.x.\beta \in L\).
+
+Тогава нека \(f = \delta^*(s, \alpha.x.\beta)\). Така \(f \in F\).
+
+Нека \(q = \delta^*(s, \alpha)\). Така \(\alpha \in \mathcal{L}(\mathcal{A}_{s, q})\).
+
+Тогава \(\delta^*(s, \alpha.x.\beta) = \delta^*(\delta^*(s, \alpha), x.\beta) = \delta^*(q, x.\beta) = \delta^*(\delta(q, x), \beta )\).
+
+Следователно \(\beta \in \mathcal{L}(\mathcal{A}_{\delta(q, x)})\). Така \(\alpha.\beta \in \mathcal{L}(\mathcal{A}_{s, q}) \cdot \mathcal{L}(\mathcal{A}_{\delta(q, x)}) = D_{q, x}\).
+
+Следователно \(\omega = \alpha.\beta \in D\).
+
+Следователно \(Delete(L) \subseteq D\).
+
+\subsubsection*{Включването \(D \subseteq Delete(L)\)}
+Нека \(\omega \in D\). Тогава \((\exists q \in Q)(\exists x \in \Sigma)(\omega \in D_{q, x})\).
+Нека тогава \(q \in Q\) и \(x \in \Sigma\) са такива, че \(\omega \in D_{q, x}\).
+Тогава \(\omega \in \mathcal{L}(\mathcal{A}_{s, q}) \cdot \mathcal{L}(\mathcal{A}_{\delta(q, x)})\).
+Нека тогава \(\alpha \in \mathcal{L}(\mathcal{A}_{s, q})\) и нека \(\beta \in \mathcal{L}(\mathcal{A}_{\delta(q, x})\)
+са такива, че \(\omega = \alpha.\beta\). Тогава
+\(\delta^*(s, \alpha) = q\) и \(\delta^*(\delta(q, x), \beta) \in F\).
+Така \(\delta^*(x, \alpha.x.\beta) = \delta^*(q, x.\beta) = (\delta^*(\delta(q, x), \beta) \in F\).
+Следователно \(\alpha.x.\beta \in \mathcal{L}(\mathcal{A}) = L\).
+Следователно  \(D \subseteq Delete(L)\).
+
+\subsubsection*{Заключение}
+Следователно \(Delete(L) = D = \displaystyle\bigcup_{\langle q, x \rangle \in Q \times \Sigma} \mathcal{L}(\mathcal{A}_{s, q}) \cdot \mathcal{L}(\mathcal{A}_{\delta(q, x)})\).
+
+Но за всяко \(q \in Q\) и за всяко \(x \in \Sigma\) езикът \(\mathcal{L}(\mathcal{A}_{s, q}) \cdot \mathcal{L}(\mathcal{A}_{\delta(q, x)})\) е регулярен, защото е конкатенация на два автоматни.
+
+Множеството \(Q \times \Sigma\) е крайно понеже е декартово произведение на две крайни.
+Следователно \(Delete(L)\) е крайно обединение на регулярни езици и значи е регулярен език.
+
+Така доказахме импликацията \(Regular(L) \implies Regular(Delete(L))\).
+
+Понеже \(L\) беше произволен, то следва, че \(Delete\) е регулярен оператор над \(\Sigma\). \(\qed\)
+
+\subsection*{Пример 2}
+Нека \(\Sigma\) е крайна азбука.
+Нека \(ShiftLeft : \mathcal{P}(\Sigma^*) \to \mathcal{P}(\Sigma^*)\) и
+
+\(ShiftLeft(L) = \{\beta.\alpha \;\mid\; \alpha \in \Sigma^* \;\&\; \beta \in \Sigma^* \;\&\; \alpha.\beta \in L\}\).
+
+Нека \(L\) е регулярен език. Нека \(\mathcal{A} = \langle \Sigma, Q, s, \delta, F \rangle\) е тотален КДА, такъв че \(\mathcal{L}(\mathcal{A}) = L\).
+Постановката е следната ако \(s \overset{\alpha}{\leadsto} q \overset{\beta}{\leadsto} f\), то искаме \(q \overset{\beta}{\leadsto} f, s \overset{\alpha}{\leadsto} q \). Твърдим, че \(ShiftLeft(L) = \displaystyle\bigcup_{q \in Q} \mathcal{L}(\mathcal{A}_q) \cdot \mathcal{L}(\mathcal{A}_{s, q}) \).
+
+\subsubsection*{Включването \(ShiftLeft(L) \subseteq \displaystyle\bigcup_{q \in Q} \mathcal{L}(\mathcal{A}_q) \cdot \mathcal{L}(\mathcal{A}_{s, q})\)}
+
+Нека \(\omega \in ShiftLeft(L)\). Тогава нека \(\alpha, \beta \in \Sigma^*\),
+са такива, че \(\omega = \beta.\alpha\) и \(\alpha.\beta \in L\).
+Нека тогава \(q = \delta^*(s, \alpha)\). Тогава \(\alpha \in \mathcal{L}(\mathcal{A}_{s, q})\).
+Но \(\delta^*(q, \beta) = \delta^*(\delta^*(s, \alpha), \beta) = \delta^*(s, \alpha.\beta) \in F\).
+Така \(\beta \in \mathcal{L}(\mathcal{A}_q)\). Следователно \(\omega = \beta.\alpha \in \mathcal{L}(\mathcal{A}_q) \cdot \mathcal{L}(\mathcal{A}_{s, q})\).
+
+Следователно \(\omega \in \displaystyle\bigcup_{t \in Q} \mathcal{L}(\mathcal{A}_t) \cdot \mathcal{L}(\mathcal{A}_{s, t})\).
+
+Следователно \(ShiftLeft(L) \subseteq \displaystyle\bigcup_{t \in Q} \mathcal{L}(\mathcal{A}_t) \cdot \mathcal{L}(\mathcal{A}_{s, t})\).
+
+\subsubsection*{Включването \(\displaystyle\bigcup_{q \in Q} \mathcal{L}(\mathcal{A}_q) \cdot \mathcal{L}(\mathcal{A}_{s, q}) \subseteq ShiftLeft(L)\)}
+
+Нека \(\omega \in \displaystyle\bigcup_{q \in Q} \mathcal{L}(\mathcal{A}_q) \cdot \mathcal{L}(\mathcal{A}_{s, q})\). Нека тогава \(q \in Q\) е такова,
+
+че \(\omega \in \mathcal{L}(\mathcal{A}_q) \cdot \mathcal{L}(\mathcal{A}_{s, q})\).
+Нека тогава \(\beta \in \mathcal{L}(\mathcal{A}_q)\) и \(\alpha \in \mathcal{L}(\mathcal{A}_{s, q})\)
+са такива, че \(\omega = \beta.\alpha\). Тогава \(\delta^*(s, \alpha) = q\) и \(\delta^*(q, \beta) \in F\).
+Следователно \(\delta^*(s, \alpha.\beta) = \delta^*(\delta^*(s, \alpha), \beta) = \delta^*(q, \beta) \in F\). Следователно \(\alpha.\beta \in \mathcal{L}(\mathcal{A}) = L\).
+Следователно \(\omega = \beta.\alpha \in ShiftLeft(L)\).
+
+Следователно \(\displaystyle\bigcup_{t \in Q} \mathcal{L}(\mathcal{A}_t) \cdot \mathcal{L}(\mathcal{A}_{s, t}) \subseteq ShiftLeft(L)\).
+
+\subsubsection*{Заключение}
+Следователно \(ShiftLeft(L) = \displaystyle\bigcup_{q \in Q} \mathcal{L}(\mathcal{A}_q) \cdot \mathcal{L}(\mathcal{A}_{s, q})\) и за всяко \(q \in Q\) езикът \(\mathcal{L}(\mathcal{A}_q) \cdot \mathcal{L}(\mathcal{A}_{s, q})\) е регулярен, защото е конкатенация на два автоматни езика.
+
+Множеството \(Q\) е крайно пo дефиниция.
+Следователно \(ShiftLeft(L)\) е крайно обединение на регулярни езици и значи е регулярен език.
+
+Така доказахме импликацията \(Regular(L) \implies Regular(ShiftLeft(L))\).
+
+Понеже \(L\) беше произволен, то следва, че \(ShiftLeft\) е регулярен оператор над \(\Sigma\). \(\qed\)
+
+\subsection*{Пример 3}
+Нека \(\Sigma\) е крайна азбука. Ако \(M \in \mathcal{P}(\Sigma^*)\), то нека
+
+\(SkipAny_M : \mathcal{P}(\Sigma^*) \to \mathcal{P}(\Sigma^*) \) и
+
+\(SkipAny_M(L) = \{\beta \in \Sigma^* \;\mid\; (\exists \alpha \in M)(\alpha.\beta \in L)\}\).
+
+Нека \(M\) е произволен език над \(\Sigma\). Ще докажем, че \(SkipAny_M\) е регулярен оператор.
+Нека \(L\) е регулярен език.
+Нека \(\mathcal{A} = \langle \Sigma, Q, s, \delta, F \rangle\) е тотален КДА, такъв че \(\mathcal{L}(\mathcal{A}) = L\).
+Нека \(S = \{ \delta^*(s, \omega) \mid \omega \in M \}\).
+
+Нека \(K = \displaystyle\bigcup_{p \in S} \mathcal{L}(\mathcal{A}_p)  \). Ще докажем, че \(SkipAny_M(L) = K\).
+
+\subsection*{Включването \(SkipAny_M(L) \subseteq K\)}
+Нека \(\omega \in SkipAny_M(L)\). Тогава нека \(\alpha \in M\) е такова, че \(\alpha.\omega \in L\).
+
+Нека \(t = \delta^*(s, \alpha)\). Тогава \(t \in S\). Тогава \(\delta^*(t, \omega) = \delta^*(\delta^*(s, \alpha), \omega) = \delta^*(s, \alpha.\omega) \in F\). Следователно \(\omega \in \mathcal{L}(\mathcal{A}_t)\).
+
+
+Следователно \(\omega \in \displaystyle\bigcup_{p \in S} \mathcal{L}(\mathcal{A}_p) = K\).
+Следователно \(SkipAny_M(L) \subseteq K\).
+
+\subsection*{Включването \(K \subseteq SkipAny_M(L)\)}
+Нека \(\omega \in K\). Нека тогава \(t \in S\) е такова, че \(\omega \in \mathcal{L}(\mathcal{A}_t)\).
+Следователно \(\delta^*(t, \omega) \in F\). Но \(t \in S\) следователно има дума \(\gamma \in M\), такава
+
+че \(t = \delta^*(s, \gamma)\). Нека тогава \(\gamma \in K\) е такава, че \(t = \delta^*(s, \gamma)\).
+Тогава \(\delta^*(s, \gamma.\omega) = \delta^*(\delta^*(s, \gamma), \omega) = \delta^*(t, \omega) \in F\).
+Следователно \(\gamma.\omega \in \mathcal{A} = L\) и значи \(\omega \in SkipAny_M(L)\).
+Следователно \(K \subseteq SkipAny_M(L)\).
+
+\subsubsection*{Заключение}
+Следователно \(ShipAny_M(L) = K = \displaystyle\bigcup_{p \in S} \mathcal{L}(\mathcal{A}_p)\) и за всяко \(p \in S\) езикът \(\mathcal{L}(\mathcal{A}_p)\) е регулярен, защото е автоматен.
+
+Множеството \(S\) е крайно, защото е подмножество на \(Q\), което е крайно.
+Следователно \(SkipAny_M(L)\) е крайно обединение на регулярни езици и значи е регулярен език.
+
+Така доказахме импликацията \(Regular(L) \implies Regular(SkipAny_M(L))\).
+
+Понеже \(L\) беше произволен, то следва, че \(SkipAny_M(L)\) е регулярен оператор над \(\Sigma\). \(\qed\) \\
+
+При това какъвто и език да е \(M\) - краен / регулярен / безконтекстен / разрешим / полуразрешим операторът \(SkipAny_M(L)\) е регулярен оператор над \(\Sigma\). \\
+
+Сека ще докажем, че ако \(M\) е регулярен език и \(L\) е регулярен език и се разпознава от тотален ДКА \(\langle \Sigma, Q, s, \delta, F \rangle\), то множеството
+
+\(S = \{\delta^*(s, \omega) \mid \omega \in M\}\) може да бъде намерено за краен брой стъпки.
+
+Нека \(\mathcal{B} = \langle \Sigma, K, t, \psi, E \rangle\) е минимален автомат разпознаващ \(M\) и \(v = |K|\)
+тогава ще докажем, че \[S = \{\delta^*(s, \omega) \mid \omega \in M\} = \{\delta^*(s, \omega) \mid \omega \in \displaystyle\bigcup_{l \in \{0, 1, \dots, v - 1\}} \Sigma^l \;\&\; \psi(t, \omega) \in E \}\]
+
+Първо очевидно \(\{ \omega \in  \displaystyle\bigcup_{l \in \{0, 1, \dots, v - 1\}} \Sigma^l \mid \psi(t, \omega) \in E\} \subseteq M\), така че дясното множество се включва в лявото (\(S\))!
+
+Нека сега докажем обратното включване. Нека \(q \in S\) Нека \(\omega \in M\) е такава, че е дума с минимална дължина такава, че \(\delta^*(s, \omega) = q\) и \(\psi(t, \omega) \in E\). Ако допуснем, че \(|\omega| \geq l\), то от принципа на дирихле ще получим, че \(\omega\) повтаря състояние от \(K\), а от там и противоречие с минималността на дължината на \(\omega\)! Следователно \(|\omega| < l\) и значи \(q\) е във второто множество и така двете съвпадат. \\
+
+Очевидно \[\{\delta^*(s, \omega) \mid \omega \in \displaystyle\bigcup_{l \in \{0, 1, \dots, v - 1\}} \Sigma^l \;\&\; \psi(t, \omega) \in E \}\] може да бъде намерено за краен брой стъпки и то за не повече от \(C.|K|.|K|^2.|K|.|E|\) на брой oперации, където \(C > 0\).
+
+\section*{Техника 3 за доказване на регулярност на оператор. Хакване на автомат}
+За удобство винаги можем да хакваме тотални крайни детерминирани автомати!
+
+\subsection*{Пример 1}
+Нека \(\Sigma\) е крайна азбука.
+Нека \(Insert : \mathcal{P}(\Sigma^*) \to \mathcal{P}(\Sigma^*)\) и
+
+\(Insert(L) = \{\alpha.x.\beta \;\mid \alpha \in \Sigma^* \;\&\; \beta \in \Sigma^* \;\&\; \alpha.\beta \in L\}\).
+
+Нека \(L\) е регулярен език. Тогава нека \(\mathcal{A} = \langle \Sigma, Q, s, \delta, F \rangle\) е такъв, че \(\mathcal{L}(\mathcal{A}) = L\). Ще покажем, че \(Insert(L)\) е регулярен като хакнем \(\mathcal{A}\).
+Нека анализираме ситуацията за да видим какъв да е хака.
+
+Нека \(\omega \in Insert(L)\) и \(\omega = \alpha.x.\beta\). Тогава \(\alpha.\beta \in L\).
+Нека тогава \(q \in Q\) и \(f \in F\) са такива, че  \(s \overset{\alpha}{\leadsto} q \overset{\beta}{\leadsto} f\).
+Тогава ни трябва \(t\), такова че \(t \notin Q\) и \(s \overset{\alpha}{\leadsto} t \overset{x}{\leadsto} q \overset{\beta}{\leadsto} f\).
+Значи имаме два етапа и трябва да копираме всяко състояние.
+Нека \(C_0 = \{\langle q, 0 \rangle \;\mid\; q \in Q\}\) и \(C_1 = \{\langle q, 1 \rangle \;\mid\; q \in Q\}\).
+Нека \(\mathcal{N} = \langle \Sigma,\; C_0 \cup C_1,\; \{\langle s, 0 \rangle\},\; \Delta,\; \{ \langle f, 1 \rangle \;\mid\; f \in F\} \rangle \), където
+
+\begin{align*}
+    \Delta = \{ \langle \langle p, 0 \rangle, u, \langle \delta(p, u), 0 \rangle \rangle \;\mid\; p \in Q \;\&\; u \in \Sigma \} \\
+    \cup \; \{ \langle \langle p, 1 \rangle, u, \langle \delta(p, u), 1 \rangle \rangle \;\mid\; p \in Q \;\&\; u \in \Sigma \} \\
+    \cup \; \{ \langle \langle p, 0 \rangle, u, \langle p, 1 \rangle \rangle \;\mid\; p \in Q \;\&\; u \in \Sigma \}
+\end{align*}
+
+Ще докажем, че конструкцията е коректна.
+
+Тоест, че \(\mathcal N\) разпознава \(Insert(L)\).
+
+\subsubsection*{Включването \(\mathcal{L_{ND}}(\mathcal{N}) \subseteq Insert(L)\)}
+Нека \(\omega \in \mathcal{L_{ND}}(\mathcal{N})\). Нека тогава \(f \in F\) е такова, че \(\langle \langle s, 1 \rangle, \omega \rangle \vdash_\mathcal{N} \langle f, 1 \rangle \).
+
+Но \(\omega \in \mathcal{L_{ND}}(\mathcal{N})\). Нека тогава \(\alpha \in \Sigma^*\), \(\beta \in \Sigma^*\), \(x \in \Sigma\) и \(p \in Q\) са такива, че \(\omega = \alpha.x.\beta\) и \(\langle \langle p, 1 \rangle, \beta \rangle \vdash_\mathcal{N} \langle f, 1 \rangle \) и \(\langle \langle p, 0 \rangle, x.\beta \rangle \vdash_\mathcal{N} \langle f, 1 \rangle \). Тогава \(\delta^*(p, \beta) = f\). Но и \(\delta^*(s, \alpha) = p\) и значи \(\delta^*(\delta(s, \alpha), \beta) = f\). Следователно \(\delta^*(s, \alpha.\beta) = f\). Следователно \(\alpha.\beta \in L\).
+
+Следователно \(\omega = \alpha.x.\beta \in Insert(L)\).
+
+\subsubsection*{Включването \(Insert(L) \subseteq \mathcal{L_{ND}}(\mathcal{N})\)}
+Нека \(\omega \in Insert(L)\). Нека тогава \(\alpha, \beta \in \Sigma^*\) и \(x \in \Sigma\) и са такива,
+
+че \(\alpha.\beta \in L\).
+Нека тогава \(q \in Q\) и \(f \in F\) са такова, че \(q = \delta^*(s, \alpha) \) и \( f = \delta^*(q, \beta)\).
+Тогава имаме \(\langle \langle q, 1 \rangle, \beta \rangle \vdash_\mathcal{N} \langle f, 1 \rangle \). Също така
+
+\(\langle \langle q, 0 \rangle, x.\beta \rangle \vdash_\mathcal{N} \langle f, 1 \rangle \), защото \( \langle \langle q, 0 \rangle, x, \langle q, 1 \rangle \rangle \in \Delta\).
+
+Но тогава очевидно \(\langle \langle s, 0 \rangle, \alpha.x.\beta \rangle \vdash_\mathcal{N} \langle f, 1 \rangle \).
+Следователно \(\omega \in \mathcal{L_{ND}}(\mathcal{N})\).
+
+\subsubsection*{Заключение}
+Следователно \(\omega \in \mathcal{L_{ND}}(\mathcal{N}) \iff \omega \in Insert(L)\).
+Следователно \(\mathcal{L_{ND}}(\mathcal{N}) = Insert(L)\).
+Следователно \(Insert(L)\) е регулярен понеже има КНА, който го разпознава.
+Следователно \(Insert\) е регулярен оператор над \(\Sigma\). \(\qed\)
+
+\subsection*{Пример 2}
+Нека \(\Sigma\) е крайна азбука.
+Нека \(Delete : \mathcal{P}(\Sigma^*) \to \mathcal{P}(\Sigma^*)\) и
+
+\(Delete(L) = \{\alpha.\beta \;\mid \alpha \in \Sigma^* \;\&\; \beta \in \Sigma^* \;\&\;  (\exists x \in \Sigma)(\alpha.x.\beta \in L)\}\).
+Нека \(L\) е регулярен език. Тогава нека \(\mathcal{A} = \langle \Sigma, Q, s, \delta, F \rangle\) е такъв, че \(\mathcal{L}(\mathcal{A}) = L\). 
+Да направим анализ на задачата.
+Нека \(\omega \in Delete(L)\). Тогава нека \(\alpha, \beta \in \Sigma^*\) и \(x \in \Sigma\) са такива, че \(\omega = \alpha.\beta\) и \(\alpha.x.\beta \in L\).
+Нека тогава \(t, q \in Q\) и \(f \in F\) са такива, че \(s \overset{\alpha}{\leadsto} q \overset{x}{\leadsto} t \overset{\beta}{\leadsto} f\).
+Тогава схематично искаме \(s \overset{\alpha}{\leadsto} q, t \overset{\beta}{\leadsto} f\), като \(t = \delta(q, x)\).
+Ще хакнем \(\mathcal{A}\), с което ще покажем, че \(Delete(L)\) е регулярен език.
+Удобно е да разделим \(L\) на два езика. Нека \(L_1 = \{\omega \in L \;\mid\; |\omega| \leq 1\}\) и нека \(L_2 = \{\omega \in L \;\mid\; |\omega| \geq 2\}\).
+
+Ако \(L_2 = \emptyset\), то \(L = L_1\), но \(L_1\) е краен език. Tогава и \(Delete(L)\) е краен език и значи е регулярен. Значи този случай не е интересен ...
+
+Нека тогава разгледаме случаят когато \(L_2 \neq \emptyset\).
+
+Вземаме на готово, че
+
+\(Delete(L) = Delete(L_1 \cup L_2) = Delete(L_1) \cup Delete(L_2)\).
+
+\(Delete(L_1)\) е краен и значи регулярен език.
+
+Ще покажем, че \(Delete(L_2)\) е автоматен, от където ще следва, че \(Delete(L)\) е регулярен, защото \(Delete(L) = Delete(L_1) \cup Delete(L_2)\).
+
+Имаме две фази: преди да решим да пропуснем буква и след като пропуснем. За това правим две копия на състоянията.
+
+Нека \(C_0 = \{\langle q, 0 \rangle \;\mid\; q \in Q\}\) и \(C_1 = \{\langle q, 1 \rangle \;\mid\; q \in Q\}\).
+
+Нека \(\mathcal{N} = \langle \Sigma,\; C_0 \cup C_1,\; \{\langle s, 0 \rangle\},\; \Delta,\; \{\langle f, 1\rangle \;\mid\; f \in F\} \rangle\), където
+
+\begin{align*}
+    \Delta = \{ \langle \langle p,\; i \rangle,\; v,\; \langle \delta(p,\; v),\; i \rangle \rangle \;\mid\; p \in Q \;\&\; v \in \Sigma \;\&\; i \in \{0, 1\} \} \\
+    \cup \; \{ \langle \langle p,\; 0 \rangle,\; x,\; \langle \delta(\delta(p,\; x),\; y),\; 1 \rangle \rangle \;\mid\; p \in Q \;\&\; x \in \Sigma \;\&\; y \in \Sigma \}
+\end{align*}
+
+Ще докажем, че \(\mathcal{L_{ND}}(\mathcal{N}) = Delete(L_2)\).
+Нека \(\omega \in \mathcal{L_{ND}}(\mathcal{N})\). Тогава нека \(\alpha, \beta \in \Sigma^*\), \(x \in \Sigma\), \(q, t \in Q\) и \(f \in F\) са такива, че \(\omega = \alpha.x.\beta\), \(\langle \langle q,\; 0 \rangle,\; x,\; \langle t,\; 1 \rangle \rangle \in \Delta\) и \(\langle \langle s,\; 0 \rangle, \alpha.x.\beta \rangle \underset{\mathcal{N}}{\vdash} \langle f, 1 \rangle\).
+Тогава нека \(y \in \Sigma\) е такaва, че \(t = \delta(\delta(q,\; x),\; y)\).
+Така \(\delta^*(s, \alpha) = q\) и \(\delta^*(t, \beta) = f \in F\). Следователно \(\delta^*(\delta(\delta(q,\; x),\; y),\; \beta) = f\).
+Следователно \(\delta^*(\delta(q,\; x),\; y.\beta) = f\). Следователно \(\delta^*(q, x.y.\beta) = f\).
+Така \(\delta^*(\delta^*(s, \alpha), x.y.\beta) = f\). Следователно \(\delta^*(s, \alpha.x.y.\beta) = f\).
+Следователно \(\alpha.x.y.\beta \in \mathcal{L}(\mathcal{A}) \;\&\; |\alpha.x.y.\beta| \geq |x.y| = 2\).
+Следователно \(\alpha.x.y.\beta \in L_2\).
+Но \(\alpha.x \in \Sigma^*\), \(\beta \in \Sigma^*\) и \(y \in \Sigma\). Следователно \(\omega = (\alpha.x).\beta \in Delete(L_2)\).
+Така \(\omega \in \mathcal{L_{ND}}(\mathcal{N}) \implies \omega \in Delete(L_2)\).
+Нека сега \(\omega \in Delete(L_2)\). Тогава нека \(\lambda, \mu \in \Sigma^*\) и \(z \in \Sigma\) са такива, че \(\omega = \lambda.\mu\) и \(\lambda.z.\mu \in L_2\). Тогава \(|\lambda.z.\mu| \geq 2\).
+
+Нека тогава Б.О.О \(\xi \in \Sigma^*\) и \(u \in \Sigma\) са такива, че \(\lambda = \xi.u\).
+
+Така \(\omega = \xi.u.\mu\) и \(\xi.u.z.\mu \in L_2\). Нека \(p = \delta^*(s, \xi)\) и \(r = \delta^*(s, \xi.u.z.\mu)\).
+Нека още \(j = \delta(\delta(p,\; u),\; z)\). Тогава \(\langle \langle j,\; 1 \rangle,\; \mu \rangle \underset{\mathcal{N}}{\vdash} \langle r, 1 \rangle\). Но \(\langle \langle p,\; 0 \rangle, \; u,\; \langle j,\; 1 \rangle \rangle \in \Delta \) и значи \(\langle \langle p,\; 0 \rangle, \; u.\mu \rangle \underset{\mathcal{N}}{\vdash} \langle r,\; 1 \rangle\).
+От \(\delta^*(s, \xi) = p\) и \(\langle \langle p,\; 0 \rangle, \; u.\mu \rangle \underset{\mathcal{N}}{\vdash} \langle r,\; 1 \rangle\) следва, че \(\langle \langle s,\; 0 \rangle, \; \xi.u.\mu \rangle \underset{\mathcal{N}}{\vdash} \langle r,\; 1 \rangle\).
+Следователно \(\omega = \lambda.mu = (\xi.u).\mu \in \mathcal{L_{ND}}(\mathcal{N})\).
+Следователно \(\omega \in Delete(L_2) \implies \omega \in \mathcal{L_{ND}}(\mathcal{N})\).
+
+
+Така \(\omega \in Delete(L_2) \iff \omega \in \mathcal{L_{ND}}(\mathcal{N})\).
+Следователно \(Delete(L_2) = \mathcal{L_{ND}}(\mathcal{N})\) и значи \(Delete(L_2)\) е регулярен.
+Така \(Delete(L)\) е регулярен, защото \(Delete(L_1)\) и \(Delete(L_2)\) са регулярни.
+
+Следователно \(Delete\) е регулярен оператор над \(\Sigma\). \(\qed\)
+
+\section*{Техника 4 за доказване на регулярност на оператор. Отгатване на сертификат, съпровождаш изчислението}
+Тази техника надгражда предната. Пак става въпрос за директен хак на автомат. Но този път вкарваме сертификат, който остава константен по време на изчислението и бива използван за валидиране на правилно изчисление. Тоест ползваме чрез състоянията освен да следим до къде сме в изчислението по думата, но и да помним някаква допълнителна информация. Самото отгатване същност се явява в избора на начално състояние, от което да започне изчислението. С този избор избираме стойността на сертификата. Разбира се ако за някой избор успеем успешно да приемем думата, това считаме за успешно изчисление. \\
+
+\par Да напомним при недетерминираните автомати позволихме повече от едно начално състояние, което улесни конструирането на автомат по регулярен израз. Тук възможността за наличие на повече от едно начално състояние се явява ключово. От гледна точка на изчислимост за обикновенните автомати многото начални състояния са еквивалетни с наличието на епсилон преходи (можем да сменяме състоянието без да четем буква от думата) и само едно начално състояние. Когато обаче разглеждаме по-сложни автомати многото начални състояния могат да се окажат по слаби от позволяването на епсилон преходи, що се късае до формализми моделиращи недетерминистични изчисления.
+
+\subsection*{Пример 1.}
+Нека \(\Sigma\) е крайна азбука. Отново ще разгледаме оператора \(ShiftLeft\), който се задаваще чрез условието
+
+\[ShiftLeft(L) = \{\beta.\alpha \;\mid\; \alpha \in \Sigma^* \;\&\; \beta \in \Sigma^* \;\&\; \alpha.\beta \in L\}\]
+
+Нека \(L\) е регулярен език. Нека \(\mathcal{A} = \langle \Sigma, Q, s, \delta, F \rangle\) е тотален КДА, такъв че \(\mathcal{L}(\mathcal{A}) = L\).
+Постановката беше следната: ако \(s \overset{\alpha}{\leadsto} q \overset{\beta}{\leadsto} f\), то искаме \(q \overset{\beta}{\leadsto} f, s \overset{\alpha}{\leadsto} q \). Можем да конструираме КНА, чрез който да отгатваме недетерминистично състоянието \(q\), което играе ролята на кратък сертификат за успешно изчисление, който след това да проверим. Нека  \(\mathcal{N} = \langle \Sigma,\; K,\; S,\; \Delta,\; E \rangle\), където
+\(K = Q \times \{0, 1\} \times Q\),
+
+\(S = F \times \{1\} \times \{s\} \cup \{\langle q,\; 0,\; q \rangle \mid q \in Q\}\),
+\(E = \{\langle q,\; 1,\; q \rangle \mid q \in Q\}\) и
+
+\begin{align*}
+    \Delta = \{ \langle \langle q,\; i,\;p \rangle,\; x,\; \langle q,\; i,\; \delta(p,\; x) \rangle \rangle \;\mid\; q \in Q \;\&\; p \in Q \;\&\; x \in \Sigma \;\&\; i \in \{0, 1\} \} \\
+    \cup \; \{ \langle \langle q,\; 0,\; p \rangle,\; x,\; \langle q,\; 1,\; s \rangle \rangle \;\mid\; q \in Q \;\&\; p \in Q \;\&\; x \in \Sigma \;\&\; \delta(p, x) \in F\} 
+\end{align*}
+
+Стойността на първата компонента на състоянията ще бъде сертификата. Втората за фазата, в която  се намира изчислението.
+Третата ще позлваме за самото изчисление, по-точно за симулиране на движение по автомата \(\mathcal A\).
+
+Началните състояния  \( F \times \{1\} \times \{s\}\) са необходими, защото може да се окаже, че \(\alpha\) или \(\beta\) от дефиницията на оператора може да се случи да бъде празната дума. Тогава трябва да симулираме напълно движение (изчисление) по автомата \(\mathcal A\). Другите начални състояния -
+
+\(\{\langle q,\; 0,\; q \rangle \mid q \in Q\}\) са за случаите когато трябва да напрвим скок необходим за циклично завъртане на ляво на думата. 
+
+Преходите
+
+\(\{ \langle \langle q,\; i,\;p \rangle,\; x,\; \langle q,\; i,\; \delta(p,\; x) \rangle \rangle \;\mid\; q \in Q \;\&\; p \in Q \;\&\; x \in \Sigma \;\&\; i \in \{0, 1\} \}\)
+
+са за симулиране на изчисление по автомата \(\mathcal A\) във всяка една от двете фази.
+
+Преходите
+
+\(\{ \langle \langle q,\; 0,\; p \rangle,\; x,\; \langle q,\; 1,\; s \rangle \rangle \;\mid\; q \in Q \;\&\; p \in Q \;\&\; x \in \Sigma \;\&\; \delta(p, x) \in F\} \)
+
+Служат за напрата на скока \(q \overset{\beta}{\leadsto} f, s \overset{\alpha}{\leadsto} q \), чрез който сменяме и фазата от изчислението. Позволяваме скок само от финално състояние (третата компонента) в копието на началното \(s\) на \(\mathcal A\) от втората фаза.
+За да изсимулираме на две части изчислението \(s \overset{\alpha}{\leadsto} q \overset{\beta}{\leadsto} f\) по автомата \(\mathcal A\).
+
+\subsubsection*{Преобразуване на конфигурации}
+Ще въведем друг начин за описване на изчисленеито на един КНА, който в случая ще ни улесни. Това същност е стандартния начин за работа с КНА.
+
+Нека \(\mathcal M = \langle \Sigma, State, Start, Transition, Finish  \rangle\) е КНА.
+
+Тогава множеството \(State \times \Sigma^*\) е множеството на всевъзможите конфигурации за \(\mathcal M\).
+\(Start \times \Sigma^*\) е множеството на началните конфигурации, а \(Finish \times \{\varepsilon\}\) на заключителните.
+
+Въвъждаме рекуретна редица от релации \(\{ \vdash_{\mathcal M}^n \}_{n \in \mathbb N}\) между \(State \times \Sigma^*\) удовлетворяваща рекуретната връзка
+
+\begin{align*}
+    \vdash_{\mathcal M}^0 = Id_{State \times \Sigma} = \{\langle \langle q, \alpha \rangle, \langle q, \alpha \rangle \rangle \mid q \in State, \alpha \in \Sigma^*\} \\
+    \vdash_{\mathcal M}^{n + 1} = \{\langle \langle q, x.\alpha.\beta \rangle, \langle p, \beta \rangle \rangle \mid q, p \in State, \alpha, \beta \in \Sigma^*, x \in \Sigma \;\&\;  (\exists t \in State) \\ ( \langle q, x, t \rangle \in Transition \;\&\; \langle t, \alpha.\beta \rangle \vdash_{\mathcal M}^n \langle p, \beta \rangle )\}
+\end{align*}
+
+Ако \(n \in \mathbb N\), то релацията \(\vdash_{\mathcal M}^n\) описва възможните начини за правенето на \(n\) стъпки по КНА \(\mathcal M\). Полагаме \(\vdash_{\mathcal M}^* = \displaystyle\bigcup_{n \in \mathbb N} \vdash_{\mathcal M}^n\).
+Така от една страна \(\vdash_{\mathcal M}^*\) се явява границата на рекуретната редица (граничната релация) от друга същност описва всички възможни изчисления по автомата \(\mathcal M\).
+
+Няма да доказваме, че дефиницията която дадохме е еквивалетна с общоприетата. Само ще формулираме истински важното твърдение
+
+\[(\forall q \in State)(\forall f \in Finish)(\forall \omega \in \Sigma^*)( \langle q, \omega \rangle \vdash_{\mathcal M} f \iff \langle q, \omega \rangle \vdash_{\mathcal M}^* \langle f, \varepsilon \rangle  ) \]
+
+С думи прости горното твърдение казва следното: От състояние \(q\) чрез думата \(\omega\) по КНА \(\mathcal M\) е изводимо финално състояние \(f\) ТСТК от конфигурацията описваща моментното състояние, че спрямо текущото изчисление автомата \(\mathcal M\) се намира в състояние \(q\) и прочитайки думата \(\omega\) може да стигне до заключителната конфигурация, която се описва от финалното състояние \(f\). Лесно се доказва с индукция по дължината на думата \(\omega\). Това, което ще докажем по индукция е, че релацията \(\vdash_{\mathcal M}^*\) е транзитивна! Формално ще докажем \\
+
+\((\forall n \in \mathbb N)(\forall \alpha, \beta, \gamma \in \Sigma^*)(\forall q, p, t \in State)( |\alpha| = n \implies \\ \langle q, \alpha.\beta.\gamma \rangle \vdash_{\mathcal M}^* \langle t, \beta.\gamma \rangle \;\&\; \langle t, \beta.\gamma \rangle \vdash_{\mathcal M}^* \langle p, \gamma \rangle \implies \langle q, \alpha.\beta.\gamma \rangle \vdash_{\mathcal M}^* \langle p, \gamma \rangle )\). \\
+
+\textbf{База.}
+Нека \(\alpha, \beta, \gamma \in \Sigma^*\). Нека \(q, p, t \in State\). Нека \(|\alpha| = 0\).
+Нека \(\langle q, \alpha.\beta.\gamma \rangle \vdash_{\mathcal M}^* \langle t, \beta.\gamma \rangle\)
+и нека \(\langle t, \beta.\gamma \rangle \vdash_{\mathcal M}^* \langle p, \gamma \rangle\).
+Понеже \(|\alpha| = 0\), то \(\alpha = \varepsilon\) и тогава \(\langle q, \beta.\gamma \rangle \vdash_{\mathcal M}^* \langle t, \beta.\gamma \rangle\) и \(\langle t, \beta.\gamma \rangle \vdash_{\mathcal M}^* \langle p, \gamma \rangle\). Нека тогава \(k \in \mathbb N\) е такова, че
+\(\langle q, \beta.\gamma \rangle \vdash_{\mathcal M}^k \langle t, \beta.\gamma \rangle\).
+Ако \(k > 0\), то \(|\beta.\gamma| < |\beta.\gamma|\), което е Абсурд!
+Следователно \(k = 0\) и значи \(q = t\) от дефиницията за \(\vdash_{\mathcal M}^0\).
+Тогава \(\langle q, \beta.\gamma \rangle \vdash_{\mathcal M}^* \langle p, \gamma \rangle\).
+Следователно \(\langle q, \alpha.\beta.\gamma \rangle \vdash_{\mathcal M}^* \langle p, \gamma \rangle\). \\
+
+\textbf{И.Х.}
+Нека \(n \in \mathbb N\) и нека е вярно твърдението \(n\). \\
+
+\textbf{И.C.}
+Нека \(\alpha, \beta, \gamma \in \Sigma^*\). Нека \(q, p, t \in State\). Нека \(|\alpha| = n + 1\).
+Нека \(\langle q, \alpha.\beta.\gamma \rangle \vdash_{\mathcal M}^* \langle t, \beta.\gamma \rangle\)
+и нека \(\langle t, \beta.\gamma \rangle \vdash_{\mathcal M}^* \langle p, \gamma \rangle\).
+Понеже \(|\alpha| = n + 1\), то нека \(x \in \Sigma\) и \(\mu \in \Sigma^*\) са такива, че
+\(\alpha = x.\mu\). Тогава нека \(m \in State\) е такова, че
+\( \langle q, x, m \rangle \in Transition \). Нека \(k \in \mathbb N\) e такова, че
+\(\langle q, x.\mu.\beta.\gamma \rangle \vdash_{\mathcal M}^{k + 1} \langle t, \beta.\gamma \rangle\).
+Тогава \(\langle m, \mu.\beta.\gamma \rangle \vdash_{\mathcal M}^k \langle t, \beta.\gamma \rangle\).
+Но тогава \(\langle m, \mu.\beta.\gamma \rangle \vdash_{\mathcal M}^* \langle t, \beta.\gamma \rangle\).
+Също така \(|\mu| = n\) и значи от И.Х. следва, че
+\(\langle m, \mu.\beta.\gamma \rangle \vdash_{\mathcal M}^* \langle p, \gamma \rangle\), защото
+\(\langle t, \beta.\gamma \rangle \vdash_{\mathcal M}^* \langle p, \gamma \rangle\).
+Нека \(l \in \mathbb N\) е такова, че \(\langle m, \mu.\beta.\gamma \rangle \vdash_{\mathcal M}^l \langle p, \gamma \rangle\). Тогава понеже \( \langle q, x, m \rangle \in Transition \), то
+\(\langle q, x.\mu.\beta.\gamma \rangle \vdash_{\mathcal M}^{l + 1} \langle p, \gamma \rangle\).
+Следователно \(\langle q, x.\mu.\beta.\gamma \rangle \vdash_{\mathcal M}^* \langle p, \gamma \rangle\),
+от където вече следва, че \(\langle q, \alpha.\beta.\gamma \rangle \vdash_{\mathcal M}^* \langle p, \gamma \rangle\). \\
+
+\textbf{Заключение.}
+\((\forall \alpha, \beta, \gamma \in \Sigma^*)(\forall q, p, t \in State)\\
+(\langle q, \alpha.\beta.\gamma \rangle \vdash_{\mathcal M}^* \langle t, \beta.\gamma \rangle \;\&\; \langle t, \beta.\gamma \rangle \vdash_{\mathcal M}^* \langle p, \gamma \rangle \implies \langle q, \alpha.\beta.\gamma \rangle \vdash_{\mathcal M}^* \langle p, \gamma \rangle )\).
+
+Тоест \(\vdash_{\mathcal M}^*\) е транзитивна релация! \(\qed\)
+
+\subsubsection*{Обратно към задачата}
+
+Ще докажем, че вървейки по конструираният автомат по състояния индикиращи една и съща фаза от изчисленито, избраният сертификат се запазва и самото изчисление е симулация на изчисление върху автомата \(\mathcal A\). Доказвайки по индукция следното твърдение
+
+\((\forall n \in \mathbb N)(\forall q, p \in Q)(\forall i \in \{0, 1\})(\forall \alpha, \beta \in \Sigma^*)\\
+(|\alpha| = n \implies \langle \langle q, i, p \rangle, \alpha.\beta \rangle \vdash_{\mathcal N}^* \langle \langle q, i, \delta^*(p, \alpha) \rangle, \beta \rangle )\) \\
+
+\textbf{База.}
+Нека \(q, p \in Q\) и нека \(i \in \{0, 1\}\).
+Нека \(\alpha, \beta \in \Sigma^*\). Нека \(|\alpha| = 0\).
+Тогава \(\alpha = \varepsilon\). Тогава по дефиниция \(\delta^*(p, \alpha) = \delta^*(p, \varepsilon) = p\). Така \(\langle \langle q, i, p \rangle, \alpha.\beta \rangle = \langle \langle q, i, p \rangle, \varepsilon.\beta \rangle = \langle \langle q, i, p \rangle, \beta \rangle = \langle \langle q, i, \delta^*(p, \varepsilon) \rangle, \beta \rangle = \langle \langle q, i, \delta^*(p, \alpha) \rangle, \beta \rangle\). Следователно \(\langle \langle q, i, p \rangle, \alpha.\beta \rangle \vdash_{\mathcal N}^0 \langle \langle q, i, \delta^*(p, \alpha) \rangle, \beta \rangle\).
+
+Следователно \(\langle \langle q, i, p \rangle, \alpha.\beta \rangle \vdash_{\mathcal N}^* \langle \langle q, i, \delta^*(p, \alpha) \rangle, \beta \rangle\). \\
+
+\textbf{И.Х.}
+Нека \(n \in \mathbb N\) и нека е вярно твърдението \(n\). \\
+
+\textbf{И.С.}
+Нека \(q, p \in Q\) и нека \(i \in \{0, 1\}\).
+Нека \(\alpha, \beta \in \Sigma^*\). Нека \(|\alpha| = n + 1\).
+Нека тогава \(x \in \Sigma\) и \(\mu \in \Sigma^*\) са такива, че
+\(\alpha = x.\mu\). Нека \(t = \delta(p, x)\).  Тогава \(|\mu| = n\). Следователно от И.Х.
+получаваме \(\langle \langle q, i, t \rangle, \mu.\beta \rangle \vdash_{\mathcal N}^* \langle \langle q, i, \delta^*(t, \mu) \rangle, \beta \rangle\). Нека тогаа \(l \in \mathbb N\) е такова, че
+\(\langle \langle q, i, t \rangle, \mu.\beta \rangle \vdash_{\mathcal N}^l \langle \langle q, i, \delta^*(t, \mu) \rangle, \beta \rangle\). Понеже \( \langle \langle q,\; i,\; p \rangle,\; x,\; \langle q,\; i,\; \delta(p,\; x) \rangle \rangle \in \Delta \), то \( \langle \langle q,\; i,\; p \rangle,\; x,\; \langle q,\; i,\; t \rangle \rangle \in \Delta \) и значи \(\langle \langle q, i, p \rangle, x.\mu.\beta \rangle \vdash_{\mathcal N}^{l + 1} \langle \langle q, i, \delta^*(t, \mu) \rangle, \beta \rangle\). Така
+\(\langle \langle q, i, p \rangle, x.\mu.\beta \rangle \vdash_{\mathcal N}^{l + 1} \langle \langle q, i, \delta^*(\delta(p, x), \mu) \rangle, \beta \rangle\) и значи \(\langle \langle q, i, p \rangle, x.\mu.\beta \rangle \vdash_{\mathcal N}^{l + 1} \langle \langle q, i, \delta^*(p, x.\mu) \rangle, \beta \rangle\).
+Вземайки предвид \(\alpha = x.\mu\) получаваме \(\langle \langle q, i, p \rangle, \alpha.\beta \rangle \vdash_{\mathcal N}^{l + 1} \langle \langle q, i, \delta^*(p, \alpha) \rangle, \beta \rangle\).
+От където следва \(\langle \langle q, i, p \rangle, \alpha.\beta \rangle \vdash_{\mathcal N}^* \langle \langle q, i, \delta^*(p, \alpha) \rangle, \beta \rangle\), което е исканото. \\
+
+\textbf{Заключение.} Следователно е в сила твърдението
+\[(\forall q, p \in Q)(\forall i \in \{0, 1\})(\forall \alpha, \beta \in \Sigma^*)
+(\langle \langle q, i, p \rangle, \alpha.\beta \rangle \vdash_{\mathcal N}^* \langle \langle q, i, \delta^*(p, \alpha) \rangle, \beta \rangle )\]
+
+Сега ще докажем, че \(ShiftLeft(L) = \mathcal{L_{ND}}(\mathcal N)\).
+
+\subsubsection*{Включването \(ShiftLeft(L) \subseteq \mathcal{L_{ND}}(\mathcal N)\)}
+Нека \(\omega \in ShiftLeft(L)\). Тогава нека \(\beta, \alpha \in \Sigma^*\) са такива, че
+\(\omega = \beta.\alpha\) и \(\alpha.\beta \in L\). Възможни са два случая. \\
+
+\textbf{Случай 1. \(\beta = \varepsilon\)}. Тогава \(\omega = \beta.\alpha = \varepsilon.\alpha = \alpha\) и \(\omega = \alpha = \alpha.\varepsilon = \alpha.\beta \in L\). Тогава \(\delta^*(s, \omega) \in F\). Нека \(f = \delta^*(s, \omega)\).
+Тогава от доказаното твърдение следва, че \(\langle \langle f, 1, s \rangle, \omega.\varepsilon \rangle \vdash_{\mathcal N}^* \langle \langle f, 1, \delta^*(s, \omega) \rangle, \varepsilon \rangle\). Тоест \(\langle \langle f, 1, s \rangle, \omega \rangle \vdash_{\mathcal N}^* \langle \langle f, 1, f \rangle, \varepsilon \rangle\).
+В сила е, че \(\langle f, 1, s \rangle\) е начално състояние за \(\mathcal N\), а \(\langle f, 1, f \rangle\) е финално.
+Но тогава от истински важното твърдени следва \(\langle \langle f, 1, s \rangle, \omega \rangle \vdash_{\mathcal N} \langle f, 1, f \rangle \). Следователно \(\omega \in \mathcal{L_{ND}}(\mathcal N)\). \\
+
+\textbf{Случай 2. \(\beta \neq \varepsilon\)}. Нека тогава \(\gamma \in \Sigma^*\) и \(x \in \Sigma\) са такива, че
+\(\beta = \gamma.x\). Тогава нека \(q = \delta^*(s, \alpha)\). Тогава от доказаното твърдние, следва че
+\(\langle \langle q, 0, q \rangle, \gamma.x \rangle \vdash_{\mathcal N}^* \langle \langle q, 0, \delta^*(q, \gamma) \rangle, x \rangle\) и \(\langle \langle q, 1, s \rangle, \alpha.\varepsilon \rangle \vdash_{\mathcal N}^* \langle \langle q, 1, \delta^*(s, \alpha) \rangle, \varepsilon \rangle\).
+Така \(\langle \langle q, 1, s \rangle, \alpha\rangle \vdash_{\mathcal N}^* \langle \langle q, 1, q \rangle, \varepsilon \rangle\) и понеже \(\langle q, 1, q \rangle \in E\),
+
+то \(\langle \langle q, 1, s \rangle, \alpha\rangle \vdash_{\mathcal N} \langle q, 1, q \rangle \).
+Имаме \(\langle \langle q,\; 0,\; \delta^*(q, \gamma) \rangle,\; x,\; \langle q,\; 1,\; s \rangle \rangle \in \Delta\) и значи \(\langle \langle q,\; 0,\; \delta^*(q, \gamma) \rangle, x.\alpha \rangle \vdash_{\mathcal N} \langle q, 1, q \rangle\). Така \(\langle \langle q,\; 0,\; q \rangle, \gamma.x.\alpha \rangle \vdash_{\mathcal N} \langle q, 1, q \rangle\) и значи \(\omega = \beta.\alpha = \gamma.x.\alpha \in \mathcal{L_{ND}}(\mathcal N)\) понеже 
+\(\langle q,\; 0,\; q \rangle \in S\). \\
+
+Така и в двата случая получихме \(\omega \in \mathcal{L_{ND}}(\mathcal N)\).
+
+
+Следователно \(ShiftLeft(L) \subseteq \mathcal{L_{ND}}(\mathcal N)\).
+
+\subsubsection*{Включването \(\mathcal{L_{ND}}(\mathcal N) \subseteq ShiftLeft(L)\)}
+Нека \(\omega \in \mathcal{L_{ND}}(\mathcal N)\). Тогава са възможни два случая. \\
+
+\textbf{Случай 1.}
+Нека \(f \in F\) и \(q \in Q\) са такива, че \(\langle \langle f,\; 1,\; s \rangle, \omega \rangle \vdash_{\mathcal N} \langle f, 1, f \rangle\). Тогава от доказаното твърдение следва, че \(\delta^*(s, \omega) = f\).
+Така \(\omega \in L\). Тогава \(\omega = \varepsilon.\omega\) и \(\omega.\varepsilon \in L\).
+Следователно \(\omega \in ShiftLeft(L)\). \\
+
+\textbf{Случай 2.}
+Нека \(q \in Q\) е такова, че \(\langle \langle q,\; 0,\; q \rangle, \omega \rangle \vdash_{\mathcal N} \langle q, 1, q \rangle\). Тогава нека \(\gamma, \alpha \in \Sigma^*\) и \(x \in \Sigma\)  са такива, че \(\omega = \gamma.x.\alpha\) и
+\(\langle \langle q,\; 1,\; s \rangle, \alpha \rangle \vdash_{\mathcal N} \langle q, 1, q \rangle\) и \(\langle \langle q,\; 0,\; \delta^*(q, \gamma) \rangle,\; x,\; \langle q,\; 1,\; s \rangle \rangle \in \Delta\).
+Тогава \(\langle \langle q,\; 1,\; s \rangle, \alpha \rangle \vdash_{\mathcal N}^* \langle \langle q, 1, q \rangle, \varepsilon \rangle \) от истински важното твърдение. Но от доказанато следва, че
+\(\delta^*(s, \alpha) = q\). Но имаме и, че \(\delta(\delta^*(q, \gamma), x) \in F\).
+Следователно \(\delta^*(q, \gamma.x) \in F\).
+Следователно \(\delta^*(\delta^*(s, \alpha), \gamma.x) \in F\).
+Следователно \(\alpha.(\gamma.x) \in \mathcal{A} = L\).
+Следователно \(\omega = (\gamma.x).\alpha \in ShiftLeft(L)\). \\
+
+Така и в двата случая получихме \(\omega \in  ShiftLeft(L)\). \\
+
+Следователно \(\mathcal{L_{ND}}(\mathcal N) \subseteq ShiftLeft(L)\).
+
+Следователно \(ShiftLeft(L) = \mathcal{L_{ND}}(\mathcal N)\).
+
+Следователно \(ShiftLeft(L)\) е автоматен и значи е и регулярен.
+
+Следователно \(ShiftLeft\) е регулярен оператор над \(\Sigma\). \(\qed\)
+
+\subsection*{Пример 2. Начин 1}
+Нека \(\Sigma\) е крайна азбука.
+Нека \(FirstHalf : \mathcal{P}(\Sigma^*) \to \mathcal{P}(\Sigma^*)\) и
+
+\(FirstHalf(L) = \{\alpha \in \Sigma^* \;\mid\; (\exists \beta \in \Sigma^*)(\alpha.\beta \in L \;\&\; |\alpha| = |\beta|)\}\).
+
+Ще докажем, че \(FirstHalf\) е регулярен над \(\Sigma\), като ползваме техниката с отгатването на сертификат. Нека \(L\) е регулярен език. Нека \(\mathcal{A} = \langle \Sigma, Q, s, \delta, F \rangle\) е тотален КДА, такъв че \(\mathcal{L}(\mathcal{A}) = L\). Постановката е следната ако \(s \overset{\alpha}{\leadsto} q \overset{\beta}{\leadsto} f\), то искаме \(s \overset{\alpha}{\leadsto} q \).
+Въпросът е, че така реално забравяме какво трябва да е \(\beta\) и съответно трябва да симулираме паралелно продължението на изчислението, тоест четенето на \(\beta\) след \(\alpha\) без реално да четем букви. Тоест тук истински си проличава кванторът за съществуване от правилото задаващо \(FirstHalf\). Ще дадем конструкцията за автомат за \(FirstHalf(L)\), след което ще я коментираме и накрая ще я докажем.
+Нека  \(\mathcal{N} = \langle \Sigma,\; K,\; S,\; \Delta,\; E \rangle\), където
+\(K = Q \times Q \times Q\), \(S = \{\langle q,\; s,\; q \rangle \mid q \in Q\}\),
+\(E = \{\langle q,\; q,\; f \rangle \mid q \in Q \;\&\; f \in F\}\) и \(\Delta =\)
+\[\{\langle \langle q,\; p,\; t \rangle,\; x,\; \langle q,\; \delta(p, x),\; \delta(t, y) \rangle \rangle \mid q \in Q \;\&\; p \in Q \;\&\; t \in Q \;\&\; x \in \Sigma \;\&\; y \in \Sigma\}\]
+
+Състояние \(\langle q, p, t \rangle \in K\) се интерпретира така:
+\(q\) е избраната стойност на сертификата на изчислението,
+\(p\) е състоянието, в което се намира четенето на входната дума, тоест служи за прочитането на \(\alpha\)
+и \(t\) е състоянието, в което се намира виртуалното продължение на изчислението, тоест все едно четенето на \(\beta\).
+
+Ако \(q \in Q\), то \(\langle q, s, q \rangle\) е начално състояние, защото четенето на \(\alpha\) трябва да започне нормално, тоест от \(s\). Виртуалното четене на \(\beta\), трябва да стартира от там където трябва да свърши изчитането на \(\alpha\). За това ни е нужен и сертификата, който в конкретната ситуация служи за запомняне от къде да започнем да симулираме продължението на нормалното разпознаване на \(\alpha.\beta\) по автомата \(\mathcal A\).
+
+Състоянията от вида \(\langle q,\; q,\; f \rangle \) са финални, защото изчитането на \(\alpha\) трябва да завърши в \(q\), което сме отгатнали застойност на сертификата, а паралелната симулация на четенето на \(\beta\) трябва да завърши във финално състояние, за да може да се окаже, че \(\alpha.\beta \in \mathcal{L}( \mathcal A)\).
+
+Преходите, които описва релацията \(\Delta\) са такива, че се запазва избраната стойност на сертификата,
+прочита се бува на думата \(\alpha\) и се прави съответният преход на реалният по автомата \(\mathcal A\),
+същевременно се прави и една стъпка в изчитането на \(\beta\). Така най-лесно си подсигуряваме условието \(|\alpha| = |\beta|\), защото правим едновременни стъпки.
+
+Нека разгледаме един пример. Да кажем, че в езика \(L\) са следните две думи \(abaddd\) и \(abacdc\).
+Нека \(\alpha = aba\). Тогава има поне две възможности за избор на \(\beta\), защото \(\alpha.(ddd) \in L\) и \(\alpha.(cdc) \in L\). Нека видим как би се движил автомата при прочитането на \(\alpha\), която в тази ситуация ще е от \(FirstHalf(L)\). Движението е по \(\alpha = aba\). Първо прочитаме буквата \(a\) от \(\alpha\), след това имаме възможност да симулираме изчитането на първата буква на \(ddd\) или на \(cdc\).
+Ние ще разглеждаме и двете ситуации понеже автомата е недетерминистичен. Можем да си мислим, че всеки път когато възниква възможност за избор в кое състояние да се премести автомата същност се правят нужният брой копия на автомата със съответен преход и за всяко се продължава изчислението. Не случайно правехме симулации с дървета :)
+
+Така сега изчитаме \(b\) от \(\alpha\) или първата буква на \(ba\), и за всяко от поне двете копия на горното изчисление симулираме следващата стъпка, а именно симулираме четене на \(d\) от \(dd\) и на \(d\) от \(dc\). След това съответно прочитаме последният символ на \(\alpha\), който е \(a\) и правим по още едно симулирано четене на символ от \(ddd\) и \(cdc\), така в някое от всичките копия на автомата правим точно симулация на изчитане на \(d\) от \(d\) и на \(c\) от \(c\) и така симулираме преходи във финални състояния и поне по два начина приемаме думата \(\alpha = aba\).
+
+На база горните разсъждения. Достигаме до това, че трябва да бъде доказано следното твърдение \\
+
+\((\forall n \in \mathbb N)(\forall \alpha, \beta \in \Sigma^n)(\forall q, p, t \in Q)(\langle \langle q, p, t \rangle, \alpha \rangle \vdash_{\mathcal N}^n  \langle \langle q, \delta^*(p, \alpha), \delta^*(t, \beta) \rangle, \varepsilon \rangle )\).
+
+Разбира се доказателството ще е с индукция. \\
+
+\textbf{База.} Нека \(\alpha, \beta \in \Sigma^0\) и нека \(q, p, t \in Q\).
+Тогава \(\alpha = \beta = \varepsilon\). Тогава директно заместваме и получаваме
+\(\langle \langle q, \delta^*(p, \alpha), \delta^*(t, \beta) \rangle, \varepsilon \rangle =
+\langle \langle q, \delta^*(p, \varepsilon), \delta^*(t, \varepsilon \rangle, \varepsilon \rangle =
+\langle \langle q, p, t) \rangle, \varepsilon \rangle = 
+\langle \langle q, p, t) \rangle, \alpha \rangle\) и тогава от дефиницията на \(\vdash_{\mathcal N}^0\) следва
+\(\langle \langle q, p, t \rangle, \alpha \rangle \vdash_{\mathcal N}^0  \langle \langle q, \delta^*(p, \alpha), \delta^*(t, \beta) \rangle, \varepsilon \rangle\). \\
+
+\textbf{И.Х.}
+Нека \(n \in \mathbb N\) и нека \((\forall \alpha, \beta \in \Sigma^n)(\forall q, p, t \in Q)(\langle \langle q, p, t \rangle, \alpha \rangle \vdash_{\mathcal N}^n  \langle \langle q, \delta^*(p, \alpha), \delta^*(t, \beta) \rangle, \varepsilon \rangle )\). \\
+
+\textbf{И.С.}
+Нека  \(\alpha, \beta \in \Sigma^{n + 1}\) и нека \(q, p, t \in Q\).
+Тогава нека \(\gamma, \omega \in \Sigma^n\) и нека \(x, y \in \Sigma\) са такива, че
+\(\alpha = x.\gamma\) и \(\beta = y.\omega\). Тогава от И.Х. следва, че
+\(\langle \langle q, \delta(p, x), \delta(t, y) \rangle, \gamma \rangle \vdash_{\mathcal N}^n  \langle \langle q, \delta^*(\delta(p, x), \gamma), \delta^*(\delta(t, y), \omega) \rangle, \varepsilon \rangle\),
+понеже \(q, \delta(p, x), \delta(t, y) \in Q\). Но имаме и че
+\(\langle \langle q,\; p,\; t \rangle,\; x,\; \langle q,\; \delta(p, x),\; \delta(t, y) \rangle \rangle \in \Delta\), тогава от рекуретната връзка следва, че \\
+\(\langle \langle q, p, t \rangle, x.\gamma \rangle \vdash_{\mathcal N}^{n + 1}  \langle \langle q, \delta^*(\delta(p, x), \gamma), \delta^*(\delta(t, y), \omega) \rangle, \varepsilon \rangle\). Но тогава
+\(\langle \langle q, p, t \rangle, \alpha \rangle \vdash_{\mathcal N}^{n + 1}  \langle \langle q, \delta^*(p, x.\gamma), \delta^*(t, y.\omega) \rangle, \varepsilon \rangle\).
+Следователно
+\(\langle \langle q, p, t \rangle, \alpha \rangle \vdash_{\mathcal N}^{n + 1}  \langle \langle q, \delta^*(p, \alpha), \delta^*(t, \beta) \rangle, \varepsilon \rangle\). \\
+
+\textbf{Заключение}
+
+\((\forall n \in \mathbb N)(\forall \alpha, \beta \in \Sigma^n)(\forall q, p, t \in Q)(\langle \langle q, p, t \rangle, \alpha \rangle \vdash_{\mathcal N}^n  \langle \langle q, \delta^*(p, \alpha), \delta^*(t, \beta) \rangle, \varepsilon \rangle )\). \\
+
+\textbf{Забележка}
+Доказаното твърдение само по себе си може да бъде (е) записано като импликация по следният начин. \\
+
+\((\forall n \in \mathbb N)(\forall \alpha, \beta \in \Sigma^*)(\forall q, p, t \in Q)(|\alpha| = n \;\&\; |\beta| = n \implies \langle \langle q, p, t \rangle, \alpha \rangle \vdash_{\mathcal N}^n  \langle \langle q, \delta^*(p, \alpha), \delta^*(t, \beta) \rangle, \varepsilon \rangle )\). \\
+
+\textbf{Следствие}
+\((\forall \alpha, \beta \in \Sigma^*)(\forall q, p, t \in Q)(|\alpha| = |\beta| \implies \langle \langle q, p, t \rangle, \alpha \rangle \vdash_{\mathcal N}^*  \langle \langle q, \delta^*(p, \alpha), \delta^*(t, \beta) \rangle, \varepsilon \rangle )\). \\
+
+Импликацията, която участва в твърдението, което доказахме обаче не може да бъде обърната. Още в базовия случай не бихме могли да я докажем, защото тогава бихме получили \(t = \delta^*(t, \beta)\), но от това \textbf{НЕ} следва, че \(|\beta| = 0\) (\(\beta = \varepsilon\)). Например ако в \(\mathcal A\) имаме преход \(\delta(t, x) = t\), то \((\forall \beta \in \{x\}^*)(t = \delta^*(t, \beta))\). \\
+
+За това се нуждаем от твърдение, което да ни казва, че все пак можем от части донякъде да обърнем горната импликация. Разбира се колкото по-общо (обхваща повече случаи) е твърдението, толкова вероятността да ни свърши работа е по-голяма. Разбира се ако твърдението е прекалено общо или не достатъчно общо може пък да е твърде трудно или дори невъзможно за доказване за това в доста от ситуациите всичко е въпрос на усет или проба / грешка! 
+
+Ще докажем следното твърдение, което ще ни свърши работа! \\
+
+\begin{align*}
+    (\forall n \in \mathbb N)(\forall \alpha \in \Sigma^n)(\forall q, p, t, r, u, m \in Q)(
+    \langle \langle q, p, t \rangle, \alpha \rangle \vdash_{\mathcal N}^n  \langle \langle r, u, m \rangle, \varepsilon \rangle \\ \implies r = q \;\&\; u = \delta^*(q, \alpha) \;\&\; (\exists \beta \in \Sigma^n)(m = \delta^*(t, \beta))
+    )
+\end{align*}
+
+Тоест ако изчетем \(\alpha\) започвайки от някое състояние на \(\mathcal N\), то със сигурност сме изсимулирали на заден фон и прочитането на дума със същата дължина и сме запазили стойността на сертификата. Твърдението е достатъчно общо заради състоянието на автомата. Не става въпрос за начално състояние както би ни се искало! Ако не беше за произволно състояние нямаше да можем да го докажем по индукция, защото при правене на преход с буква е напълно възможно състоянието вече да не бъде някое начално. Същевременно твърдението е достатъчно конкретно казва, че думата бива прочетена изцяло и казва каква е дължината на думата, която съществува. Също така в твърдението се хваща и симулацията на преходи по автомата \(\mathcal A\). Преминаваме към неговото доказване. \\
+
+\textbf{База.}
+Нека \(\alpha \in \Sigma^0\). Нека \(q, p, t, r, u, m \in Q\). Нека \(\langle \langle q, p, t \rangle, \alpha \rangle \vdash_{\mathcal N}^0  \langle \langle r, u, m \rangle, \varepsilon \rangle\).
+Тогава от дефиницията за \(\vdash_{\mathcal N}^0\), следва че
+\(\langle \langle q, p, t \rangle, \alpha \rangle = \langle \langle r, u, m \rangle, \varepsilon \rangle\). Понеже \(|\alpha| = 0\), то разбира се, че е вярно \(\alpha = \varepsilon\).
+Получаваме обаче, че \(r = q\).
+От \(p = u\), \(\alpha = \varepsilon\) и дефиницията на \(\delta^*\) следва \(u = \delta^*(p, \alpha)\). 
+Остава да покажем, че е истина \((\exists \beta \in \Sigma^0)(m = \delta^*(t, \beta))\).
+Понеже \(t = m\), то следва че \(m = \delta^*(t, \varepsilon)\) и \(\varepsilon \in \Sigma^0 = \{\varepsilon\}\). Така е истина и \(u = \delta^*(q, \alpha) \;\&\; (\exists \beta \in \Sigma^n)(m = \delta^*(t, \beta))\). \\
+
+\textbf{И.Х.}
+Нека \(n \in \mathbb N\) и твърдението е в сила за \(n\). \\
+
+\textbf{И.С.}
+Нека \(\alpha \in \Sigma^{n + 1}\). Нека \(q, p, t, r, u, m \in Q\). Нека \(\langle \langle q, p, t \rangle, \alpha \rangle \vdash_{\mathcal N}^{n + 1}  \langle \langle r, u, m \rangle, \varepsilon \rangle\).
+Нека тогава \(\gamma \in \Sigma^n\) и \(x \in \Sigma\) са такива, че \(\alpha = x.\gamma\).
+Тогава от дефинициите за \(\Delta\) и \(\vdash_{\mathcal N}^{n + 1}\) следва, че
+има \(y \in \Sigma\) такова, че \(\langle \langle q,\; p,\; t \rangle,\; x,\; \langle q,\; \delta(p, x),\; \delta(t, y) \rangle \rangle \in \Delta\) и \(\langle \langle q, \delta(q, x), \delta(t, y) \rangle, \gamma \rangle \vdash_{\mathcal N}^n  \langle \langle r, u, m \rangle, \varepsilon \rangle\).
+Но \(|\gamma| = n\) и значи от И.Х. следва, че
+
+\(r = q \;\&\; u = \delta^*(\delta(q, x), \gamma) \;\&\; (\exists \beta \in \Sigma^n)(m = \delta^*(\delta(t, y), \beta))\).
+
+Нека тогава \(\beta \in \Sigma^n\) е такава, че \(m = \delta^*(\delta(t, y), \beta)\).
+Тогава \(m = \delta^*(t, y.\beta)\) и \(y.\beta \in \Sigma^{n + 1}\).
+Но също така получаваме и \(u = \delta^*(q, x.\gamma) = \delta^*(q, \alpha)\) и \(r = q\). \\
+
+\textbf{Следствие от индукцията.}
+
+\((\forall \alpha \in \Sigma^*)(\forall q, p, t, r, u, m \in Q)(
+    \langle \langle q, p, t \rangle, \alpha \rangle \vdash_{\mathcal N}^*  \langle \langle r, u, m \rangle, \varepsilon \rangle \implies \\ r = q \;\&\; u = \delta^*(q, \alpha) \;\&\; (\exists \beta \in \Sigma^*)(m = \delta^*(t, \beta) \;\&\; |\alpha| = |\beta|)
+)\). \\
+
+\textbf{Включването \(FirstHalf(L) \subseteq \mathcal{L_{ND}}(\mathcal N)\).}
+Нека \(\alpha \in FirstHalf(L)\).
+
+Тогава нека \(\beta \in \Sigma^*\) е такава, че
+\(\alpha.\beta \in L\) и \(|\alpha| = |\beta|\). Нека \(q = \delta^*(s, \alpha)\).
+Тогава \(q \in Q\). Тогава \(\langle q, s, q \rangle \in S \subseteq K\).
+Нека \(f = \delta^*(s, \alpha.\beta)\). Тогава \(f \in F\) понеже \(\alpha.\beta \in L\).
+От следствието на първото индукционно твъредние за \(\mathcal N\) следва, че
+\(\langle \langle q, s, q \rangle, \alpha \rangle \vdash_{\mathcal N}^*  \langle \langle q, \delta^*(s, \alpha), \delta^*(q, \beta) \rangle, \varepsilon \rangle\).
+Но \(\delta^*(q, \beta) = \delta^*(\delta^*(q, \alpha), \beta) = \delta^*(s, \alpha.\beta) = f\).
+Следователно \(\langle \langle q, s, q \rangle, \alpha \rangle \vdash_{\mathcal N}^*  \langle \langle q, q, f \rangle, \varepsilon \rangle\). Понеже \(\langle q, q, f \rangle \in E\), то
+\(\langle \langle q, s, q \rangle, \alpha \rangle \vdash_{\mathcal N} \langle q, q, f \rangle\).
+Следователно \(\alpha \in \mathcal{L_{ND}}(\mathcal N)\).
+Следователно \(FirstHalf(L) \subseteq \mathcal{L_{ND}}(\mathcal N)\). \\
+
+\textbf{Включването \(\mathcal{L_{ND}}(\mathcal N) \subseteq FirstHalf(L)\).}
+Нека \(\alpha \in \mathcal{L_{ND}}(\mathcal N)\).
+Нека тогава \(r, q \in Q\) и нека \(f \in F\) са такива, че
+\(\langle \langle q, s, q \rangle, \alpha \rangle \vdash_{\mathcal N} \langle r, r, f \rangle\).
+Тогава \(\langle \langle q, s, q \rangle, \alpha \rangle \vdash_{\mathcal N}^*  \langle \langle r, r, f \rangle, \varepsilon \rangle\). Тогава от второто твърдение по индукця за \(\mathcal N\) следва, че
+\(r = q \;\&\; r = \delta^*(s, \alpha) \;\&\; (\exists \beta \in \Sigma^*)(f = \delta^*(q, \beta) \;\&\; |\alpha| = |\beta|)\). Нека тогава \(\beta \in \Sigma^*\) е такава, че \(f = \delta^*(q, \beta)\) и \(|\alpha| = |\beta|\). Така \(\delta^*(s, \alpha.\beta) = \delta^*(\delta^*(s, \alpha), \beta) = \delta^*(q, \beta) = f \in F\). Следователно \(\alpha.\beta \in L\) и \(|\alpha| = |\beta|\).
+Следователно \(\alpha \in FirstHalf(L)\).
+Следователно \(\mathcal{L_{ND}}(\mathcal N) \subseteq FirstHalf(L)\). \\
+
+\textbf{Заключение.}
+От двете включвания следва, че \(FirstHalf(L) = \mathcal{L_{ND}}(\mathcal N)\).
+От тук следва, че \(FirstHalf(L)\) е автоматен и значи е регулярен.
+От където следва и че \(FirstHalf\) е регулярен оператор над \(\Sigma\). \(\qed\)
+
+
+\section*{Примери за нерегулярни оператори}
+
+\subsection*{Пример 1.}
+Нека \(\Sigma\) е азбука от поне две букви.
+Нека \(x \in \Sigma\) и \(CopyCount_x : \mathcal{P}(\Sigma^*) \to \mathcal{P}(\Sigma^*)\) и
+
+\(CopyCount_x(L) = \{\alpha.x^{|\alpha|} \mid\; \alpha \in L\}\).
+
+Да се докаже, че \(CopyCount_x\) не запазва регулярните езици.
+
+За целта трябва да покажем конкретен регулярен език \(L\) такъв, че \(CopyCount_x(L)\) не е регулярен.
+
+Понеже \(|\Sigma| \geq 2\), то \(\Sigma \setminus \{x\} \neq \emptyset\).
+
+Нека \(y \in \Sigma \setminus \{x\}\). Нека \(L = \{y\}^*\).
+
+Тогава \(CopyCount_x(L) = CopyCount_x(\{y\}^*) = \{\alpha.x^{|\alpha|} \mid \alpha \in \{y\}^*\} = \{\alpha.x^{|\alpha|} \mid (\exists n \in \mathbb N) (\alpha = y^n)\} = \{y^n.x^n \mid n \in \mathbb{N}\}\).
+
+Но ние знаем, че \(\{y^n.x^n \mid n \in \mathbb{N}\}\) не е регулярен.
+
+Следователно \(CopyCount_x\) не е регулярен оператор над \(\Sigma\). \(\qed\)
+
+\subsection*{Пример 2.}
+Нека \(\Sigma\) е азбука от поне две букви.
+
+Нека \(x \in \Sigma\) и \(Split_x : \mathcal{P}(\Sigma^*) \to \mathcal{P}(\Sigma^*)\) и
+
+\(Split_x(L) = \{\alpha.x.\alpha \mid\; \alpha \in L\}\).
+
+За целта трябва да покажем конкретен регулярен език \(L\) такъв, че \(Split_x(L)\) не е регулярен.
+
+Понеже \(|\Sigma| \geq 2\), то \(\Sigma \setminus \{x\} \neq \emptyset\).
+
+Нека \(y \in \Sigma \setminus \{x\}\). Нека \(L = \{y\}^*\).
+
+Тогава \(Split_x(L) = Split_x(\{y\}^*) = \{\alpha.x.\alpha \mid \alpha \in \{y\}^*\} = \\
+\{\alpha.x.\alpha \mid (\exists n \in \mathbb N) (\alpha = y^n)\} = \{y^n.x.y^n \mid n \in \mathbb{N}\}\).
+
+Ще покажем, че \(\{y^n.x.y^n \mid n \in \mathbb{N}\}\) не е регулярен език.
+
+Нека \(p \in \mathbb{N}_+\) е произволно.
+Избираме думата \(y^pxy^p\).
+Нека \(u, v, w\) е произволно разбиване на три части, така че
+\(uvw = y^pxy^p\) и \(|v| > 0\) и \(|uv| \leq p\). Тогава \(uv\) е префикс на \(y^p\) и 
+\(uv^0w = y^{p - |v|}xy^p\) и понеже \(|v| > 0 \), то \(uv^0w \notin \{y^n.x.y^n \mid n \in \mathbb{N}\}\).
+От лемата за разрастването за регулярни езици следва, че \(\{y^n.x.y^n \mid n \in \mathbb{N}\}\) не е регулярен.
+Следователно \(Split(\{y\}^*)\) не е регулярен, но \(\{y\}^*\) е регулярен.
+Следователно \(Split\) не е регулярен оператор над \(\Sigma\). \(\qed\)
+\end{document}

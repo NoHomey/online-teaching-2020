@@ -1,0 +1,82 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T2A]{fontenc}
+\usepackage[english,bulgarian]{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{euler}
+
+\title{Три техники за доказване на регулярност}
+\author{Иво Стратев}
+
+\begin{document}
+
+\maketitle
+
+\section*{Техника 1: Доказване, че езика съвпада с регулярен}
+Нека \(L = \{\alpha.\beta.\alpha^{Rev} \;\mid\; \alpha \in \{c, d\}^+ \;\&\; \beta \in \{c, d\}^*\}\).
+Да видим на кой език е подмножество \(L\).
+Нека \(\omega \in L\) и нека \(\alpha \in \{c, d\}^+\) и \(\beta \in \{c, d\}^*\) са такива, че \(\omega = \alpha.\beta.\alpha^{Rev}\).
+Нека тогава \(x \in \{c, d\}\) и \(\gamma \in \{c, d\}^*\) са такива, че \(\alpha = x.\gamma\).
+Тогава \(\alpha^{Rev} = \gamma^{Rev} . x\).
+Тогава \(\omega = (x.\gamma).\beta.(\gamma^{Rev}.x)\) и \(\gamma.\beta.\gamma^{Rev} \in \{c, d\}^*\).
+Следователно \(\omega \in \{c\}\cdot\{c, d\}^* \cdot \{c\} \cup \{d\} \cdot \{c, d\}^* \cdot \{d\}\).
+Следователно \(L \subseteq \{c\}\cdot\{c, d\}^* \cdot \{c\} \cup \{d\} \cdot \{c, d\}^* \cdot \{d\}\).
+Очевидно \(\{c\}\cdot\{c, d\}^* \cdot \{c\} \cup \{d\} \cdot \{c, d\}^* \cdot \{d\} \subseteq L\).
+Следователно \(L = \{c\}\cdot\{c, d\}^* \cdot \{c\} \cup \{d\} \cdot \{c, d\}^* \cdot \{d\}\).
+Следователно \(L\) е регулярен, защото е обединение от конкатенации на регулярни езици.
+
+\vspace*{5mm}
+
+\par \textbf{Забележка}: езикът \(\{a^n.b.a^n \;\mid\; n \in \mathbb{N}\}\) не е регулярен,
+това лесно се доказва с лемата за покачването. Разликата с \(L\) е, че тук има явен разделител между двете думи и той разделя две думи, които са свързани с връзка, която не може да бъде хваната от КТДА. 
+Докато при \(L\) разделителят същност може да "обхване" \, почти цялата дума и да е от регулярен език, а думите, които биват разделени да са с фиксирана дължина. Тоест да са от креан език, а всеки краен език е регулярен.
+
+\subsection*{Втори пример}
+Нека \(L = \{\alpha.\beta.\gamma.\beta \;\mid\; \alpha, \beta, \gamma \in \{c, d\}^+\}\).
+Ще покажем, че \(L\) съвпада с регулярен език.
+Нека \(\omega \in L\) и нека \(\alpha, \beta, \gamma \in \{c, d\}^+\) са такива, че \(\omega = \alpha.\beta.\gamma.\beta\).
+Нека тогава \(u \in \{c, d\}\) и \(\xi\in \{c, d\}^*\) са такива, че \(\beta = \xi.u\).
+Тогава \(\omega = (\alpha.\xi).u.(\gamma.\xi).u\) и \(\alpha.\xi, \gamma.\xi \in \{c, d\}^+\).
+Следователно \\
+\(\omega \in (\{c, d\}^+ \cdot \{c\}\cdot\{c, d\}^+ \cdot \{c\}) \cup (\{c, d\}^+ \cdot \{d\} \cdot \{c, d\}^+ \cdot \{d\})\). \\
+Следователно \(L \subseteq (\{c, d\}^+ \cdot \{c\}\cdot\{c, d\}^+ \cdot \{c\}) \cup (\{c, d\}^+ \cdot \{d\} \cdot \{c, d\}^+ \cdot \{d\})\). \\
+Очевидно
+\((\{c, d\}^+ \cdot \{c\}\cdot\{c, d\}^+ \cdot \{c\}) \cup (\{c, d\}^+ \cdot \{d\} \cdot \{c, d\}^+ \cdot \{d\}) \subseteq L\). \\
+Следователно \(L = (\{c, d\}^+ \cdot \{c\}\cdot\{c, d\}^+ \cdot \{c\}) \cup (\{c, d\}^+ \cdot \{d\} \cdot \{c, d\}^+ \cdot \{d\})\). \\
+Тоест \(L = \{\alpha.\beta.\gamma.\beta \;\mid\; \alpha, \beta, \gamma \in \{c, d\}^+ \;\&\; |\beta| = 1\}\). \\
+Следователно \(L\) е регулярен.
+
+\section*{Техника 2: Прилагане на еквивалетни преобразувания до достигане на изразяване чрез регулярните конструкции}
+Нека \(\Sigma\) е азбука.
+Ако \(\omega \in \Sigma^*\), то \[substrs_\Sigma(\omega) = \{\beta \in \Sigma^* \;\mid\; (\exists \alpha \in \Sigma^*)(\exists \gamma \in \Sigma^*)(\omega = \alpha.\beta.\gamma)\}\]
+
+Тогава очевидно ако \(\gamma \in \Sigma^*\), то \[\{\omega \in \Sigma^* \mid \gamma\in substrs_\Sigma(\omega)\} = \Sigma^* \cdot \{\gamma\} \cdot \Sigma^*\]
+
+\vspace*{5mm}
+
+\par Нека \(u, v \in \Sigma\) и нека
+\[L_{u,v} = \{\omega \in \Sigma^* \;\mid\; u.v \in substrs_\Sigma(\omega)  \implies v.u \in substrs_\Sigma(\omega)\}\]
+
+Ще докажем, че езика \(L_{u, v}\) е регулярен прилагайки еквивалетни преобразувания.
+\[L_{u,v} = \{\omega \in \Sigma^* \;\mid\; \lnot u.v \in substrs_\Sigma(\omega)  \;\lor\; v.u \in substrs_\Sigma(\omega)\}\]
+\[L_{u,v} = \{\omega \in \Sigma^* \mid \lnot u.v \in substrs_\Sigma(\omega) \}  \cup \{\omega \in \Sigma^* \mid v.u \in substrs_\Sigma(\omega)\}\]
+\[L_{u,v} = \Sigma^* \setminus (\Sigma^* \cdot \{u.v\} \cdot \Sigma^*)  \cup (\Sigma^* \cdot \{v.u\} \cdot \Sigma^*)\]
+Следователно \(L_{u,v}\) е регулярен език.
+
+\section*{Техника 3: Свеждане до езици, които са регулярни / автоматни, като връзките са: сечение, обединени, разлика, конкатенация или звезда на Клини}
+Нека \(L = \{\omega \in \{a, b\}^* \;\mid\; \mathcal{N}_a(\omega) \equiv \mathcal{N}_b(\omega) \pmod{2}\}\).
+Ще покажем, че \(L\) е регулярен.
+Нека с \(M_{i}\) означим езика
+\[\{\omega \in \{a, b\}^* \;\mid\; \mathcal{N}_{a}(\omega) \equiv i \pmod{2} \;\&\; \mathcal{N}_b(\omega) \equiv i \pmod{2}\}\]
+Тогава \(L = M_0 \cup M_1\).
+Нека \(T_{x, i} = \{\omega \in \{a, b\}^* \;\mid\; \mathcal{N}_x(\omega) \equiv i \pmod{2}\}\).
+Тогава \(M_i = T_{a, i} \cap T_{b, i}\) и значи \(L = (T_{a, 0} \cap T_{b, 0}) \cup (T_{a, 1} \cap T_{b, 1})\).
+
+\vspace*{5mm}
+
+\par \(T_{x, i}\) е регулярен, защото има автомат с 2 състояния, който го разпознава.
+Следователно \(L\) е регулярен, защото е сечение от обединения на автоматни езици.
+
+\end{document}

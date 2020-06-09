@@ -1,0 +1,426 @@
+\documentclass[12pt]{article}
+\usepackage{tikz}
+\usepackage{tikz-qtree}
+\usepackage{float}
+\usetikzlibrary{automata, positioning, arrows}
+\tikzset{
+->, >=stealth, node distance=2.5cm,
+every state/.style={thick},
+initial text=$ $
+}
+\usepackage[utf8]{inputenc}
+\usepackage[T2A]{fontenc}
+\usepackage[english,bulgarian]{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{relsize}
+\usepackage{euler}
+
+\title{Reverse на дума и на език. Детерминиране на КНА}
+\author{Иво Стратев}
+
+\begin{document}
+
+\maketitle
+
+\section{Reverse на дума и на език}
+Нека \(\Sigma\) е крайна азбука. Дефинираме операция \(rev_\Sigma : \Sigma^* \to \Sigma^*\) чрез рекурсия така
+\begin{align*}
+    rev_\Sigma(\varepsilon) = \varepsilon \\
+    rev_\Sigma(x.\alpha) = rev_\Sigma(\alpha).x
+\end{align*}
+Това, което операцията \(rev_\Sigma\) прави е да обърне реда на буквите в една дума.
+Ето един пример
+\begin{align*}
+    rev(abc) = \\
+    rev(bc).a = \\
+    (rev(c).b).a = \\
+    ((rev(\varepsilon).c).b).a = \\
+    (\varepsilon.c).b).a) = \\
+    cba.
+\end{align*}
+По естествен начин операцията \(rev_\Sigma\) може да бъде разширена от операция над думи до операция над езици
+\(Reverse_\Sigma : \mathcal{P}(\Sigma^*) \to \mathcal{P}(\Sigma^*)\).
+Дефинирана като образът на език при \(rev_\Sigma\). Тоест
+\[Reverse_\Sigma(L) = rev_\Sigma[L] = \{rev_\Sigma(\alpha) \;\mid\; \alpha \in L\}\]
+
+Да разгледаме езикът \(L = \{c\}^+ \cup \{a, b\}^+ \cdot \{c\}^*\).
+Вземаме за очевидно, че \(Reverse_{\{a,b, c\}}(L) = \{c\}^+ \cup \{c\}^* \cdot \{a, b\}^+\).
+За \(L\) има КНА \(\mathcal{N}\), който го разпознава.
+
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial] (q0) {$0$};
+    \node[state, accepting, right of=q0] (q1) {$1$};
+    \node[state, accepting, right of=q1] (q2) {$2$};
+    
+    \draw (q0) edge[above] node{$a, b$} (q1);
+    \draw (q1) edge[loop below] node{$a, b$} (q1);
+    \draw (q2) edge[loop above] node{c} (q2);
+    \draw (q0) edge[bend left, above] node{c} (q2);
+    \draw (q1) edge[below] node{c} (q2);
+\end{tikzpicture}
+\end{center}
+
+Сега без доказателство ще дадем конструкция за получаването на автомат за езика \(Reverse_{\{a,b, c\}}(L)\)
+с две цели - да видим едно приложение на крайните недетерминирани автомати и с цел лесно получване на малък КНА, който да детерминираме.
+В него са думите от \(L\) прочетени на обратно.\\\par
+Конструкцията е следната стройм КНА, който има същите състояния като \(\mathcal{N}\).
+Ролите на начални и финални състояния са разменени и в релацията на преходите са разменени местата на състоянията в наредените тройки.
+Конкретно за разглежданият автомат \(\mathcal{N}\) получаваме следният КНА.
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial] (q1) {$1$};
+    \node[state, initial, below of=q1] (q2) {$2$};
+    \node[state, accepting, right of=q2] (q0) {$0$};
+    
+    \draw (q1) edge[above right] node{$a, b$} (q0);
+    \draw (q1) edge[loop above] node{$a, b$} (q1);
+    \draw (q2) edge[loop below] node{c} (q2);
+    \draw (q2) edge[above] node{c} (q0);
+    \draw (q2) edge[left] node{c} (q1);
+\end{tikzpicture}
+\end{center}
+В езика \(Reverse_{\{a,b, c\}}(L)\) са думите от \(L\) прочетени на обратно.
+За това искаме да започнем чететенето от някое финално състояние и да се движим на обратно по автомата \(\mathcal{N}\),
+ако така по дадена дума успеем да достигнем до някое начално състояние тя ще е в езика \(Reverse_{\{a,b, c\}}(L)\).
+
+\section{Алгоритъм за детерминиране на КНА до тотален КДА}
+Нека \(\mathcal{N} = \langle \Sigma, Q, S, \Delta, F \rangle\) е КНА.
+Нека \(q \in Q\), \(x \in \Sigma\) и нека означим с \(States_x(q)\) множеството \(\{t \in Q \;\mid\; \langle q, x, t \rangle \}\).
+Множеството \(States_x(q)\) същност е множеството на всички състояния, в които може да се премине с буквата \(x\) от състояние \(q\). \\\par
+Ако фискираме буква \(u \in \Sigma\), тогава \(States_u\) е функция от множеството на състоянията на автомата в степенното множество на множеството \(Q\).
+Така можем да дефинираме функция \(f : \mathcal{P}(Q) \times \Sigma \to \mathcal{P}(Q)\), за която 
+\[(\forall T \in \mathcal{P}(Q))(\forall v \in \Sigma)\left(f(T, v) = \displaystyle\bigcup_{t \in T} States_v(t)\right)\]
+Ясно е, че \((\forall v \in \Sigma)(f(\emptyset, v) = \emptyset)\). \\\par
+На базата на тези наблюдения се базира алгоритъма за детерминиране на КНА до тотален КДА.
+От теоретияна гледна точка горното наблюдение дава теоретична горна граница за броят на състоянията на автомата получен след детерминизация.
+Ако \(n = |Q|\), то има тотален КДА еквиваленетен (разпознаващ същият език) на КНА \(\mathcal{N}\) с най-много \(2^n\) на брой състояния.
+Това е така, защото можем да получим еквивалентен КДА с множество от състояния \(\mathcal{P}(Q)\),
+а както знаем от курса по ДС ако \(n = |Q|\), то \(|\mathcal{P}(Q)| = 2^n\).
+Тоест при детерминизация броят на състоянията може да нарастне експоненциално.
+На практика разбира се не винаги сме в най-лошият случай, по-често повечето подмножества на \(Q\) се оказват недостижими и могат да бъдат премахнати.
+Няма да се спираме на формална конструкция за получаването на тотален КДА по КНА, а с два примра ще покажем алгоритъма за детерминизация. \\\par
+Стъпка по стъпка ще конструираме тотален КДА, като едновременно ще конструираме множеството от състоянита на автомата и функцията на преходите.
+Нека \(n = |Q|\) и нека \(Q = \{q_1, q_2, \dots, q_n\}\). За описанието на всяка стъпка от алгоритъма ще изпозлваме таблица,
+която да ни казва от едно множество от състояния в кое множество от състояния трябва да се направи преход с дадена буква.
+Нека \(T \in \mathcal{P}(Q)\), нека \(z \in \Sigma\) и нека \(k = |T|\) и \(T = \{t_1, t_2, \dots t_k\}\).
+В таблицата всеки ред отговаря на състояние от множеството \(T\),
+а всеки стълб на състояние на автомата, който детерминираме.
+Непопълнена таблицата за множеството \(T\) и буквата \(z\) изглежда така.
+\[
+    \begin{array}{c|cccc}
+    z   & q_1 & q_2 & \hdots & q_n \\ \hline
+    t_1 &     &     &        &    \\
+    t_2 &     &     &        &    \\
+    \vdots &     &     &        &    \\
+    t_k &     &     &        &   
+    \end{array}
+\]
+На позиция \(i, j\) се попълва чавка, ако в автомата \(\mathcal{N}\) има преход от състояние \(t_i\) с буква \(z\) в състояние \(q_j\),
+тоест \(\langle t_i, z, q_j \rangle \in \Delta\). \\\par
+След като се попълнят редовете се тегли черта и се на новият ред в \(j\)-ят стълб се попълва чавка,
+ако за някое \(i\) на позиция \(i, j\) има чавка.
+Множеството от състояния, в което трябва да се отиде от множеството \(T\) с буква \(z\) е множеството на състоянията \(q_i\),
+за \(i \in \{1, 2, \dots, n\}\), за които на последният ред след чертата има чавка.
+Ясно е, че ако \(k = 0\), то \(T = \emptyset\) и таблицата няма редове.
+Следователно преходът, с коя да е буква от \(\emptyset\) отново е в \(\emptyset\). \\\par
+Таблиците започват да се правят от множеството на началните състояния \(S\) на автомата \(\mathcal{N}\)
+и се прави по една таблица за всяка буква от азбуката \(\Sigma\).
+Таблиците се правят в опашков ред за всяко новополучено множество от състояния.
+В резултат ще сме конструирали множеството от състояния на детерминираният автомат и неговата функция на преходите.
+Начално състояние е множеството \(S\), множеството на финалните състояния за онези подмнижества на \(Q\),
+които съдържат поне едно финално състояние на автомата \(\mathcal{N}\), тоест онези, които имат непразно сечение с \(F\).
+
+\section{Пример за детерминизация}
+Разглеждаме автомата, който получихме за
+\[Reverse_{\{a,b, c\}}(\{c\}^+ \cup \{a, b\}^+ \cdot \{c\}^*)\]
+
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial] (q1) {$1$};
+    \node[state, initial, below of=q1] (q2) {$2$};
+    \node[state, accepting, right of=q2] (q0) {$0$};
+    
+    \draw (q1) edge[above right] node{$a, b$} (q0);
+    \draw (q1) edge[loop above] node{$a, b$} (q1);
+    \draw (q2) edge[loop below] node{c} (q2);
+    \draw (q2) edge[above] node{c} (q0);
+    \draw (q2) edge[left] node{c} (q1);
+\end{tikzpicture}
+\end{center}
+
+Формално имаме \(\langle \{a, b, c\},\; \{0, 1, 2\},\; \{1, 2\},\; \Delta,\; \{0\} \rangle\),
+където релацията \(\Delta\) описва преходите от диаграмата.
+Множеството на начални състояния е \(\{1, 2\}\), азбуката е \(\{a, b, c\}\),
+така че правим по една таблица за всяка буква.
+\\
+\vspace*{5mm}
+\\
+\begin{minipage}{.33\textwidth}
+\centering
+\(\begin{array}{c|ccc}
+a & 0 & 1 & 2 \\ \hline
+1 & \checkmark & \checkmark & \\
+2 &  &  & \\ \hline
+  & 0 & 1 &
+\end{array}\)
+\end{minipage}
+\begin{minipage}{.33\textwidth}
+\centering
+\(\begin{array}{c|ccc}
+b & 0 & 1 & 2 \\ \hline
+1 & \checkmark & \checkmark & \\
+2 &  &  & \\ \hline
+  & 0 & 1 & 
+\end{array}\)
+\end{minipage}
+\begin{minipage}{.33\textwidth}
+\centering
+\(\begin{array}{c|ccc}
+c & 0 & 1 & 2 \\ \hline
+1 &  &  & \\
+2 & \checkmark & \checkmark  & \checkmark \\ \hline
+  & 0 & 1 & 2
+\end{array}\)
+\end{minipage}
+\\
+\vspace*{5mm}
+\\\par
+Така получихме следните преходи
+\begin{align*}
+    \{1, 2\} \overset{a}{\longmapsto} \{0, 1\} \\
+    \{1, 2\} \overset{b}{\longmapsto} \{0, 1\} \\
+    \{1, 2\} \overset{c}{\longmapsto} \{0, 1, 2\}
+\end{align*}
+Правим таблици за множеството \(\{0, 1\}\).
+\\
+\vspace*{5mm}
+\\
+\begin{minipage}{.33\textwidth}
+\centering
+\(\begin{array}{c|ccc}
+a & 0 & 1 & 2 \\ \hline
+0 & \checkmark & \checkmark & \\
+1 &  &  & \\ \hline
+  & 0 & 1 &
+\end{array}\)
+\end{minipage}
+\begin{minipage}{.33\textwidth}
+\centering
+\(\begin{array}{c|ccc}
+b & 0 & 1 & 2 \\ \hline
+0 & \checkmark & \checkmark & \\
+1 &  &  & \\ \hline
+  & 0 & 1 & 
+\end{array}\)
+\end{minipage}
+\begin{minipage}{.33\textwidth}
+\centering
+\(\begin{array}{c|ccc}
+c & 0 & 1 & 2 \\ \hline
+0 & & & \\
+1 & & & \\ \hline
+  & & &
+\end{array}\)
+\end{minipage}
+\\
+\vspace*{5mm}
+\\\par
+От множеството \(\{0, 1\}\) и буквата \(c\) получихме преход към празното множество,
+което играе ролята на \(error\) състояние.
+Веднъж попаднали в него продължавайки да четем думата оставаме в него.
+Също така не получихме множество от състояния, което да не сме видяли до момента.
+Продължаваме с таблици за \(\{0, 1, 2\}\).
+\\
+\vspace*{5mm}
+\\
+\begin{minipage}{.33\textwidth}
+\centering
+\(\begin{array}{c|ccc}
+a & 0 & 1 & 2 \\ \hline
+0 &   &   & \\
+1 & \checkmark & \checkmark & \\
+2 &  &  & \\ \hline
+  & 0 & 1 &
+\end{array}\)
+\end{minipage}
+\begin{minipage}{.33\textwidth}
+\centering
+\(\begin{array}{c|ccc}
+b & 0 & 1 & 2 \\ \hline
+0 &   &   & \\
+1 & \checkmark & \checkmark & \\
+2 &  &  & \\ \hline
+  & 0 & 1 &
+\end{array}\)
+\end{minipage}
+\begin{minipage}{.33\textwidth}
+\centering
+\(\begin{array}{c|ccc}
+c & 0 & 1 & 2 \\ \hline
+0 &   &   & \\
+1 &   &   &\\
+2 & \checkmark & \checkmark & \checkmark \\ \hline
+  & 0 & 1 & 2
+\end{array}\)
+\end{minipage}
+\\
+\vspace*{5mm}
+\\\par
+Като навържем резулатите от таблиците, които направихме получаваме тотален КДА.
+
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial] (q0) {$\{1, 2\}$};
+    \node[state, accepting, above =2cm of q0] (q1) {$\{0, 1, 2\}$};
+    \node[state, accepting, right of=q0] (q2) {$\{0, 1\}$};
+    \node[state, right of=q2] (q3) {$\emptyset$};
+    
+    \draw (q0) edge[below] node{$a, b$} (q2);
+    \draw (q2) edge[loop below] node{$a, b$} (q2);
+    \draw (q1) edge[loop right] node{c} (q1);
+    \draw (q0) edge[left] node{c} (q1);
+    \draw (q2) edge[below] node{c} (q3);
+    \draw (q1) edge[right] node{$a, b$} (q2);
+    \draw (q3) edge[loop above] node{$a, b, c$} (q3);
+\end{tikzpicture}
+\end{center}
+
+Началното състояние е \(\{1, 2\}\).
+Финални са състоянията \(\{0, 1\}\) и \(\{0, 1, 2\}\).
+Общо автомата има 4 състояния.
+Автомата, който детерминирахме има 3 състояния и \(2^3 = 8\).
+Така в този пример, излезе че значими (достижими) са само половината от подмножествата на \(\{0, 1, 2\}\).
+
+\section{Пример 2}
+Нека \(L = \{a\}^* \cdot \{b\}^+\).
+Нека \(R = Reverse_{\{a, b\}}(L)\).
+Очевидно \(R = \{b\}^+ \cdot \{a\}^*\).
+Един КНА за \(L\) е следният.
+
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial] (q0) {$0$};
+    \node[state, right of=q0] (q1) {$1$};
+    \node[state, accepting, right of=q1] (q2) {$2$};
+    \node[state, accepting, right of=q2] (q3) {$3$};
+    \draw (q0) edge[above] node{a} (q1);
+    \draw (q1) edge[loop above] node{a} (q1);
+    \draw (q2) edge[above] node{b} (q3);
+    \draw (q3) edge[loop above] node{b} (q3);
+    \draw (q1) edge[bend left, above] node{b} (q2);
+    \draw (q0) edge[bend right, below] node{b} (q2);
+\end{tikzpicture}
+\end{center}
+
+Като приложим конструкцията за автомат за \(R\) по автомат за \(L\) пoлучаваме следният КНА.
+
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial] (q2) {$2$};
+    \node[state, initial, below of=q2] (q3) {$3$};
+    \node[state, right of=q2] (q1) {$1$};
+    \node[state, accepting, below of=q1] (q0) {$0$};
+    
+    \draw (q1) edge[right] node{a} (q0);
+    \draw (q1) edge[loop above] node{a} (q1);
+    \draw (q3) edge[right] node{b} (q2);
+    \draw (q3) edge[loop below] node{b} (q3);
+    \draw (q2) edge[above] node{b} (q1);
+    \draw (q2) edge[above] node{b} (q0);
+\end{tikzpicture}
+\end{center}
+
+Сега го детерминираме, като започваме да правим таблици по множеството \(\{2, 3\}\).
+\\
+\vspace*{5mm}
+\\
+\begin{minipage}{.5\textwidth}
+\centering
+\(\begin{array}{c|cccc}
+a & 0 & 1 & 2 & 3 \\ \hline
+2 &   & & &    \\
+3 &   & & &   \\ \hline
+  &   & & &
+\end{array}\)
+\end{minipage}
+\begin{minipage}{.5\textwidth}
+\centering
+\(\begin{array}{c|cccc}
+b & 0 & 1 & 2 & 3 \\ \hline
+2 & \checkmark & \checkmark  & &  \\
+3 &   &   & \checkmark & \checkmark  \\ \hline
+  & 0  & 1  & 2 & 3
+\end{array}\)
+\end{minipage}
+\\
+\vspace*{5mm}
+\\
+\begin{minipage}{.5\textwidth}
+\centering
+\(\begin{array}{c|cccc}
+a & 0 & 1 & 2 & 3 \\ \hline
+0 &   &   &   &   \\
+1 & \checkmark & \checkmark & & \\
+2 &  &   & &  \\
+3 &   &   & &  \\ \hline
+  & 0  & 1  & &
+\end{array}\)
+\end{minipage}
+\begin{minipage}{.5\textwidth}
+\centering
+\(\begin{array}{c|cccc}
+b & 0 & 1 & 2 & 3 \\ \hline
+0 &   &   &   &   \\
+1 &   &   &   &   \\
+2 & \checkmark  & \checkmark   &   &  \\
+3 &   &   & \checkmark & \checkmark \\ \hline
+  & 0  & 1  & 2 & 3
+\end{array}\)
+\end{minipage}
+\\
+\vspace*{5mm}
+\\
+\begin{minipage}{.5\textwidth}
+\centering
+\(\begin{array}{c|cccc}
+a & 0 & 1 & 2 & 3 \\ \hline
+0 &  &   & &  \\
+1 &  \checkmark  &  \checkmark & &  \\ \hline
+  & 0  & 1  & &
+\end{array}\)
+\end{minipage}
+\begin{minipage}{.5\textwidth}
+\centering
+\(\begin{array}{c|cccc}
+b & 0 & 1 & 2 & 3 \\ \hline
+0 &   & & &    \\
+1 &   & & &   \\ \hline
+  &   & & &
+\end{array}\)
+\end{minipage}
+\\
+\vspace*{5mm}
+\\
+Така получаваме следният тотален КДА, койото разпознва езика \(R\).
+
+\begin{center}
+\begin{tikzpicture}
+    \node[state, initial] (q0) {$\{2, 3\}$};
+    \node[state, accepting, right =2cm of q0] (q1) {$\{0, 1, 2, 3\}$};
+    \node[state, accepting, right =2cm of q1] (q2) {$\{0, 1\}$};
+    \node[state, below of=q1] (q3) {$\emptyset$};
+    
+    \draw (q0) edge[above] node{b} (q1);
+    \draw (q1) edge[above] node{a} (q2);
+    \draw (q0) edge[below] node{a} (q3);
+    \draw (q2) edge[below] node{b} (q3);
+    \draw (q1) edge[loop above] node{b} (q1);
+    \draw (q2) edge[loop above] node{a} (q2);
+    \draw (q3) edge[loop below] node{$a, b$} (q3);
+\end{tikzpicture}
+\end{center}
+
+\end{document}
