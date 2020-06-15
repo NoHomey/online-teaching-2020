@@ -1,0 +1,496 @@
+\documentclass[14pt]{extarticle}
+\usepackage{tikz}
+\usepackage{tikz-qtree}
+\usepackage{float}
+\usepackage[utf8]{inputenc}
+\usepackage[T2A]{fontenc}
+\usepackage[english,bulgarian]{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{relsize}
+\usepackage{euler}
+\usepackage[a4paper, portrait, margin=1.8cm]{geometry}
+
+\title{Еднолентови детерминистични машини на Тюринг}
+\author{Иво Стратев}
+
+\begin{document}
+
+\maketitle
+
+\section*{Дефиниция за еднолентова машина на Тюринг}
+\(\langle Q,\; \Sigma,\; \Gamma,\; \delta,\; s,\; H \rangle\) наричаме \textbf{еднолентова машина на Тюринг}, ако
+
+\begin{itemize}
+    \item \(Q\) е крайно множество. Множеството \(Q\) е множеството на контролните състояния на машината.
+    \item \(\Sigma\) е крайна азбука, такава че \(\Sigma \cap \{\triangleright, \sqcup, \leftarrow, \rightarrow\} = \emptyset\). Азбуката \(\Sigma\) е входната азбука на машината.
+    \item \(\Gamma\) е крайна множество, такова че \(\Sigma \cap \Gamma = \emptyset\) и \(\Gamma \cap \{\triangleright, \sqcup, \leftarrow, \rightarrow\} = \emptyset\). Множеството \(\Gamma\) е множеството на спомагателните символи за машината.
+    \item \(s \in Q\). \(s\) е началното състояние.
+    \item \(H\) е крайно множество, такова че \(Q \cap H = \emptyset\). Множеството \(H\) е множеството на стоп състоянията.
+    \item \(\delta : Q \times (\Sigma \cup \Gamma \cup \{ \triangleright, \sqcup \}) \to H \cup (Q \times (\Sigma \cup \Gamma \cup \{\leftarrow, \rightarrow\}))\). \(\delta\) е контролната функция. която задава програмата на машината и \(\delta\) има свойството
+    \[(\forall p, q \in Q)(\forall x \in \Sigma \cup \Gamma \cup \{\leftarrow, \rightarrow\})(\delta(p, \triangleright) = \langle q, x \rangle \implies x = \;\rightarrow )\]
+\end{itemize}
+
+
+\subsection*{Програма на еднолентова машина на Тюринг}
+Нека \(\langle Q,\; \Sigma,\; \Gamma,\; \delta,\; s,\; H \rangle\) e еднолентова машина на Тюринг.
+
+
+\subsubsection*{Оператори за четене и промяна на буква}
+Въвеждаме помощни оператори за четене от дума и промяна на буква
+\begin{align*}
+    (.)[.] : \{\triangleright\} \cdot (\Sigma \cup \Gamma \cup \{\sqcup\})^* \times \mathbb{N}_+ \to \Sigma \cup \Gamma \cup \{\sqcup, \triangleright\}  \\
+    (.)[.,\; .] : \{\triangleright\} \cdot (\Sigma \cup \Gamma \cup \{\sqcup\})^* \times (\mathbb{N} \setminus \{0, 1\} ) \times (\Sigma \cup \Gamma) \to \{\triangleright\} \cdot (\Sigma \cup \Gamma \cup \{\sqcup\})^* 
+\end{align*}
+
+\begin{align*}
+    \alpha[i] = \begin{cases}
+        \alpha_i &,\; i \leq |\alpha| \\
+        \sqcup &,\; i > |\alpha|
+    \end{cases}
+\end{align*}
+
+\begin{align*}
+    (\triangleright\alpha)[i, x] = \triangleright. (\alpha \;!\; \langle i - 1, x \rangle) \quad where \\
+    \varepsilon \;!\; \langle k + 1, z \rangle = \sqcup^{k} z \\
+    (y.\sigma) \;!\; \langle 1, z \rangle = z.\sigma \\
+    (y.\sigma) \;!\; \langle k + 2, z \rangle = y.(\sigma \;!\; \langle k + 1, z \rangle)
+\end{align*}
+
+Нека пресметнем два примера
+
+\begin{align*}
+    \triangleright ab [6, c] = \\
+    \triangleright . (ab \;!\; \langle 5, c \rangle) = \\
+    \triangleright . (a . (b \;!\; \langle 4, c \rangle)) = \\
+    \triangleright . (a . (b . (\varepsilon \;!\; \langle 3, c \rangle))) = \\
+    \triangleright . (a . (b . (\sqcup^2 c))) = \\
+    \triangleright ab \sqcup \sqcup c
+\end{align*}
+\begin{align*}
+    \triangleright abcc [3, d] = \\
+    \triangleright . (abcc \;!\; \langle 2, d \rangle) = \\
+    \triangleright . (a . (bcc \;!\; \langle 1, d \rangle)) = \\
+    \triangleright . (a . (d.cc)) = \\
+    \triangleright adcc
+\end{align*}
+
+\subsubsection*{Стъпкови програми}
+
+За всяко естествено число \(n\) въвеждаме функция 
+\(\delta^n\)
+
+от \(Q \times (\{\triangleright\} \cdot (\Sigma \cup \Gamma \cup \{\sqcup\})^* ) \times \mathbb{N}_+\)
+в \((Q \cup H) \times (\{\triangleright\} \cdot (\Sigma \cup \Gamma \cup \{\sqcup\})^* ) \),
+
+която описва поведението на машината при направата на неповече от \(n\) стъпки
+чрез рекурсия така
+\begin{align*}
+    \delta^0(q, \alpha, i) = \langle q, \alpha \rangle
+\end{align*}
+
+Ако \(n \in \mathbb N\), \(q \in Q\), \(\alpha \in \{\triangleright\} \cdot (\Sigma \cup \Gamma \cup \{\sqcup\})^* \), \(i \in \mathbb{N}_+\), то
+
+\begin{itemize}
+    \item ако \(\delta(q, \alpha[i]) \in H\), то \(\delta^{n + 1}(q, \alpha, i) = \langle \delta(q, \alpha[i]), \alpha \rangle \) (ако попаднем в стоп състояние прекратяваме изчислението);
+    \item ако \(\langle t, x \rangle = \delta(q, \alpha[i])\) и \(x \in \Sigma \cup \Gamma\), то \(\delta^{n + 1}(q, \alpha, i) = \delta^n(t, \alpha[i, x], i)\) (ако получим команда за промяна на буквата на поция \(i\) извършваме тази команда, като ако се налага разшираяваме думата добавяйки необходимият брой шпации между думата и символа \(x\));
+    \item ако \(\langle t, \rightarrow \rangle = \delta(q, \alpha[i])\), то \(\delta^{n + 1}(q, \alpha, i) = \delta^n(t, \alpha, i + 1)\) (ако получим команда за отместване на курсора една позиция на дясно, то само местим курсора на дясно);
+    \item ако \(\langle t, \leftarrow \rangle = \delta(q, \alpha[i])\), то \(\delta^{n + 1}(q, \alpha, i) = \delta^n(t, \alpha, i - 1)\) (ако получим команда за отместване на курсора една позиция на ляво, то само местим курсора на ляво, понеже \(\alpha\) започва с \(\triangleright\), то \(i > 1\) и значи \(i - 1 \in \mathbb{N}_+\)).
+\end{itemize}
+
+Нека означим езика \(\{\triangleright\} \cdot (\Sigma \cup \Gamma \cup \{\sqcup\})^*\) с \(\Lambda\). В сила е следното твърдение
+\begin{align*}
+    (\forall q \in Q)(\forall \alpha \in \Lambda)(\forall i \in \mathbb{N}_+)(\exists n \in \mathbb N)(\exists h \in H)(\exists \beta \in \Lambda)\\
+    (\delta^n(q, \alpha, i) = \langle h, \beta \rangle \implies (\forall k \in \mathbb N)(k \geq n \implies \delta^k(q, \alpha, i) = \langle h, \beta \rangle) )
+\end{align*}
+
+Защото е в сила следното твърдение
+\begin{align*}
+    (\forall q, t \in Q)(\forall \alpha, \beta \in \Lambda)(\forall i, j \in \mathbb{N}_+)(\forall n \in \mathbb N)(\forall k \in \{0, 1, \dots, n\})\\(
+        \delta^n(q, \alpha, i) = \delta^k(t, \beta, j) \implies (\forall s \in \mathbb N)(\delta^{n + s}(q, \alpha, i) = \delta^{k + s}(t, \beta, j))
+    )
+\end{align*}
+Също така в сила е
+\begin{align*}
+    (\forall q \in Q)(\forall \alpha, \beta \in \Lambda)(\forall i \in \mathbb{N}_+)(\forall n \in \mathbb N)(\forall h \in H)\\(
+        \delta^n(q, \alpha, i) = \langle h, \beta \rangle \implies (\exists k \in \{1, \dots, n\})(\delta^k(q, \alpha, i) = \langle h, \beta \rangle)
+    )
+\end{align*}
+
+Да разгледаме два примера. \\
+
+\textbf{Пример 1.} Нека разгледаме следната еднолентова машина на Тюринг:
+
+\(\langle \{s, m, e\},\; \{0, 1\},\; \emptyset,\; \delta,\; s,\; \{h, f\} \rangle\), където
+
+
+\begin{align*}
+    \delta : \{s, m, e\} \times \{0, 1, \triangleright, \sqcup\} \to \{h, f\} \cup (\{s, m, e\} \times \{0, 1, \rightarrow, \leftarrow \}) \\
+    \delta(s, 0) = f \\
+    \delta(s, 1) = f \\
+    \delta(s, \triangleright) = f \\
+    \delta(s, \sqcup) = \langle m, 1 \rangle \\
+    \delta(m, 0) = \langle m, \rightarrow \rangle \\
+    \delta(m, 1) = \langle m, \rightarrow \rangle \\
+    \delta(m, \triangleright) = f \\
+    \delta(m, \sqcup) = \langle e, 1 \rangle \\
+    \delta(e, 0) = f \\
+    \delta(e, 1) = h \\
+    \delta(e, \triangleright) = f \\
+    \delta(e, \sqcup) = f
+\end{align*}
+Тогава
+\begin{align*}
+    \delta^2(s, \triangleright \underline{\sqcup} 10, 2) =  \quad (by \; \delta(s, \sqcup) = \langle m, 1 \rangle)\\
+    \delta^1(m, \triangleright \underline{1} 10, 2) = \quad (by \; \delta(m, 1) = \langle m, \rightarrow \rangle) \\
+    \delta^0(m, \triangleright 1 \underline{1} 0, 3) =  \quad (by \; def \; of \; \delta^0) \\
+    \langle m, \; \triangleright 1 10 \rangle
+\end{align*}
+Също така
+\begin{align*}
+    \delta^9(s, \triangleright \underline{\sqcup} 10, 2) =  \quad (by \; \delta(s, \sqcup) = \langle m, 1 \rangle)\\
+    \delta^8(m, \triangleright \underline{1} 10, 2) = \quad (by \; \delta(m, 1) = \langle m, \rightarrow \rangle) \\
+    \delta^7(m, \triangleright 1 \underline{1} 0, 3) =  \quad (by \; \delta(m, 1) = \langle m, \rightarrow \rangle) \\
+    \delta^6(m, \triangleright 1 1 \underline{0}, 4) =  \quad (by \; \delta(m, 0) = \langle m, \rightarrow \rangle) \\
+    \delta^5(m, \triangleright 1 1 0 \_, 5) =  \quad (by \; \delta(m, \sqcup) = \langle e, 1 \rangle) \\
+    \delta^4(e, \triangleright 1 1 0 \underline{1}, 5) =  \quad (by \; \delta(e, 1) = h) \\
+    \langle h, \triangleright 1 1 01\rangle
+\end{align*}
+Очевидно \(\delta^6(s, \triangleright \sqcup 10, 2) = \langle h,\; \triangleright 1 1 01\rangle\). \\
+
+\textbf{Пример 2.} Нека разгледаме следната еднолентова машина на Тюринг:
+
+\(\langle \{s, m\},\; \{0, 1\},\; \emptyset,\; \delta,\; s,\; \{h, f\} \rangle\), където
+\begin{align*}
+    \delta : \{s, m\} \times \{0, 1, \triangleright, \sqcup\} \to \{h, f\} \cup (\{s, m\} \times \{0, 1, \rightarrow, \leftarrow \}) \\
+    \delta(s, 0) = \langle m, 1 \rangle \\
+    \delta(s, 1) = \langle m, 0 \rangle \\
+    \delta(s, \triangleright) = f \\
+    \delta(s, \sqcup) = h \\
+    \delta(m, 0) = \langle s, \rightarrow \rangle \\
+    \delta(m, 1) = \langle s, \rightarrow \rangle \\
+    \delta(m, \triangleright) = f \\
+    \delta(m, \sqcup) =  f 
+\end{align*}
+
+Тогава
+\begin{align*}
+    \delta^1(s, (\triangleright \varepsilon)_, 2) = \langle h, \triangleright\varepsilon \rangle  \quad (by \; \delta(s, \sqcup) = h \rangle)
+\end{align*}
+\begin{align*}
+    \delta^7(s, \triangleright \underline{1}01, 2) =  \quad (by \; \delta(s, 1) = \langle m, 0 \rangle \rangle) \\
+    \delta^6(m, \triangleright \underline{0}01, 2) =  \quad (by \; \delta(m, 0) = \langle s, \rightarrow \rangle \rangle) \\
+    \delta^5(s, \triangleright 0\underline{0}1, 3) =  \quad (by \; \delta(s, 0) = \langle m, 1 \rangle \rangle) \\
+    \delta^4(m, \triangleright 0\underline{1}1, 3) =  \quad (by \; \delta(m, 1) = \langle s, \rightarrow \rangle \rangle) \\
+    \delta^3(s, \triangleright 01\underline{1}, 4) =  \quad (by \; \delta(s, 1) = \langle m, 0 \rangle \rangle) \\
+    \delta^2(m, \triangleright 01\underline{0}, 4) =  \quad (by \; \delta(m, 0) = \langle s, \rightarrow \rangle \rangle) \\
+    \delta^1(s, \triangleright 010\_, 5) =  \quad (by \; \delta(m, \sqcup) = h \rangle) \\
+    \langle h, \triangleright 010 \rangle
+\end{align*}
+Така получихме \(\delta^7(s, \triangleright 101, 2) = \langle h,\; \triangleright 010 \rangle\).
+
+\subsubsection*{Програма на еднолентова машина на Тюринг}
+Нека \(\mathcal M = \langle Q,\; \Sigma,\; \Gamma,\; \delta,\; s,\; H \rangle\) e еднолентова машина на Тюринг.
+
+Нека \(k \in \mathbb N\). Дефинираме частична функция \(\Pi_k^{\mathcal M}\) от \(\Sigma^*\) в
+
+\(H \times (\{\triangleright\} \cdot (\Sigma \cup \Gamma \cup \{\sqcup\})^* ) \) като
+
+\[\{ \langle \alpha, r \rangle \mid \alpha \in \Sigma^* \;\&\; r \in H \times (\{\triangleright\} \cdot (\Sigma \cup \Gamma \cup \{\sqcup\})^* ) \;\&\; (\exists n \in \mathbb{N}_+)(r = \delta^n(s,\; \triangleright \sqcup^k \alpha,\; 2))  \} \]
+
+Няма да доказваме, че така дефинирана \(\Pi_k^{\mathcal M}\) в действителност е функция макар и частична.
+Реално \(\Pi_k^{\mathcal M}\) по дума \(\alpha \in \Sigma^*\) ако има \(n \in \mathbb N\), такова, че \(n\)-тата стъпкова програма по машината \(\mathcal M\) завършва (изпада в стоп състояние) при стартиране на изчисление от началното състояние, при инциализирана лента, на която между възпиращият символ \(\triangleright\) и думата \(\alpha\) има предварително заделена памет от \(k\) празни клетки (blank символи) и курсор сетнат на позиция \(2\) \;"връща"\; изчислението направено от \(\delta^n\). \\
+
+Например ако разглеждаме машината от \textbf{Пример 1}, то \(\Pi_1\) със сигурност е дефинирана в \(10\) и при това
+\(\Pi_1(10) = \langle h, \triangleright 1101\rangle\). Дори още по-силно може да се докаже, че в този пример \(\Pi_1\) е тотална функция от \(\{0, 1\}^*\) в \(\{h\} \times (\{\triangleright 1\} \cdot \{0, 1\}^* \cdot \{1\})\) действаща по правилото \(\Pi_1(\alpha) = \langle h,\; \triangleright.1.\alpha.1 \rangle\). \\
+
+Ако разгледаме машината от \textbf{Пример 2}, то може да се докаже, че \(\Pi_0\) е тотална функция с домейн \(\{0, 1\}^*\) действаща по правилото
+\(\Pi_0(\alpha) = \langle h, \triangleright . \overline{\alpha} \rangle\),
+където ако \(\alpha \in \{0, 1\}^*\), то
+\(\overline{\alpha}\) е означение за думата, която се получава от \(\alpha\) при побуквено инвертиране.
+Например от направеното пресмятане \(\Pi_0(101) = \langle h,\; \triangleright010\rangle\). \\
+
+\subsection*{Частичната функция, която изчислява дадена ЕМТ спрямо фиксирано стоп състояние}
+Нека \(\mathcal M = \langle Q,\; \Sigma,\; \Gamma,\; \delta,\; s,\; H \rangle\) e еднолентова машина на Тюринг.
+Нека \(h \in H\). Нека \(k \in \mathbb N\). Частичната функция, която \(M\) изчислява с начална буферна памет от \(k\) клетки спрямо стоп състояние \(h\) ще бележим с \([\mathcal M, h, k]\) и тя е 
+\[\{ \langle \alpha, \beta \rangle \in \Sigma^* \times (\Sigma \cup \Gamma)^* \mid \langle \alpha, \langle h, \triangleright\beta \rangle \rangle \in \Pi_k^{\mathcal M}  \}\]
+
+Например ако разглеждаме машината от \textbf{Пример 1}, то
+
+\[[\mathcal M, h, 1] = \{ \langle \alpha, 1 \alpha 1 \rangle \mid \alpha \in \{0, 1\}^*  \} \]
+
+Тоест \([\mathcal M, h, 1]\) е тотална функция и действа по правилото
+\[ [\mathcal M, h, 1](\alpha) = 1\alpha1 \]
+
+Ако разглеждаме машината от \textbf{Пример 2}, то
+
+\[[\mathcal M, h, 0] = \{ \langle \alpha, \overline{\alpha} \rangle \mid \alpha \in \{0, 1\}^*  \} \]
+
+Тоест \([\mathcal M, h, 0]\) е тотална функция и действа по правилото
+\[ [\mathcal M, h, 0](\alpha) = \overline{\alpha} \]
+
+\subsection*{Дефиниция за изчислима функция между азбуки}
+Нека \(I\) и \(O\) са две крайни азбуки.
+Нека \(f : I^* \to O^*\). 
+Казваме, че \(f\) е изчислима функция между азбуки, ако
+съществува ЕМТ \(\mathcal M = \langle Q,\; \Sigma,\; \Gamma,\; \delta,\; s,\; H \rangle\),
+съществува \(h \in H\) и съществува \(k \in \mathbb N\) такива, че \(f \subseteq [\mathcal M, h, k]\). \\
+
+Ако \(\mathcal M = \langle Q,\; \Sigma,\; \Gamma,\; \delta,\; s,\; H \rangle\), \(h \in H\) и \(k \in \mathbb N\)
+са такива, че \(f \subseteq [\mathcal M, h, k]\), то ясно е, че \(I \subseteq \Sigma\) и \(O \subseteq \Sigma \cup \Gamma\).
+
+\subsection*{Дефиниция за изчислима функция между езици}
+Нека \(L\) е език над крайна азбука \(I\) и \(K\) е език над крайна азбука \(O\).
+Нека \(f : L \to K\). Казваме, че \(f\) е изчислима функция между езици, ако
+съществува ЕМТ \(\mathcal M = \langle Q,\; \Sigma,\; \Gamma,\; \delta,\; s,\; H \rangle\),
+съществува \(h \in H\) и съществува \(k \in \mathbb N\) такива, че \(f \subseteq [\mathcal M, h, k]\).
+
+\subsection*{Дефиниция за изчислима \(s\)-местна частична функция между естествени числа}
+Нека от сега до края с \(Bin\) означим множеството на всички правилни двоични записи на естествени числа.
+Тоест \(Bin = \{0\} \cup \{1\} \cdot \{0, 1\}^*\). Нека с \(B\) означим биекцията между \(\mathbb N\) и \(Bin\),
+която на всяко естествено число съпоставя думата, която е неговият двоичен запис.
+Например \(B(5) = 101\). \\
+
+Нека \(s \in \mathbb N\) и \(f\) е частична фунцкия между \(\mathbb{N}^s\) и \(\mathbb N\).
+Ще казваме, че \(f\) е изчислима \(s\)-местна частична функция между естествени числа, ако
+\[ \{ \langle \; B(x_1) \$ B(x_2) \$ \dots \$ B(x_s) \; , \quad B( f(x_1, x_2, \dots, x_s) ) \;  \rangle \mid \langle x_1, x_2, \dots, x_s \rangle \in \mathbb N^s  \} \]
+е изчислима функция между езиците \( Bin \cdot (\{\$\} \cdot Bin)^{s - 1} \) и \(Bin\). \\
+
+Например тоталната функция \(g : \mathbb N \to \mathbb N\) действаща по правилото
+\[ g(n) = \Large{2^{Log(n) + 2} + 2n + 1 } \]
+е изчислима, защото фунцкията \(h : Bin \to Bin\) действаща по правилото \(h(\alpha) = 1.\alpha.1\) е изчислима от машината от \textbf{Пример 1}, където
+\[ Log(n) = \begin{cases}
+    0 &,\; n = 0 \\
+    \lfloor log_2(n) \rfloor &,\; n \geq 1
+\end{cases} \]
+
+\subsection*{Разрешимост}
+До сега се интересувахме от стоп състоянието, в което изпада една ЕМТ както и каква дума остава на лентата след конкретен вход на лентата. Интересувайки се от думата, която остава на лентата гледахме на една ЕМТ като на \textbf{генератор}. \\
+
+\par Можем да забравим за резултата на лентата, а да се интересуваме само от стоп състоянието, в което изпада машината при конкретен вход. Така ще гледаме на една ЕМТ като на \textbf{разпознавател}, ако тя има само две стоп състояния.
+
+\subsubsection*{Частичната функция \(halt\)}
+Нека \(\mathcal M = \langle Q,\; \Sigma,\; \Gamma,\; \delta,\; s,\; H \rangle\) е ЕМТ.
+
+Дефинираме частична функция \(halt_{\mathcal M}\) от \(\Sigma^*\) в \(H\) така
+
+\[\{ \langle \alpha, h \rangle \in \Sigma^* \times H \mid (\exists \beta \in \{\triangleright\} \cdot (\Sigma \cup \Gamma \cup \{\sqcup\})^*) ( \langle \alpha, \langle h, \beta \rangle \rangle \in \Pi_1^{\mathcal M})  \}\]
+
+\subsubsection*{Дефиниция за разрешимимост от ЕМТ на език}
+Нека \(\Sigma\) е крайна азбука.
+Нека \(L\) е език над \(\Sigma\).
+Нека \(\mathcal M = \langle Q,\; \Sigma,\; \Gamma,\; \delta,\; s,\; \{no, yes\} \rangle\) е ЕМТ.
+Казваме, че \(\mathcal M\) разрешава \(L\), ако са изпълнени следните три условия
+
+\begin{itemize}
+    \item \(halt_{\mathcal M}\) е тотална функция;
+    \item \((\forall \omega \in L)( halt_{\mathcal M}(\omega) = yes )\);
+    \item \((\forall \omega \in \Sigma^* \setminus L)( halt_{\mathcal M}(\omega) = no )\).
+\end{itemize}
+
+\subsubsection*{Дефиниция за разрешим език}
+Нека \(\Sigma\) е крайна азбука.
+Нека \(L\) е език над \(\Sigma\).
+Казваме, че \(L\) е разрешим език, ако \(L\) се разрешава от някоя ЕМТ.
+Тоест \(L\) е разрешим език ТСТК съществува ЕМТ \(\mathcal M = \langle Q,\; \Sigma,\; \Gamma,\; \delta,\; s,\; \{no, yes\} \rangle\) такава, че \(\mathcal M\) разрешава \(L\).
+
+\subsubsection*{Дефиниция за полуразрешимимост от ЕМТ на език}
+Нека \(\Sigma\) е крайна азбука.
+Нека \(L\) е език над \(\Sigma\).
+Нека \(\mathcal M = \langle Q,\; \Sigma,\; \Gamma,\; \delta,\; s,\; \{no, yes\} \rangle\) е ЕМТ.
+Казваме, че \(\mathcal M\) полуразрешава \(L\), ако са изпълнени следните три условия
+
+\begin{itemize}
+    \item \(L \subseteq Dom(halt_{\mathcal M})\) т.е \(halt_{\mathcal M}\) е дефинирана върху всяка дума от \(L\);
+    \item \((\forall \omega \in L)( halt_{\mathcal M}(\omega) = yes )\);
+    \item \((\forall \omega \in \Sigma^* \setminus L)(\omega \in Dom(halt_{\mathcal M}) \implies  halt_{\mathcal M}(\omega) = no )\).
+\end{itemize}
+
+\subsubsection*{Дефиниция за полуразрешим език}
+Нека \(\Sigma\) е крайна азбука.
+Нека \(L\) е език над \(\Sigma\).
+Казваме, че \(L\) е полуразрешим език, ако \(L\) се полуразрешава от някоя ЕМТ.
+Тоест \(L\) е разрешим език ТСТК съществува ЕМТ \(\mathcal M = \langle Q,\; \Sigma,\; \Gamma,\; \delta,\; s,\; \{no, yes\} \rangle\) такава, че \(\mathcal M\) полуразрешава \(L\).
+
+\subsubsection*{Важна теорема}
+Нека \(\Sigma\) е крайна азбука.
+Нека \(L\) е език над \(\Sigma\).
+Очевидно ако \(L\) е разрешим, то \(L\) е полуразрешим.
+Обратното не е вярно. Известно е, че \textbf{СТОП}-проблемът не е разрешим, но е полуразрешим! \\
+
+\textbf{Теорема.} \(L\) е разрешим ТСТК \(L\) и \(\Sigma^* \setminus L\) са полуразрешими езици.
+
+\subsubsection*{Пример за разрешим език}
+Нека \(\Sigma\) е крайна азбука.
+Нека \(L = \{\omega\#\omega \mid \omega \in \Sigma^+\}\).
+
+Ще докажем, че \(L\) е разрешим като построим ЕМТ, която го разрешава.
+
+Нека разгледаме няколко примера за да хванем как бихме могли да разрешим \(L\).
+Нека за примерите да приемем, че \(\Sigma = \{a, b, c\}\). \\
+
+Първо добре е да се подсигурим, че \(\#\) разделя две думи с положителна дължина.
+За целта трябва да прочетем цялата активна лента.
+\begin{align*}
+    \triangleright \underline{\sqcup} abc \# abc \\
+    \triangleright \sqcup abc \# abc\_
+\end{align*}
+След това да се върнем назад и да запомним видяният символ и да го изтрием.
+След, което да вървим наляво преминавайки през \(\#\) до първата срещната буква от \(\Sigma\).
+\begin{align*}
+    \triangleright \sqcup abc \# ab\underline{c} \\
+    c: \; \triangleright \sqcup abc \# ab\underline{\$} \\
+    c: \; \triangleright \sqcup abc \# a\underline{b}\$ \\
+    c: \; \triangleright \sqcup abc \# ab\underline{\$} \\
+    c: \; \triangleright \sqcup abc \underline{\#} ab\$
+\end{align*}
+Когато я стигнем трябва да я сравним със запомнената, ако съвпада да я изтрием и да върви надясно до първият \(\$\).
+Защото след него или следват други \(\$\) или активната част свършва.
+\begin{align*}
+    c: \; \triangleright \sqcup ab\underline{c} \# ab\$ \\
+    \triangleright \sqcup ab\underline{\$} \# ab\$ \\
+    \triangleright \sqcup ab\$ \underline{\#}ab\$ \\
+    \triangleright \sqcup ab\$ \# ab\underline{\$}
+\end{align*}
+След като стигнем \(\$\) се връщаме назад и повтаряме процедурата.
+\begin{align*}
+    \triangleright \sqcup ab\$ \# a\underline{b}\$ \\
+    b: \; \triangleright \sqcup ab\$ \# a\underline{\$}\$ \\
+    b: \; \triangleright \sqcup ab\$ \# \underline{a}\$\$ \\
+    b: \; \triangleright \sqcup ab\$ \underline{\#} a\$\$ \\
+    b: \; \triangleright \sqcup ab\underline{\$}\# a\$\$ \\
+    b: \; \triangleright \sqcup a\underline{b}\$\# a\$\$ \\
+    \triangleright \sqcup a\underline{\$}\$ \# a\$\$ \\
+    \triangleright \sqcup a\$\$ \underline{\#}a\$\$ \\
+    \triangleright \sqcup a\$\$ \# a\underline{\$}\$ \\
+    \triangleright \sqcup a\$\$ \# \underline{a}\$\$ \\
+    a: \; \triangleright \sqcup a\$\$ \# \underline{\$}\$\$ \\
+    a: \; \triangleright \sqcup a\underline{\$}\$ \# \$\$\$ \\
+    a: \; \triangleright \sqcup \underline{a}\$\$ \# \$\$\$ \\
+    \triangleright \sqcup \underline{\$}\$\$ \# \$\$\$ \\
+\end{align*}
+След изтриването отново се движим надясно до достигането на първия \(\$\).
+\begin{align*}
+    \triangleright \sqcup \$\$\$ \# \underline{\$}\$\$ \\
+    \triangleright \sqcup \$\$\$ \underline{\#} \$\$\$ \\
+\end{align*}
+Връщайки се назад обаче вместо буква от \(\Sigma\) виждаме \(\#\),
+което значи, че трябва да започнем да се движим наляво и да достигнем до \(\sqcup\) срещайки само \(\$\). В тази ситуация приемаме думата.
+Ако обаче видим буква от \(\Sigma\) трябва да отхвърлим, защото лявата дума е с дължина строго по-голяма от дясната и няма как да са равни! Така горе-долу знаем какво да правим ако лявата дума съвпада с дясната или е по-дълга или суфиксът ѝ с дължина дължината на дясната дума не съвпада!
+Остава да разгледаме ситуацията, когато дясната дума е строго по-дълга от лявата.
+\begin{align*}
+    \triangleright \sqcup abc \# aabc \\
+    \triangleright \sqcup abc \# aab\underline{c} \\
+    \vdots \\
+    \triangleright \sqcup \$\$\$ \# a\underline{\$}\$\$ \\
+    \triangleright \sqcup \$\$\$ \# \underline{a}\$\$\$ \\
+    a: \; \triangleright \sqcup \$\$\$ \# \underline{\$}\$\$\$ \\
+    a: \; \triangleright \sqcup \underline{\$}\$\$ \# \$\$\$\$ \\
+    a: \; \triangleright \underline{\sqcup}\$\$\$ \# \$\$\$\$
+\end{align*}
+Оказва се, че в тази ситуация трябва да сме във състояние, в което сме запомнили конкретна буква от \(\Sigma\), но след последният \(\$\) от ляво не виждаме запомнената буква, а виждаме \(\sqcup\) в тази ситауция отхвърляме! \\
+
+Стъпка по стъпка ще направим ЕМТ \(\langle Q,\; \Sigma \cup \{\#\},\; \Gamma,\; \delta,\; start,\; \{no, yes\} \rangle\),
+която да разреши \(L\) в обща ситуация, в която реално не знаем \(\Sigma\).
+Първо от нашите разсъждения е ясно, че ще ни трябва само \(\$\) за помощен символ, следователно \(\Gamma = \{\$\}\).
+Постепенно ще правим преходите, така че директно ще получим \(\delta\). Реално остава само \(Q\). \\
+
+Ще даваме само положитлните преходи, всички други, които са необходими за да стане \(\delta\) тотална функция ще бъдат \(no\).
+Започваме от преходите, с които да прочетем активната част на лентата и да се уверим, че тя е от вида \(\triangleright\sqcup\alpha\#\beta\), където \(|\alpha| > 0\) и \(|\beta| > 0\).
+\begin{align*}
+    \delta(start, \sqcup) = \langle left, \rightarrow \rangle \\
+    (\forall x \in \Sigma)(\delta(left, x) = \langle mid, \rightarrow \rangle)\\
+    \delta(mid, \#) = \langle right, \rightarrow \rangle \\
+    (\forall x \in \Sigma)(\delta(mid, x) = \langle mid, \rightarrow \rangle) \\
+    (\forall x \in \Sigma)(\delta(right, x) = \langle seek, \rightarrow \rangle) \\
+    \delta(seek, \sqcup) = \langle read, \leftarrow \rangle \\
+    (\forall x \in \Sigma)(\delta(seek, x) = \langle seek, \rightarrow \rangle)
+\end{align*}
+С горните преходи си подсигуряваме точно вида на лентата, който ни трябва на първо четене и гарантирано, че ще сме в състояние \(read\). В състояние \(read\), трябва да прочетем и запомним буква от дясно на \(\#\).
+След, което да минем наляво пропускай всички букви отдясно, \(\#\) и евентуалните \(\$\) от ляво.
+Като ясно е, че по някакъв начин като минем през \(\#\) трябва да знаем, че трябва да минем във фаза matching.
+Тоест не трябва да преминаваме през символите на \(\Sigma\), а като стигнем до първия да го сравним със запомненият.
+\begin{align*}
+    (\forall x \in \Sigma)(\delta(read, x) = \langle read_x, \$ \rangle) \\
+    (\forall x \in \Sigma)(\delta(read_x, \$) = \langle read_x, \leftarrow \rangle) \\
+    (\forall x \in \Sigma)(\forall y \in \Sigma)(\delta(read_x, y) = \langle read_x, \leftarrow \rangle)\\
+    (\forall x \in \Sigma)(\delta(read_x, \#) = \langle match_x, \leftarrow \rangle \\
+    (\forall x \in \Sigma)(\delta(match_x, \$) = \langle match_x, \leftarrow \rangle \\
+    (\forall x \in \Sigma)(\delta(match_x, x) = \langle cross, \$ \rangle)
+\end{align*}
+След като успешно match-нем буквите изтриваме, заменяйки с \(\$\).
+След това, трябва да вървим надясно и да пресечем \(\#\) където имаме два варианта:
+да видим буква или \(\$\). Ако видим \(\$\) значи сме изчерпали думата от дясно и трябва да вървим на ляво и за да приемем да видим \(\$\) последниван/и от \(\sqcup\). Ако видим буква от \(\Sigma\) трябва да направим поне още една итерация.
+\begin{align*}
+    \delta(cross, \$) = \langle cross, \rightarrow \rangle \\
+    \delta(cross, \#) = \langle scout, \rightarrow \rangle \\
+    \delta(scout, \$) = \langle finish, \leftarrow \rangle \\
+    (\forall x \in \Sigma)(\delta(scout, x) =  \langle seek, \rightarrow \rangle ) \\
+    \delta(seek, \$) = \langle read, \leftarrow \rangle \\
+    \delta(finish, \#) = \langle finish, \leftarrow \rangle \\
+    \delta(finish, \$) = \langle finish, \leftarrow \rangle \\
+    \delta(finish, \sqcup) = yes
+\end{align*}
+Нека видим, че думата \(ab \# ab\) ще бъде приета.
+\begin{align*}
+    \delta^{33}(start, \triangleright \underline{\sqcup} ab \# ab, 2) = \quad (by \; \delta(start, \sqcup) = \langle left, \rightarrow \rangle) \\
+    \delta^{32}(left, \triangleright \sqcup \underline{a} b \# ab, 3) = \quad (by \; \delta(left, a) = \langle mid, \rightarrow \rangle) \\
+    \delta^{31}(mid, \triangleright \sqcup a\underline{b} \# ab, 4) = \quad (by \; \delta(mid, b) = \langle mid, \rightarrow \rangle) \\
+    \delta^{31}(mid, \triangleright \sqcup ab\underline{\#} ab, 5) = \quad (by \; \delta(mid, \#) = \langle right, \rightarrow \rangle) \\
+    \delta^{30}(right, \triangleright \sqcup ab \# \underline{a}b, 6) = \quad (by \; \delta(right, a) = \langle seek, \rightarrow \rangle) \\
+    \delta^{29}(seek, \triangleright \sqcup ab \# a\underline{b}, 7) = \quad (by \; \delta(seek, b) = \langle seek, \rightarrow \rangle) \\
+    \delta^{28}(seek, \triangleright \sqcup ab \# ab\_, 8) = \quad (by \; \delta(seek, \sqcup) = \langle read, \leftarrow \rangle) \\
+    \delta^{27}(read, \triangleright \sqcup ab \# a\underline{b}, 7) = \quad (by \; \delta(read, b) = \langle read_b, \$ \rangle) \\
+    \delta^{26}(read_b, \triangleright \sqcup ab \# a\underline{\$}, 7) = \quad (by \; \delta(read_b, \$) = \langle read_b, \leftarrow \rangle) \\
+    \delta^{25}(read_b, \triangleright \sqcup ab \# \underline{a}\$, 6) = \quad (by \; \delta(read_b, a) = \langle read_b, \leftarrow \rangle) \\
+    \delta^{24}(read_b, \triangleright \sqcup ab \underline{\#} a\$, 5) = \quad (by \; \delta(read_b, \#) = \langle match_b, \leftarrow \rangle) \\
+    \delta^{23}(match_b, \triangleright \sqcup a\underline{b} \# a\$, 4) = \quad (by \; \delta(match_b, b) = \langle cross, \$ \rangle) \\
+    \delta^{22}(cross, \triangleright \sqcup a\underline{\$} \# a\$, 4) = \quad (by \; \delta(cross, \$) = \langle cross, \rightarrow \rangle) \\
+    \delta^{21}(cross, \triangleright \sqcup a\$ \underline{\#} a\$, 5) = \quad (by \; \delta(cross, \#) = \langle scout, \rightarrow \rangle) \\
+    \delta^{21}(cross, \triangleright \sqcup a\$ \underline{\#} a\$, 5) = \quad (by \; \delta(cross, \#) = \langle scout, \rightarrow \rangle) \\
+    \delta^{20}(scout, \triangleright \sqcup a\$ \# \underline{a}\$, 6) = \quad (by \; \delta(scout, a) = \langle seek, \rightarrow \rangle) \\
+    \delta^{19}(seek, \triangleright \sqcup a\$ \# a\underline{\$}, 7) = \quad (by \; \delta(seek, \$) = \langle read, \leftarrow \rangle) \\
+    \delta^{18}(read, \triangleright \sqcup a\$ \# \underline{a}\$, 5) = \quad (by \; \delta(read, a) = \langle read_a, \$ \rangle) \\
+    \delta^{17}(read_a, \triangleright \sqcup a\$ \# \underline{\$}\$, 5) = \quad (by \; \delta(read_a, \$) = \langle read_a, \leftarrow \rangle) \\
+    \delta^{16}(read_a, \triangleright \sqcup a\$ \underline{\#} \$\$, 4) = \quad (by \; \delta(read_a, \#) = \langle match_a, \leftarrow \rangle) \\
+    \delta^{15}(match_a, \triangleright \sqcup a \underline{\$} \# \$\$, 4) = \quad (by \; \delta(match_a, \$) = \langle match_a, \leftarrow \rangle) \\
+    \delta^{14}(match_a, \triangleright \sqcup \underline{a} \$ \# \$\$, 3) = \quad (by \; \delta(match_a, a) = \langle cross, \$ \rangle) \\
+    \delta^{13}(cross, \triangleright \sqcup \underline{\$} \$ \# \$\$, 3) = \quad (by \; \delta(cross, \$) = \langle cross, \rightarrow \rangle) \\
+    \delta^{12}(cross, \triangleright \sqcup \$ \underline{\$} \# \$\$, 4) = \quad (by \; \delta(cross, \$) = \langle cross, \rightarrow \rangle) \\
+    \delta^{11}(cross, \triangleright \sqcup \$\$ \underline{\#} \$\$, 5) = \quad (by \; \delta(cross, \#) = \langle scout, \rightarrow \rangle) \\
+    \delta^{10}(scout, \triangleright \sqcup \$\$ \# \underline{\$} \$, 6) = \quad (by \; \delta(scout, \$) = \langle finish, \leftarrow \rangle) \\
+    \delta^{9}(finish, \triangleright \sqcup \$\$ \underline{\#} \$\$, 5) = \quad (by \; \delta(finish, \#) = \langle finish, \leftarrow \rangle) \\
+    \delta^{8}(finish, \triangleright \sqcup \$ \underline{\$} \# \$\$, 4) = \quad (by \; \delta(finish, \$) = \langle finish, \leftarrow \rangle) \\
+    \delta^{7}(finish, \triangleright \sqcup \underline{\$}\$ \# \$\$, 3) = \quad (by \; \delta(finish, \$) = \langle finish, \leftarrow \rangle) \\
+    \delta^{6}(finish, \triangleright \underline{\sqcup} \$\$ \# \$\$, 2) = \quad (by \; \delta(finish, \sqcup) = yes) \\
+    \langle yes, \triangleright \underline{\sqcup} \$\$ \# \$\$ \rangle
+\end{align*}
+Следователно \(halt(ab\#ab) = yes\).
+
+\subsection*{Задачи за упражнение}
+
+\subsubsection*{Задача 1.}
+Ако \(n = |\Sigma|\) намерете \(|Q|\).
+
+\subsubsection*{Задача 2.}
+Ако \(n = |\Sigma|\) определете процентът на полезни преходи, който се пресмята по формулата
+\[\displaystyle\frac{\text{брой преходи необходими за приемане на дума}}{\text{общ брой преходи}}\]
+
+Пресметнете приблизителната стойност за \(n = 10\). \\
+
+Например процентът полезни преходи (в случая на генератор, такива необходими за достигане до \(h\)) за машината от \textbf{Пример 1} e \(\frac{5}{12}\),
+а за машината от \textbf{Пример 2} e \(\frac{5}{8}\). Тоест приблизително \(42\%\) и \(62.5\%\).
+
+\subsubsection*{Задача 3.}
+Ако \(\alpha \in \Sigma\) и \(n = |\alpha|\) пресметнете за колко на брой стъпки построената ЕМТ приема думата \(\alpha\#\alpha\).
+
+\subsubsection*{Задача 4.}
+Нека \(M \in \mathcal{P}(\mathbb N)\) казваме, че \(M\) е разрешимо множество,
+ако езикът \(B[M] = \{B(n) \mid n \in M\} \subseteq Bin\) е разрешим.
+Покажете ЕМТ, която разрешава множеството \(\{2n \mid n \in \mathbb N\}\).
+
+\subsubsection*{Задача 5.}
+Покажате ЕМТ, която изчислява функцията \(f : \mathbb N \to \mathbb N\), действаща по правилото \(f(n) = 2n + 1\).
+
+\end{document}
