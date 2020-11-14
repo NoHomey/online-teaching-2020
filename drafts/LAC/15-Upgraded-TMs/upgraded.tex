@@ -1,0 +1,241 @@
+\documentclass[14pt]{extarticle}
+\usepackage{tikz}
+\usepackage{tikz-qtree}
+\usepackage{float}
+\usepackage[utf8]{inputenc}
+\usepackage[T2A]{fontenc}
+\usepackage[english,bulgarian]{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{relsize}
+\usepackage{euler}
+\usepackage[a4paper, portrait, margin=1.8cm]{geometry}
+
+\title{Mашини на Тюринг с добавки}
+\author{Иво Стратев}
+
+\begin{document}
+
+\maketitle
+
+\section*{Многолентови машини на Тюринг}
+
+\subsection*{Дефиниция}
+Нека \(k \in \mathbb{N}_+\).
+\(\langle Q,\; \Sigma,\; \Gamma,\; \delta,\; s,\; H \rangle\) наричаме \textbf{\(k\)-лентова машина на Тюринг}, ако
+
+\begin{itemize}
+    \item \(Q\) е крайно множество. Множеството \(Q\) е множеството на контролните състояния на машината.
+    \item \(\Sigma\) е крайна азбука, такава че \(\Sigma \cap \{\triangleright, \sqcup, \leftarrow, \rightarrow, \downarrow\} = \emptyset\). Азбуката \(\Sigma\) е входната азбука на машината.
+    \item \(\Gamma\) е крайна множество, такова че \(\Sigma \cap \Gamma = \emptyset\) и \(\Gamma \cap \{\triangleright, \sqcup, \leftarrow, \rightarrow, \downarrow\} = \emptyset\). Множеството \(\Gamma\) е множеството на спомагателните символи за машината.
+    \item \(s \in Q\). \(s\) е началното състояние.
+    \item \(H\) е крайно множество, такова че \(Q \cap H = \emptyset\). Множеството \(H\) е множеството на стоп състоянията.
+    \item \(\delta : Q \times (\Sigma \cup \Gamma \cup \{ \triangleright, \sqcup \})^k \to H \cup (Q \times (\Sigma \cup \Gamma \cup \{\leftarrow, \rightarrow, \downarrow\})^k)\). \(\delta\) е контролната функция. която задава програмата на машината и \(\delta\) има свойството \\
+    
+    \((\forall p, q \in Q)(\forall x \in seq(k, \Sigma \cup \Gamma \cup \{\triangleright \sqcup\}))(\forall c \in seq(k, \Sigma \cup \Gamma \cup \{\leftarrow, \rightarrow, \downarrow\})) \\
+    (\delta(p, \langle x(1), x(2), \dots, x(k) \rangle) = \langle q, \langle c(1), c(2), \dots, c(k) \rangle \rangle \implies \\ (\forall i \in \{1, 2, \dots, k\})(x(i) = \triangleright \implies c(i) = \;\rightarrow ))\).
+\end{itemize}
+
+Една \(k\)-лентова машина на Тюринг представлява устройство, което има \(k\) глави (курсора), всяка (всеки) от които може да бъде прикачен към отделна лента, но контролът на всичките \(k\) глави е синхронизиран и се извършва еднозначно от състоянието на машината и символите, които главите виждат едновременно (в един такт). Особеност е, че считаме първата лента за входна, тоест тя бива инциализирана с входната дума, а останалите ленти в най-общият случай биват инициализирани с \(\triangleright \sqcup^{t_i}\).\\
+
+Понеже \(k\) може да е по-голямо от \(1\) добавяме нова команда \(\downarrow\), която да бъде интерпретирана като: не прави нищо за съответната лента. \\
+
+Дадените дефиниции от секцията за еднолентови машинит на Тюринг могат да бъдат обобщени за произволно \(k\), но няма да го правим,
+защото в сила е следната важна теорема.
+
+\subsection*{Теорема}
+Работата на всяка многолентова машина на Тюринг може да бъде симулирана от еднолентова машина на Тюринг.
+Тоест броят на лентите е без значение от гледна точка на изчислителна сила. Наличието на повече от една лента същност е само за удобство.
+
+\subsection*{Пример}
+Нека \(\Sigma\) е крайна азбука.
+Нека \(L = \{\omega\#\omega \mid \omega \in \Sigma^*\}\).
+
+Ще докажем, че \(L\) е разрешим от двулентова машина на Тюринг.
+
+Идеята ни ще е, че ако искаме да разпознаем \(\alpha\#\alpha\), то можем да си мислим, че първата лента е инициализирана с дума от вида \(\alpha\#\beta\).
+Тогава трябва да копираме на втората лента \(\alpha\). След това ще ни остане само да проверим дали \(\alpha = \beta\) използвайки и двете ленти. \\
+
+Правим следнта забележка, след като става дума за (полу)разрешимост то и двете ленти при инициализация се заделя допълнителна памет от една празна клетка в началото. Тоест ако \(\gamma\) е входната дума, то първата лента се инициализира с \(\triangleright \sqcup \gamma\), а втората с \(\triangleright \sqcup\). \\
+
+Започваме от преходите, с които да копираме думата преди \(\#\).
+\begin{align*}
+    \delta(start, \langle \sqcup, \sqcup \rangle) = \langle copy, \langle \rightarrow, \rightarrow \rangle \rangle \\
+    (\forall x \in \Sigma)(\delta(copy, \langle x, \sqcup \rangle) = \langle move, \langle \downarrow, x \rangle \rangle)\\
+    (\forall x \in \Sigma)(\delta(move, \langle x, x \rangle) = \langle copy, \langle \rightarrow, \rightarrow \rangle \rangle)
+\end{align*}
+Ако при копирането достигнем до \(\#\) значи трябва да оставим глава на първата лента на място,
+а на втората да върнем една позиция на ляво и след това
+да прeминем през всички копирани букви и да започнем проверката на уловието \(\alpha = \beta\).
+\begin{align*}
+    \delta(copy, \langle \#, \sqcup \rangle) = \langle rewind, \langle \downarrow, \leftarrow \rangle \rangle \\
+    (\forall x \in \Sigma)(\delta(rewind, \langle \#, x \rangle) = \langle rewind, \langle \downarrow, \leftarrow \rangle \rangle)\\
+    \delta(rewind, \langle \#, \sqcup \rangle) = \langle match, \langle \rightarrow, \rightarrow \rangle \rangle \\
+    (\forall x \in \Sigma)(\delta(match, \langle x, x \rangle) = \langle match, \langle \rightarrow, \rightarrow \rangle \rangle)\\
+    \delta(match, \langle \sqcup, \sqcup \rangle) = yes
+\end{align*}
+
+Нека разгледаме как работи ДМТ описана от горните преходи, като всички липсващи са \(no\).
+
+Първо ако \(\omega = \varepsilon\).
+\begin{align*}
+    \delta^{10}(start, \langle \triangleright \underline{\sqcup}\#, 2 \rangle, \langle \triangleright \underline{\sqcup}, 2 \rangle) = \quad (by\; \delta(start, \langle \sqcup, \sqcup \rangle) = \langle copy, \langle \rightarrow, \rightarrow \rangle \rangle) \\
+    \delta^{9}(copy, \langle \triangleright \sqcup\underline{\#}, 3 \rangle, \langle \triangleright \sqcup\_, 3 \rangle) = \quad (by\; \delta(copy, \langle \#, \sqcup \rangle) = \langle rewind, \langle \downarrow, \leftarrow \rangle \rangle ) \\
+    \delta^{8}(rewind, \langle \triangleright \sqcup \underline{\#}, 3 \rangle, \langle \triangleright \underline{\sqcup}, 2 \rangle) = \quad (by\; \delta(rewind, \langle \#, \sqcup \rangle) = \langle match, \langle \rightarrow, \rightarrow \rangle \rangle ) \\
+    \delta^7(match, \langle \triangleright \sqcup \#\_, 4 \rangle, \langle \triangleright \sqcup\_, 3 \rangle) = \quad (by\; \delta(match, \langle \sqcup, \sqcup \rangle) = yes ) \\
+    \langle yes, \triangleright \sqcup\# \rangle
+\end{align*}
+Сега за \(\omega = ab\)
+\begin{align*}
+    \delta^{33}(start, \langle \triangleright \underline{\sqcup} ab \# ab, 2 \rangle, \langle \triangleright \underline{\sqcup}, 2 \rangle) = \quad (by\; \delta(start, \langle \sqcup, \sqcup \rangle) = \langle copy, \langle \rightarrow, \rightarrow \rangle \rangle) \\
+    \delta^{32}(copy, \langle \triangleright \sqcup \underline{a}b \# ab, 3 \rangle, \langle \triangleright \sqcup \_, 3 \rangle) = \quad (by\; \delta(copy, \langle a, \sqcup \rangle) = \langle move, \langle \downarrow, a \rangle \rangle ) \\
+    \delta^{31}(move, \langle \triangleright \sqcup \underline{a}b \# ab, 3 \rangle, \langle \triangleright \sqcup \underline{a}, 3 \rangle) = \quad (by\; \delta(move, \langle a, a \rangle) = \langle copy, \langle \rightarrow, \rightarrow \rangle \rangle ) \\
+    \delta^{30}(copy, \langle \triangleright \sqcup a\underline{b} \# ab, 4 \rangle, \langle \triangleright \sqcup a \_, 4 \rangle) = \quad (by\; \delta(copy, \langle b, \sqcup \rangle) = \langle move, \langle \downarrow, b \rangle \rangle ) \\
+    \delta^{29}(move, \langle \triangleright \sqcup a\underline{b}\# ab, 4 \rangle, \langle \triangleright \sqcup a\underline{b}, 4 \rangle) = \quad (by\; \delta(move, \langle b, b \rangle) = \langle copy, \langle \rightarrow, \rightarrow \rangle \rangle ) \\
+    \delta^{28}(copy, \langle \triangleright \sqcup ab\underline{\#} ab, 5 \rangle, \langle \triangleright \sqcup ab\_, 5 \rangle) = \quad (by\; \delta(copy, \langle \#, \sqcup \rangle) = \langle rewind, \langle \downarrow, \leftarrow \rangle \rangle ) \\
+    \delta^{27}(rewind, \langle \triangleright \sqcup ab\underline{\#} ab, 5 \rangle, \langle \triangleright \sqcup a\underline{b}, 4 \rangle) = \; (by\; \delta(rewind, \langle \#, b \rangle) = \langle rewind, \langle \downarrow, \leftarrow \rangle \rangle ) \\
+    \delta^{26}(rewind, \langle \triangleright \sqcup ab\underline{\#} ab, 5 \rangle, \langle \triangleright \sqcup \underline{a}b, 3 \rangle) = \; (by\; \delta(rewind, \langle \#, a \rangle) = \langle rewind, \langle \downarrow, \leftarrow \rangle \rangle ) \\
+    \delta^{25}(rewind, \langle \triangleright \sqcup ab\underline{\#} ab, 5 \rangle, \langle \triangleright \underline{\sqcup} ab, 2 \rangle) = \; (by\; \delta(rewind, \langle \#, \sqcup \rangle) = \langle match, \langle \rightarrow, \rightarrow \rangle \rangle ) \\
+    \delta^{24}(match, \langle \triangleright \sqcup ab \# \underline{a}b, 6 \rangle, \langle \triangleright \sqcup \underline{a}b, 3 \rangle) = \; (by\; \delta(match, \langle a, a \rangle) = \langle match, \langle \rightarrow, \rightarrow \rangle \rangle ) \\
+    \delta^{23}(match, \langle \triangleright \sqcup ab \# a\underline{b}, 7 \rangle, \langle \triangleright \sqcup a\underline{b}, 4 \rangle) = \; (by\; \delta(match, \langle b, b \rangle) = \langle match \langle \rightarrow, \rightarrow \rangle \rangle ) \\
+    \delta^{22}(match, \langle \triangleright \sqcup ab \# ab\_, 8 \rangle, \langle \triangleright \sqcup ab\_, 5 \rangle) = \quad (by\; \delta(match, \langle \sqcup, \sqcup \rangle) = yes ) \\
+    \langle yes, \triangleright \sqcup ab\#ab \rangle
+\end{align*}
+Нека разгледаме и един отрицателен пример, например само за думата \(ab\), която не е от \(L\).
+\begin{align*}
+    \delta^{33}(start, \langle \triangleright \underline{\sqcup} ab, 2 \rangle, \langle \triangleright \underline{\sqcup}, 2 \rangle) = \quad (by\; \delta(start, \langle \sqcup, \sqcup \rangle) = \langle copy, \langle \rightarrow, \rightarrow \rangle \rangle) \\
+    \delta^{32}(copy, \langle \triangleright \sqcup \underline{a}b, 3 \rangle, \langle \triangleright \sqcup \_, 3 \rangle) = \quad (by\; \delta(copy, \langle a, \sqcup \rangle) = \langle move, \langle \downarrow, a \rangle \rangle ) \\
+    \delta^{31}(move, \langle \triangleright \sqcup \underline{a}b, 3 \rangle, \langle \triangleright \sqcup \underline{a}, 3 \rangle) = \quad (by\; \delta(move, \langle a, a \rangle) = \langle copy, \langle \rightarrow, \rightarrow \rangle \rangle ) \\
+    \delta^{30}(copy, \langle \triangleright \sqcup a\underline{b}, 4 \rangle, \langle \triangleright \sqcup a \_, 4 \rangle) = \quad (by\; \delta(copy, \langle b, \sqcup \rangle) = \langle move, \langle \downarrow, b \rangle \rangle ) \\
+    \delta^{29}(move, \langle \triangleright \sqcup a\underline{b}, 4 \rangle, \langle \triangleright \sqcup a\underline{b}, 4 \rangle) = \quad (by\; \delta(move, \langle b, b \rangle) = \langle copy, \langle \rightarrow, \rightarrow \rangle \rangle ) \\
+    \delta^{28}(copy, \langle \triangleright \sqcup ab\_, 5 \rangle, \langle \triangleright \sqcup ab\_, 5 \rangle) = \quad (by\; \delta(copy, \langle \sqcup, \sqcup \rangle) = no ) \\
+    \langle no, \triangleright \sqcup ab \rangle
+\end{align*}
+
+\subsection*{Задачи за упражнение}
+
+\subsubsection*{Задача 1.}
+Ако \(n = |\Sigma|\) намерете \(|Q|\).
+
+\subsubsection*{Задача 2.}
+Ако \(n = |\Sigma|\) определете процентът на полезни преходи.
+Пресметнете приблизителната стойност за \(n = 10\). 
+
+\subsubsection*{Задача 3.}
+Ако \(\alpha \in \Sigma\) и \(n = |\alpha|\) пресметнете за колко на брой стъпки построената ДМТ приема думата \(\alpha\#\alpha\).
+
+\subsubsection*{Задача 4.}
+Покажате ДМТ, която изчислява функцията \(f : \mathbb N^2 \to \mathbb N\), действаща по правилото \(f(n, t) = 2^{Log(n) + 1}.t\).
+
+\newpage
+
+\section*{Недетерминирани машини на Тюринг}
+\section*{Дефиниция за еднолентова недетерминирана машина на Тюринг}
+\(\langle Q,\; \Sigma,\; \Gamma,\; \Delta,\; s,\; H \rangle\) наричаме \textbf{еднолентова недетерминирана машина на Тюринг}, ако
+\begin{itemize}
+    \item \(Q\) е крайно множество. Множеството \(Q\) е множеството на контролните състояния на машината.
+    \item \(\Sigma\) е крайна азбука, такава че \(\Sigma \cap \{\triangleright, \sqcup, \leftarrow, \rightarrow\} = \emptyset\). Азбуката \(\Sigma\) е входната азбука на машината.
+    \item \(\Gamma\) е крайна множество, такова че \(\Sigma \cap \Gamma = \emptyset\) и \(\Gamma \cap \{\triangleright, \sqcup, \leftarrow, \rightarrow\} = \emptyset\). Множеството \(\Gamma\) е множеството на спомагателните символи за машината.
+    \item \(s \in Q\). \(s\) е началното състояние.
+    \item \(H\) е крайно множество, такова че \(Q \cap H = \emptyset\). Множеството \(H\) е множеството на стоп състоянията.
+    \item \(\Delta \subseteq (Q \times (\Sigma \cup \Gamma \cup \{ \triangleright, \sqcup \})) \times (H \cup (Q \times (\Sigma \cup \Gamma \cup \{\leftarrow, \rightarrow\})))\). \(\Delta\) е релацията описваща възможните преходи на машината и има свойството
+    \[(\forall p, q \in Q)(\forall x \in \Sigma \cup \Gamma \cup \{\leftarrow, \rightarrow\})(\langle \langle p, \triangleright \rangle, \langle q, x \rangle \rangle \in \Delta \implies x = \;\rightarrow )\]
+\end{itemize}
+Преминаваме към описанието на работата на една ЕНМТ. \\
+Нека \(\mathcal N  = \langle Q,\; \Sigma,\; \Gamma,\; \Delta,\; s,\; H \rangle\) е ЕНМТ. \\
+Конфигурация на машината \(\mathcal N\) ще наричаме всеки елемент на множеството
+\[ (Q \cup H) \times \mathbb{N}_+ \times (\{\triangleright\} \cdot (\Sigma \cup \Gamma \cup \{\sqcup\})^* ) \]
+Множеството на началните конфигурации е \( \{s\} \times \{2\} \times (\{\triangleright\sqcup\} \cdot \Sigma^* ) \), \\
+а \( H \times \mathbb{N}_+ \times (\{\triangleright\} \cdot (\Sigma \cup \Gamma \cup \{\sqcup\})^* ) \) е множеството на заключителните конфигурации. \\
+Нека \(\Lambda = \{\triangleright\} \cdot (\Sigma \cup \Gamma \cup \{\sqcup\})^*\).
+Дефинираме бинарна релация \(singleStep_\Delta\) \\
+между \(Q \times \mathbb{N}_+ \times \Lambda\)  и \((Q \cup H) \times \mathbb{N}_+ \times \Lambda\).
+\begin{align*}
+    singleStep_\Delta = \\
+    \{ \langle \langle q, i, \alpha \rangle, \langle h, i, \alpha \rangle \rangle \mid q \in Q, i \in \mathbb{N}_+, \alpha \in \Lambda, h \in H \;\&\; \langle \langle q, \alpha[i] \rangle, h \rangle \in \Delta  \} \\
+    \cup \; \{ \langle \langle q, i, \alpha \rangle, \langle p, i + 1, \alpha \rangle \rangle \mid q, p \in Q, i \in \mathbb{N}_+, \alpha \in \Lambda \;\&\; \langle \langle q, \alpha[i] \rangle, \langle p, \rightarrow \rangle \rangle \in \Delta  \} \\
+    \cup \; \{ \langle \langle q, i, \alpha \rangle, \langle p, i - 1, \alpha \rangle \rangle \mid q, p \in Q, i \in \mathbb{N} \setminus \{0, 1\}, \alpha \in \Lambda \;\&\; \langle \langle q, \alpha[i] \rangle, \langle p, \leftarrow \rangle \rangle \in \Delta  \} \\
+    \cup \; \{ \langle \langle q, i, \alpha \rangle, \langle p, i, \alpha[i, x] \rangle \rangle \mid q, p \in Q, i \in \mathbb{N}_+, x \in \Sigma \cup \Gamma, \alpha \in \Lambda \;\&\; \langle \langle q, \alpha[i] \rangle, \langle p, x \rangle \rangle \in \Delta  \}
+\end{align*}
+След като имаме релацията \(singleStep_\Delta\), която описва една стъпка по машината \(\mathcal N\) чрез рекурсия дефинираме редица от бинарни релации \(step_\Delta^n\) в \((Q \cup H) \times \mathbb{N}_+ \times \Lambda\), които удовлетворяват рекуретната връзка
+\begin{align*}
+    step_\Delta^0 = Id_{(Q \cup H) \times \mathbb{N}_+ \times \Lambda} \\
+    step_\Delta^{n + 1} = \{ \langle \langle q, i, \alpha \rangle, \langle p, j, \beta \rangle  \rangle \mid q, p \in Q \cup H \;\&\; i, j \in \mathbb{N}_+ \;\&\; \alpha, \beta \in \Lambda \;\&\; (\exists t \in Q \cup H)\\(\exists k \in \mathbb{N}_+)(\exists \gamma \in \Lambda)( \langle q, i, \alpha \rangle \;singleStep_\Delta\; \langle t, k, \gamma \rangle \;\&\; \langle t, k, \gamma \rangle \;step_\Delta^n\; \langle p, j, \beta \rangle  ) \}
+\end{align*}
+Полагаме \(step_\Delta^* = \displaystyle\bigcup_{n \in \mathbb N} step_\Delta^n \). Така \(step_\Delta^*\) е рефлексивното и транзитивно затваряне на \(singleStep_\Delta\) в множеството \((Q \cup H) \times \mathbb{N}_+ \times \Lambda\). \\
+
+Така езикът върху, който машината \(\mathcal N\) завършва е
+\[ \{ \omega \in \Sigma^* \mid (\exists k \in \mathbb{N}_+)(\exists \gamma \in \Lambda)(\exists h \in H)( \langle s, 2, \triangleright\sqcup\omega \rangle \;step_\Delta^*\; \langle h, k, \gamma \rangle ) \} \]
+Ако разпишем какво значи две конфигурации да са в релацията \(step_\Delta^*\) и вземем предвид, че \(s \notin H\), то получаваме езика
+\[ \{ \omega \in \Sigma^* \mid (\exists k \in \mathbb{N}_+)(\exists \gamma \in \Lambda)(\exists h \in H)(\exists n \in \mathbb{N}_+)( \langle s, 2, \triangleright\sqcup\omega \rangle \;step_\Delta^n\; \langle h, k, \gamma \rangle ) \} \]
+Вече сме готови да кажем какво значи една ЕНМТ да разрешава език.
+
+\subsection*{Разрешимост от ЕНМТ}
+Нека \(\Sigma\) е крайна азбука и нека \(L\) е език над \(\Sigma\). \\
+Нека \(\mathcal N  = \langle Q,\; \Sigma,\; \Gamma,\; \Delta,\; start,\; \{yes, no\} \rangle\) е ЕНМТ. \\
+Казваме, че \(\mathcal N\) разрешава \(L\), ако езикът върху, който завършва \(\mathcal N\) е \(\Sigma^*\) и
+\[(\forall \omega \in \Sigma^*)(\omega \in L \iff (\exists k \in \mathbb{N}_+)(\exists \gamma \in \{\triangleright\} \cdot (\Sigma \cup \Gamma \cup \{\sqcup\})^*)(\langle s, 2, \triangleright\sqcup\omega \rangle \;step_\Delta^*\; \langle yes, k, \gamma \rangle) )\]
+Един език е разрешим от ЕНМТ, ако има ЕНМТ, която го разрешава.
+
+\subsubsection*{Пример}
+Нека \(\Sigma\) е крайна азбука и нека \(L = \{\omega\omega \mid \omega \in \Sigma\}\). Ще покажем, че \(L\) е разрешим от ЕНМТ.
+Ако \(\omega = \alpha.x\) идеята ще ни е следната от \(\triangleright \underline{\sqcup} \alpha.x\alpha.x\) да достигнем до \(\triangleright \sqcup \alpha.x\alpha.x\_\), след което да запомним \(x\), да я изтием като запишем \(\$\) и да  започнем да се връщаме назад като преминаваме през буквите различни от \(x\), а в ситуация на достигане на \(x\) позволяваме да преминем през нея или да презапишем \(\$\). Тоест ще ползваме недетерминираността за да отгатнем средата на \(\omega\omega\). Така независимо каква е \(\alpha\) успешно ще достигнем до \(\triangleright \sqcup \alpha.\underline{\$}\alpha.\$\) и ще продължим напълно детерминистично.
+Тоест детерминистично запомняме и маркираме последната буква в активната част на лентата, след което недетерминистично я match-ваме и след това отново продължаваме детерминистично да match-ваме останалите букви. \\
+
+Ще строим множеството от контролни състояния и релацията на преходите \(\Delta\) като вместо \(\langle X, Y \rangle \in \Delta\) ще пишем \(X \;\Delta\; Y\) и всички преходи, които не изброим отново ще са \(no\) преходи с цел разрешимост, а не полуразрешимост. \\
+
+Първо да съобразим, че е възможно \(\omega = \varepsilon\) и значи имаме преходи
+\begin{align*}
+    \langle start, \sqcup \rangle \;\Delta\; \langle letter, \rightarrow \rangle \\
+    \langle letter, \sqcup \rangle \;\Delta\; yes \\
+    (\forall x \in \Sigma)(\langle letter, x \rangle \;\Delta\; \langle seek, \rightarrow \rangle) \\
+    (\forall x \in \Sigma)(\langle seek, x \rangle \;\Delta\; \langle seek, \rightarrow \rangle) \\
+    \langle seek, \sqcup \rangle \;\Delta\; \langle read, \leftarrow \rangle \\
+    (\forall x \in \Sigma)(\langle read, x \rangle \;\Delta\; \langle find_x, \$\rangle) \\
+    (\forall x \in \Sigma)(\langle find_x, \$ \rangle \;\Delta\; \langle find_x, \leftarrow \rangle) \\
+    (\forall x \in \Sigma)(\forall y \in \Sigma^*)(\langle find_x, y \rangle \;\Delta\; \langle find_x, \leftarrow \rangle) \\
+    (\forall x \in \Sigma)(\langle find_x, x \rangle \;\Delta\; \langle skip , \$ \rangle) \\
+    \langle skip, \$ \rangle \;\Delta\; \langle skip, \rightarrow \rangle
+\end{align*}
+Но е възможно \(\omega = x\), така ще сме достигнали до \(\triangleright \sqcup \$\$\_\) това значи, че трябва да се върнем наляво преминавайки само през \(\$\) и да достигнем до \(\sqcup\) и да приемем думата. Разбира се може да достигнем и до ситуация \(\triangleright \sqcup \beta\underline{y}\$\$\), в която да отхвърлим, но както казахме отхвърлящите преходи няма да ги изброяваме.
+\begin{align*}
+    \langle skip, \sqcup \rangle \;\Delta\; \langle finish, \leftarrow \rangle \\
+    \langle finish, \$ \rangle \;\Delta\; \langle finish, \leftarrow \rangle \\
+    \langle finish, \sqcup \rangle \;\Delta\; yes
+\end{align*}
+Все още не сме описали напълно всички преходи, защото като отгатнем средата започваме детерминистичен matching.
+\begin{align*}
+    (\forall x \in \Sigma)(\langle skip, x \rangle \;\Delta\; \langle seek, \rightarrow \rangle) \\
+    \langle seek, \$ \rangle \;\Delta\; \langle match, \leftarrow \rangle \\
+    (\forall x \in \Sigma)(\langle match, x \rangle \;\Delta\; \langle skip_x, \$\rangle) \\
+    (\forall x \in \Sigma)(\langle skip_x, \$ \rangle \;\Delta\; \langle memory_x, \leftarrow \rangle) \\
+    (\forall x \in \Sigma)(\forall y \in \Sigma^*)(\langle memory_x, y \rangle \;\Delta\; \langle memory_x, \leftarrow \rangle) \\
+    (\forall x \in \Sigma)(\langle memory_x, \$ \rangle \;\Delta\; \langle match_x, \leftarrow \rangle) \\
+    (\forall x \in \Sigma)(\langle match_x, \$ \rangle \;\Delta\; \langle match_x, \leftarrow \rangle) \\
+    (\forall x \in \Sigma)(\langle match_x, x \rangle \;\Delta\; \langle skip, \$ \rangle)
+\end{align*}
+Нека разгледаме какво ще бъде изчислението при \(\omega = abb\).
+Вместо \(step_\Delta^*\) ще пишем само \(\vdash\).
+\begin{align*}
+    \langle start,\; 2,\; \triangleright\underline{\sqcup}abbabb \rangle \;\vdash\; \langle letter,\; 3,\; \triangleright\sqcup\underline{a}bbabb \rangle \;\vdash \\
+    \langle seek,\; 4,\; \triangleright\sqcup a \underline{b}babb \rangle \;\vdash\; \langle seek,\; 5,\; \triangleright\sqcup ab\underline{b}abb \rangle \;\vdash \\
+    \langle seek,\; 6,\; \triangleright\sqcup abb \underline{a}bb \rangle \;\vdash\; \langle seek,\; 7,\; \triangleright\sqcup abba\underline{b}b \rangle \;\vdash \\
+    \langle seek,\; 8,\; \triangleright\sqcup abbab\underline{b} \rangle \;\vdash\; \langle seek,\; 9,\; \triangleright\sqcup abbabb\_\rangle \;\vdash \\
+    \langle read,\; 8,\; \triangleright\sqcup abbab\underline{b} \rangle \;\vdash\; \langle find_b,\; 8,\; \triangleright\sqcup abbab\underline{\$} \rangle \;\vdash \\
+    \langle find_b,\; 7,\; \triangleright\sqcup abba\underline{b}\$ \rangle \;\vdash\; \langle find_b,\; 6,\; \triangleright\sqcup abb\underline{a}b\$ \rangle \;\vdash \\
+    \langle find_b,\; 5,\; \triangleright\sqcup ab\underline{b}ab\$ \rangle \;\vdash\; \langle skip,\; 5,\; \triangleright\sqcup ab\underline{\$}ab\$ \rangle \;\vdash \\
+    \langle skip,\; 6,\; \triangleright\sqcup ab\$\underline{a}b\$ \rangle \;\vdash\; \langle seek,\; 7,\; \triangleright\sqcup ab\$a\underline{b}\$ \rangle \;\vdash \\
+    \langle seek,\; 8,\; \triangleright\sqcup ab\$ab\underline{\$} \rangle \;\vdash\; \langle match,\; 7,\; \triangleright\sqcup ab\$a\underline{b}\$ \rangle \;\vdash \\
+    \langle skip_b,\; 7,\; \triangleright\sqcup ab\$a\underline{\$}\$ \rangle \;\vdash\; \langle memory_b,\; 6,\; \triangleright\sqcup ab\$\underline{a}\$\$ \rangle \;\vdash \\
+    \langle memory_b,\; 5,\; \triangleright\sqcup ab\underline{\$}a\$ \rangle \;\vdash\; \langle match_b,\; 4,\; \triangleright\sqcup a\underline{b}\$a\$\$ \rangle \;\vdash \\
+    \langle skip,\; 4,\; \triangleright\sqcup a\underline{\$}\$a\$\$ \rangle \;\vdash\; \langle skip,\; 5,\; \triangleright\sqcup a\$\underline{\$}a\$\$ \rangle \;\vdash \\
+    \langle skip,\; 6,\; \triangleright\sqcup a\$\$\underline{a}\$\$ \rangle \;\vdash\; \langle seek,\; 7,\; \triangleright\sqcup a\$\$a\underline{\$}\$ \rangle \;\vdash \\
+    \langle match,\; 6,\; \triangleright\sqcup a\$\$\underline{a}\$\$ \rangle \;\vdash\; \langle skip_a,\; 6,\; \triangleright\sqcup a\$\$\underline{\$}\$\$ \rangle \;\vdash \\
+    \langle memory_a,\; 5,\; \triangleright\sqcup a\$\underline{\$}\$\$\$ \rangle \;\vdash\; \langle match_a,\; 4,\; \triangleright\sqcup a\$\underline{\$}\$\$\$ \rangle \;\vdash \\
+    \langle match_a,\; 3,\; \triangleright\sqcup \underline{a}\$\$\$\$\$ \rangle \;\vdash\; \langle skip,\; 3,\; \triangleright\sqcup \underline{\$}\$\$\$\$\$ \rangle \;\vdash \\
+    \langle skip,\; 4,\; \triangleright\sqcup \$\underline{\$}\$\$\$\$ \rangle \;\vdash\; \langle skip,\; 5,\; \triangleright\sqcup \$\$\underline{\$}\$\$\$ \rangle \;\vdash\; \dots \vdash \\
+    \langle skip,\; 9,\; \triangleright\sqcup \$\$\$\$\$\$\_ \rangle \;\vdash\; \langle finish,\; 8,\; \triangleright\sqcup \$\$\$\$\$\underline{\$} \rangle \;\vdash\; \dots \vdash \\
+    \langle finish,\; 2,\; \triangleright\underline\sqcup \$\$\$\$\$\$ \rangle \;\vdash\; \langle yes,\; 2,\; \triangleright\underline\sqcup \$\$\$\$\$\$ \rangle
+\end{align*}
+\end{document}
